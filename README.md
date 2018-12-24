@@ -23,7 +23,8 @@ See `docker-compose.yml` for exposed ports for database and server.
 - allow for anonymous commenting
   - https://chancejs.com/text/sentence.html
 - Create credentials
-
+- Add 404 route
+- Rate limit by IP (i.e. prevent ddos)
 
 ```
 user_credentials
