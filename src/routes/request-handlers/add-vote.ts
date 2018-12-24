@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express'
 import { deserializeRequest, RequestBodyInfo } from './middleware'
 
-import { Result } from '../../utils'
+import { Result } from 'utils'
 
 import { RequestInfo } from './types'
 

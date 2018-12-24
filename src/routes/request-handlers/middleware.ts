@@ -2,7 +2,7 @@ import { Request } from 'express'
 
 import { RequestInfo } from './types'
 
-import { Result } from '../../utils'
+import { Result } from 'utils'
 
 type Type
   = 'string'

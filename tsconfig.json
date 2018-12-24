@@ -6,6 +6,7 @@
       "downlevelIteration": true,
       "noUnusedLocals": true,
       "noUnusedParameters": true,
+      "baseUrl": "./src",
       "lib": [
         "es2016",
         "es2017.object"

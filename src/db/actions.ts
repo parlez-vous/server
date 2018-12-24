@@ -1,6 +1,6 @@
 import db from './index'
 import { everything } from './utils'
-import { Result } from '../utils'
+import { Result } from 'utils'
 
 import { Uuid, Comments, Posts, Sites } from './types'
 

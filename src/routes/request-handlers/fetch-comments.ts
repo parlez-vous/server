@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express'
 
-import { fetchComments } from '../../db/actions'
+import { fetchComments } from 'db/actions'
 import { deserializeRequest } from './middleware'
 
 export const handler: RequestHandler = (req, res) => {
