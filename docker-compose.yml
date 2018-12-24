@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:9.6.9-alpine
+    container_name: psql-db
+    environment:
+      POSTGRES_USER: 'gio'
+      POSTGRES_PASSWORD: 'testing123'
+      POSTGRES_DB: 'my_db'
+    ports:
+      - 15432:5432
+  server:
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./migrations:/usr/app/migrations
+    env_file: .env
+    ports:
+      - 3000:3000
