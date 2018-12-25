@@ -2,17 +2,13 @@ import db from './index'
 import { everything } from './utils'
 import { Result } from 'utils'
 
-import { Uuid, Comments, Posts, Sites } from './types'
-
-interface PostInfo {
-  postId: Uuid
-  host: string
-}
+import { Comments, Posts, Sites } from './types'
+import { RequestInfo } from 'routes/request-handlers/types'
 
 export const fetchComments = async ({
   postId,
   host
-}: PostInfo): Promise<Result<Array<Comments.Schema>, string>> => {
+}: RequestInfo): Promise<Result<Array<Comments.Schema>, string>> => {
   try {
     const comments = await db(Comments.Table.name)
       .select(everything(Comments.Table))

@@ -1,4 +1,4 @@
-import { Request } from 'express'
+import { Request, RequestHandler } from 'express'
 
 import { RequestInfo } from './types'
 
@@ -47,6 +47,9 @@ export const deserializeRequest = <T = null>(
   const uuid = req.params.id
   const host = req.hostname
 
+  // TODO: assert that req.params.id is
+  // in fact a UUID
+
   const body = !!bodyKeys && !!req.body
     ? getRequestBody<T>(req.body, bodyKeys)
     : Result.ok(null as null)
@@ -60,4 +63,28 @@ export const deserializeRequest = <T = null>(
     host,
     body: body.unwrap()
   })
+}
+
+export const handleRequest = <U, D = null>(
+  action: (data: RequestInfo<D>) => Promise<Result<U, string>>,
+  bodyParams?: Array<RequestBodyInfo>
+): RequestHandler  => {
+  return (req, res) => {
+    deserializeRequest<D>(req, bodyParams)
+      .map(action)
+      .mapErr(e => {
+        res.status(400).json({ err: e })
+      })
+      .map((p) => {
+        p.then((result) => {
+          result
+            .map((actionSuccess) => {
+              res.status(200).json(actionSuccess)
+            })
+            .mapErr(() => {
+              res.sendStatus(500)
+            })
+        })
+      })
+  }
 }
