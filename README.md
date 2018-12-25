@@ -23,8 +23,6 @@ See `docker-compose.yml` for exposed ports for database and server.
 - allow for anonymous commenting
   - https://chancejs.com/text/sentence.html
 - Create credentials
-- Add 404 route
-- Rate limit by IP (i.e. prevent ddos)
 
 ```
 user_credentials
@@ -32,4 +30,18 @@ user_credentials
   password TEXT NOT NULL UNIQUE;
 
 user_sessions
+```
+
+- Add 404 route
+- Rate limit by IP (i.e. prevent ddos)
+- Validate domain ownership
+
+```
+const dns = require('dns');
+
+dns.resolve(
+  'gdelgado.ca', 
+  'TXT', 
+  (err, result) => { console.log(result) }
+)
 ```
