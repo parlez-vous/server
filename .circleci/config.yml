@@ -1,0 +1,19 @@
+version: 2.1
+jobs:
+  build:
+    machine:
+      docker_layer_caching: true
+
+    steps:
+      - checkout
+
+      - run:
+          name: Set up docker
+          command: echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+
+      - run:
+          name: Build and push image
+          command: |
+            docker build -t server:$CIRCLE_SHA1 --compress .
+            docker push parlezvous/server:$CIRCLE_SHA1
+            ssh deploy@$SERVER "cd repo && ./deploy/run.sh $CIRCLE_BRANCH $IMAGE_TAG"
