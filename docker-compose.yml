@@ -13,6 +13,7 @@ services:
   server:
     depends_on:
       - db
+    image: parlezvous/server
     build:
       context: .
       dockerfile: Dockerfile
