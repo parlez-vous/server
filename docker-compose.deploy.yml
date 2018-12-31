@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:9.6.9-alpine
+    container_name: psql-db
+    environment:
+      POSTGRES_USER: $PG_USERNAME
+      POSTGRES_PASSWORD: $PG_PASS
+      POSTGRES_DB: parlezvous
+    ports:
+      - 5432:5432
+  server:
+    depends_on:
+      - db
+    image: parlezvous/server:$CIRCLE_SHA1
+    env_file: .env
+    ports:
+      - 80:3000
