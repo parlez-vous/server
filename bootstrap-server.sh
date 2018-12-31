@@ -12,5 +12,7 @@ sleep $timer
 echo "Running db migrations"
 npm run migrate:up
 
+# NODE_PATH=./build is the runtime version of tsconfig's "baseUrl" setting
+# https://stackoverflow.com/questions/42582807/typescript-baseurl-with-node-js
 echo "Starting server"
-npm start
+NODE_PATH=./build npm start
