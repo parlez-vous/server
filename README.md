@@ -45,3 +45,10 @@ dns.resolve(
   (err, result) => { console.log(result) }
 )
 ```
+
+- DB Backups
+
+- Analytics?
+  - probably better as a separate product
+  
+- Pin important comments (server side)
