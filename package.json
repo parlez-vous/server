@@ -22,7 +22,6 @@
     "@types/knex": "^0.15.1",
     "@types/node": "^10.12.15",
     "body-parser": "^1.18.3",
-    "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "hashids": "^1.2.2",
     "helmet": "^3.15.0",

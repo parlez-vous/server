@@ -1,4 +1,4 @@
-FROM node:8
+FROM node:10.15.0
 
 # Create app directory
 WORKDIR /usr/app
@@ -8,7 +8,6 @@ WORKDIR /usr/app
 # where available (npm@5+)
 COPY package*.json ./
 COPY tsconfig.json ./
-COPY .env ./
 COPY bootstrap-server.sh ./
 COPY src/ ./src
 COPY knexfile.js ./
