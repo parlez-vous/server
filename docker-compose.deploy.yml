@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: $PG_PASS
       POSTGRES_DB: parlezvous
     ports:
-      - 5432:5432
+      - 5432
   server:
     depends_on:
       - db
