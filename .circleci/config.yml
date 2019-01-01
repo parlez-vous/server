@@ -7,6 +7,10 @@ jobs:
     steps:
       - checkout
 
+      - add_ssh_keys:
+        - fingerprints:
+          - "29:f8:00:46:76:04:2d:f9:ed:a5:ca:d8:66:ab:eb:7d"
+
       - run:
           name: Set up docker
           command: echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
