@@ -11,6 +11,12 @@ set -o pipefail
 
 COMMIT_REF="$1"
 
+echo "booting up docker for branch:"
+echo $COMMIT_REF
+
+export PG_USERNAME="$2"
+export PG_PASS="$3"
+
 git fetch --all
 git -c advice.detachedHead=false checkout -f "origin/$COMMIT_REF"
 
