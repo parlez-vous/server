@@ -17,6 +17,10 @@ echo $COMMIT_REF
 git fetch --all
 git -c advice.detachedHead=false checkout -f "origin/$COMMIT_REF"
 
+export PG_USERNAME="$PG_USERNAME"
+export PG_PASS="$PG_PASS"
+export CIRCLE_SHA1="$CIRCLE_SHA1"
+
 export COMPOSE_FILE="docker-compose.deploy.yml"
 
 # pull images and run service
