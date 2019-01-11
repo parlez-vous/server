@@ -13,7 +13,7 @@ services:
   server:
     depends_on:
       - db
-    image: "parlezvous/server:${CIRCLE_SHA1}"
+    image: parlezvous/server:$GIT_SHA1
     env_file: .env
     ports:
       - 80:3000

@@ -23,5 +23,5 @@ jobs:
       
       - run:
           name: SSH and run server
-          command: ssh -p $SSH_PORT deploy@$SERVER "cd repo && source ./deploy/run.sh $CIRCLE_BRANCH"
+          command: ssh -p $SSH_PORT deploy@$SERVER "cd repo && source ./deploy/run.sh $CIRCLE_BRANCH $PG_USERNAME $PG_PASS $CIRCLE_SHA1"
  
