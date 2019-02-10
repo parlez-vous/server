@@ -16,9 +16,10 @@ services:
     image: parlezvous/server
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-dev
     volumes:
       - ./migrations:/usr/app/migrations
+      - ./src:/usr/app/src
     env_file: .env
     ports:
       - 3000:3000

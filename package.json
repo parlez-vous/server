@@ -8,7 +8,8 @@
     "migrate:make": "knex migrate:make",
     "migrate:up": "knex migrate:latest",
     "migrate:down": "knex migrate:rollback",
-    "start": "node ./build/index.js",
+    "start:dev": "tsc --watch & nodemon --watch ./build ./build/index.js",
+    "start:prod": "node ./build/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "tsc --watch --noEmit"
   },
@@ -28,5 +29,8 @@
     "knex": "^0.16.3",
     "pg": "^7.7.1",
     "typescript": "^3.2.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.10"
   }
 }

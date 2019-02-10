@@ -8,15 +8,13 @@ WORKDIR /usr/app
 # where available (npm@5+)
 COPY package*.json ./
 COPY tsconfig.json ./
-COPY bootstrap-server-prod.sh ./
+COPY bootstrap-server-dev.sh ./
 COPY src/ ./src
 COPY knexfile.js ./
 COPY migrations/ ./migrations
 
-# If you are building your code for production
-# RUN npm install 
-RUN npm install --only=production && npm run build
+RUN npm install && npm run build
 
 EXPOSE 3000
 
-CMD [ "/usr/app/bootstrap-server-prod.sh" ]
+CMD [ "/usr/app/bootstrap-server-dev.sh" ]
