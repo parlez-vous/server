@@ -1,17 +1,18 @@
 import { Router } from 'express'
 
-import { addVote, fetchComments } from './request-handlers'
+import { addVote, fetchComments, addComment } from './request-handlers'
 
 const rootRouter = Router()
 
 const postsRouter = Router()
 
-// TODO: missing routes
-// .post('/comments', addComment)
-postsRouter
-  .post('/vote', addVote)
-  .get('/comments', fetchComments)
+// const newsletterRouter = Router ()
 
-rootRouter.use('/posts/:id', postsRouter)
+postsRouter
+  .post('/:id/vote', addVote)
+  .get('/:id/comments', fetchComments)
+  .post('/:id/comments', addComment)
+
+rootRouter.use('/posts', postsRouter)
 
 export default rootRouter

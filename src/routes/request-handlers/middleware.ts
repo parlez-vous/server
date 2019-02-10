@@ -1,18 +1,19 @@
 import { Request, RequestHandler } from 'express'
 
-import { RequestInfo } from './types'
+import { RequestData } from './types'
 
-import { Result } from 'utils'
+import { Result, isUUID } from 'utils'
+
 
 type Type
   = 'string'
   | 'number'
+  | 'null'
 
-export interface RequestBodyInfo {
-  name: string
-  type: Type
+export interface RequestBodyInfo<T> {
+  fieldName: keyof T
+  type: Array<Type>
 }
-
 
 type RawBody = {
   [k: string]: any
@@ -20,19 +21,31 @@ type RawBody = {
 
 const getRequestBody = <T>(
   requestBody: RawBody,
-  bodyInfo: Array<RequestBodyInfo>
+  bodyInfo: Array<RequestBodyInfo<T>>
 ): Result<T, string> => {
   return bodyInfo.reduce((kvMap: Result<T, string>, info) => {
     if (kvMap.isErr()) {
       return kvMap
     }
 
-    const bodyValue = requestBody[info.name]
+    const fieldName = info.fieldName as string
 
-    if (!!bodyValue && typeof bodyValue === info.type) {
+    const bodyValue = requestBody[fieldName]
+
+    if (!bodyValue) {
+      return Result.err(`Missing field: ${fieldName}`)
+    }
+
+    const validType = info.type.some((t) =>
+      t === 'null'
+        ? bodyValue === null
+        : typeof bodyValue === t
+    )
+
+    if (!!bodyValue && validType) {
       return kvMap.map(val => ({
         ...val,
-        [info.name]: bodyValue
+        [fieldName]: bodyValue
       }))
     }
 
@@ -42,13 +55,29 @@ const getRequestBody = <T>(
 
 export const deserializeRequest = <T = null>(
   req: Request,
-  bodyKeys?: Array<RequestBodyInfo>,
-): Result<RequestInfo<T>, string> => {
+  bodyKeys?: Array<RequestBodyInfo<T>>,
+): Result<RequestData<T>, string> => {
   const uuid = req.params.id
   const host = req.hostname
 
+  const validUUID = typeof uuid === 'string' && isUUID(uuid)
+
+  if (!validUUID) {
+    return Result.err('Invalid request path.')
+  }
+
   // TODO: assert that req.params.id is
   // in fact a UUID
+
+  // TODO: prevent "localhost" as host in production
+
+  if (!!bodyKeys && !req.body) {
+    return Result.err([
+      'Missing request body.',
+      'Required Fields:',
+      bodyKeys.map(k => k.fieldName).join(', ')
+    ].join('\n'))
+  }
 
   const body = !!bodyKeys && !!req.body
     ? getRequestBody<T>(req.body, bodyKeys)
@@ -66,8 +95,8 @@ export const deserializeRequest = <T = null>(
 }
 
 export const handleRequest = <U, D = null>(
-  action: (data: RequestInfo<D>) => Promise<Result<U, string>>,
-  bodyParams?: Array<RequestBodyInfo>
+  action: (data: RequestData<D>) => Promise<Result<U, string>>,
+  bodyParams?: Array<RequestBodyInfo<D>>
 ): RequestHandler  => {
   return (req, res) => {
     deserializeRequest<D>(req, bodyParams)
