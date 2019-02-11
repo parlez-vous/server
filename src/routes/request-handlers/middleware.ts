@@ -57,17 +57,15 @@ export const deserializeRequest = <T = null>(
   req: Request,
   bodyKeys?: Array<RequestBodyInfo<T>>,
 ): Result<RequestData<T>, string> => {
-  const uuid = req.params.id
   const host = req.hostname
-
-  const validUUID = typeof uuid === 'string' && isUUID(uuid)
-
+  
+  const validUUID = typeof req.params.id === 'string' && isUUID(req.params.id)
+  
   if (!validUUID) {
     return Result.err('Invalid request path.')
   }
 
-  // TODO: assert that req.params.id is
-  // in fact a UUID
+  const uuid = req.params.id as string
 
   // TODO: prevent "localhost" as host in production
 
