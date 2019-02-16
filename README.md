@@ -1,6 +1,10 @@
 
 # Comment Server (Work In Progress)
 
+Roadmap viewable here:
+
+https://trello.com/b/2NtXSuwt/parlez-vous
+
 ## Running Locally:
 
 *Required Software*
