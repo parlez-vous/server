@@ -1,4 +1,10 @@
 import { fetchComments } from 'db/actions'
 import { handleRequest } from './middleware'
 
-export const handler = handleRequest(fetchComments)
+import { metaDecoder } from 'routes/request-handlers/middleware'
+
+export const handler = handleRequest(
+  fetchComments,
+  null,
+  metaDecoder
+)

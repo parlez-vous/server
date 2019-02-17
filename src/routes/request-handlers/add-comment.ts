@@ -1,17 +1,17 @@
-import { RequestBodyInfo, handleRequest } from './middleware'
+import { handleRequest } from './middleware'
+
+import { Record, String, Number, Null, Static } from 'runtypes'
 
 import { addComment } from 'db/actions'
 
-export interface Comment {
-  body: string
-  authorId: number | null,
-  parentId: number | null,
-}
+import { metaDecoder } from 'routes/request-handlers/middleware'
 
-const bodyParams: Array<RequestBodyInfo<Comment>> = [
-  { fieldName: 'body', type: ['string'] },
-  { fieldName: 'authorId', type: ['number', 'null'] },
-  { fieldName: 'parentId', type: ['number', 'null'] },
-]
+export type Comment = Static<typeof commentDecoder>
 
-export const handler = handleRequest(addComment, bodyParams)
+const commentDecoder = Record({
+  body: String,
+  authorId: Number.Or(Null),
+  parentId: Number.Or(Null),
+})
+
+export const handler = handleRequest(addComment, commentDecoder, metaDecoder)

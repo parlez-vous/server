@@ -5,11 +5,11 @@ import { Comment } from 'routes/request-handlers/add-comment'
 
 import { Comments, Posts, Sites } from './types'
 import { RequestData } from 'routes/request-handlers/types'
+import { Meta } from 'routes/request-handlers/middleware'
 
 export const fetchComments = async ({
-  postId,
-  host,
-}: RequestData): Promise<Result<Array<Comments.Schema>, string>> => {
+  meta,
+}: RequestData<null, Meta>): Promise<Result<Array<Comments.Schema>, string>> => {
   try {
     const comments = await db(Comments.Table.name)
       .select(`${Comments.Table.name}.*`)
@@ -25,11 +25,11 @@ export const fetchComments = async ({
       )
       .where(
         `${Posts.Table.name}.${Posts.Table.cols.uuid}`,
-        postId
+        meta.id
       )
       .andWhere(
         `${Sites.Table.name}.${Sites.Table.cols.hostname}`,
-        host
+        meta.host
       )
   
     return Result.ok(comments)
@@ -41,8 +41,16 @@ export const fetchComments = async ({
 }
 
 
-export const addComment = async ({ postId, body }: RequestData<Comment>): Promise<Result<Comments.Schema, string>> => {
+export const addComment = async ({ body, meta }: RequestData<Comment, Meta>): Promise<Result<Comments.Schema, string>> => {
   try {
+    const postId = await db(Posts.Table.name)
+      .first('id')
+      .where({ uuid: meta.id })
+
+    if (!postId) {
+      return Result.err('Post not found')
+    }
+
     const comment = await db(Comments.Table.name)
       .insert({
         post_id: postId,
