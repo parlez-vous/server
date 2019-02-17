@@ -118,7 +118,7 @@ export namespace Comments {
   interface Columns {
     post_id: number
     parent_id: Nullable<number>
-    author_id: number
+    author_id: Nullable<number>
     body: string
     votes: number
   }
