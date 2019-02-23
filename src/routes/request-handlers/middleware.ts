@@ -72,14 +72,14 @@ export const handleRequest = <U, D, M, R1 extends Runtype<D>, R2 extends Runtype
 ): RequestHandler  => {
   return (req, res) => {
     deserializeRequest<D, M, R1, R2>(req, bodyDecoder, metaDecoder)
-      .map(action)
+      .mapOk(action)
       .mapErr(e => {
         res.status(400).json({ err: e })
       })
       .map((p) => {
         p.then((result) => {
           result
-            .map((actionSuccess) => {
+            .mapOk((actionSuccess) => {
               res.status(200).json(actionSuccess)
             })
             .mapErr((e) => {

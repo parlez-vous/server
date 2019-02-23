@@ -10,6 +10,8 @@ import { Meta } from 'routes/request-handlers/middleware'
 export const fetchComments = async ({
   meta,
 }: RequestData<null, Meta>): Promise<Result<Array<Comments.Schema>, string>> => {
+  type Ok = Array<Comments.Schema>
+
   try {
     const comments = await db(Comments.Table.name)
       .select(`${Comments.Table.name}.*`)
@@ -32,23 +34,25 @@ export const fetchComments = async ({
         meta.host
       )
   
-    return Result.ok(comments)
+    return Result.ok<Ok, string>(comments)
   } catch (e) {
     // TODO: log `e`
     console.log(e)
-    return Result.err('Error while retrieving comments')
+    return Result.err<Ok, string>('Error while retrieving comments')
   }
 }
 
 
 export const addComment = async ({ body, meta }: RequestData<Comment, Meta>): Promise<Result<Comments.Schema, string>> => {
+  type Ok = Comments.Schema
+
   try {
     const postId = await db(Posts.Table.name)
       .first('id')
       .where({ uuid: meta.id })
 
     if (!postId) {
-      return Result.err('Post not found')
+      return Result.err<Ok, string>('Post not found')
     }
 
     const comment = await db(Comments.Table.name)
@@ -60,8 +64,8 @@ export const addComment = async ({ body, meta }: RequestData<Comment, Meta>): Pr
       })
       .returning('*')
 
-    return Result.ok(comment)
+    return Result.ok<Ok, string>(comment)
   } catch (e) {
-    return Result.err('Error while creating comment')
+    return Result.err<Ok, string>('Error while creating comment')
   }
 }
