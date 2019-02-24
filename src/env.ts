@@ -5,26 +5,26 @@ const {
 } = process.env
 
 
-export const hashIdSalt = HASH_ID_SALT
-export const databaseUrl = DATABASE_URL
-export const serverPort = parseInt(SERVER_PORT)
-
 const envError = (name: string) => {
   throw new Error(`Missing envinroment variable: ${name}`)
 }
 
-if (!hashIdSalt) {
+if (!HASH_ID_SALT) {
   envError('HASH_ID_SALT')
 }
 
-if (!databaseUrl) {
+if (!DATABASE_URL) {
   envError('DATABASE_URL')
 }
 
-if (!serverPort) {
+if (!SERVER_PORT) {
   envError('SERVER_PORT')
 }
 
-if (Number.isNaN(serverPort)) {
+if (Number.isNaN(parseInt(SERVER_PORT as string))) {
   throw new Error('Port must be a valid integer')
 }
+
+export const hashIdSalt = HASH_ID_SALT as string
+export const databaseUrl = DATABASE_URL as string
+export const serverPort = parseInt(SERVER_PORT as string)

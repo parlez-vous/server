@@ -6,6 +6,7 @@
       "downlevelIteration": true,
       "noUnusedLocals": true,
       "noUnusedParameters": true,
+      "strictNullChecks": true,
       "baseUrl": "./src",
       "lib": [
         "es2016",
