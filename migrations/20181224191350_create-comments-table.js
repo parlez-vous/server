@@ -1,6 +1,9 @@
+const { enableAutoUpdate, disableAutoUpdate } = require('../autoUpdate')
+
+const table = 'comments'
 
 exports.up = (knex) => knex.raw(`
-  CREATE TABLE IF NOT EXISTS comments (
+  CREATE TABLE IF NOT EXISTS ${table} (
     id SERIAL PRIMARY KEY,
     post_id INT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
     parent_id INT REFERENCES comments(id),
@@ -12,12 +15,10 @@ exports.up = (knex) => knex.raw(`
     CHECK (id <> parent_id)
   );
 
-  CREATE RULE comments_update AS ON UPDATE
-    TO comments
-    DO UPDATE comments set updated_at = NOW() where id = NEW.id;
+  ${enableAutoUpdate(table)}
 `)
 
 exports.down = (knex) => knex.raw(`
-  DROP RULE IF EXISTS comments_update ON comments;
-  DROP TABLE IF EXISTS comments;
+  ${disableAutoUpdate(table)}
+  DROP TABLE IF EXISTS ${table};
 `)

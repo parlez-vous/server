@@ -10,6 +10,7 @@ COPY package*.json ./
 COPY tsconfig.json ./
 COPY bootstrap-server-prod.sh ./
 COPY src/ ./src
+COPY autoUpdate.js ./
 COPY knexfile.js ./
 COPY migrations/ ./migrations
 
