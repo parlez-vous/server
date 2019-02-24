@@ -32,11 +32,11 @@ export namespace Result {
       super(val)
     }
   
-    isOk = (): boolean => {
+    isOk = (): this is Ok<T, E> => {
       return this.isRight()
     }
   
-    isErr = (): boolean => {
+    isErr = (): this is Err<T, E> => {
       return this.isLeft()
     }
 

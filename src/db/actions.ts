@@ -7,9 +7,9 @@ import { Comments, Posts, Sites } from './types'
 import { RequestData } from 'routes/request-handlers/types'
 import { Meta } from 'routes/request-handlers/middleware'
 
-export const fetchComments = async ({
-  meta,
-}: RequestData<null, Meta>): Promise<Result<Array<Comments.Schema>, string>> => {
+export const fetchComments = async (
+  meta: Meta
+): Promise<Result<Array<Comments.Schema>, string>> => {
   type Ok = Array<Comments.Schema>
 
   try {
