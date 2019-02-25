@@ -1,9 +1,12 @@
 import db from './index'
 import { Result } from 'utils'
 
-import { Comment } from 'routes/request-handlers/add-comment'
+import * as bcrypt from 'bcrypt'
 
-import { Comments, Posts, Sites } from './types'
+import { Comment } from 'routes/request-handlers/add-comment'
+import { NewAdmin } from 'routes/request-handlers/create-admin'
+
+import { Comments, Posts, Sites, Admins } from './types'
 import { RequestData } from 'routes/request-handlers/types'
 import { Meta } from 'routes/request-handlers/middleware'
 
@@ -67,5 +70,33 @@ export const addComment = async ({ body, meta }: RequestData<Comment, Meta>): Pr
     return Result.ok<Ok, string>(comment)
   } catch (e) {
     return Result.err<Ok, string>('Error while creating comment')
+  }
+}
+
+
+
+type NewAdminSuccess = Pick<Admins.Schema, 'id'>
+
+export const createAdmin = async (
+  admin: NewAdmin
+): Promise<Result<NewAdminSuccess, string>> => {
+  type Ok = NewAdminSuccess
+
+  const saltRounds = 10
+
+  try {
+    const pwHash = await bcrypt.hash(admin.password, saltRounds)
+
+    const result: Ok = await db(Admins.Table.name)
+      .insert({
+        username: admin.username,
+        password: pwHash
+      })
+      .returning([ Admins.Table.cols.id ])
+      .then(([ userId ]) => userId)
+  
+    return Result.ok<Ok, string>(result)
+  } catch (e) {
+    return Result.err<Ok, string>('error while creating admin user')
   }
 }

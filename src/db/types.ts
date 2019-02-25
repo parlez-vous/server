@@ -1,5 +1,15 @@
 export type Uuid = string
 
+// export enum QueryErrorType {
+//   NotFound,
+//   Other
+// }
+
+// export type QueryError
+//   = { type: QueryErrorType.NotFound }
+//   | { type: QueryErrorType.Other, msg: string }
+
+
 type Schema<T> = {
   [k in keyof T]: keyof T
 }
@@ -11,20 +21,17 @@ interface DefaultCols {
 }
 
 
-
-// https://github.com/Microsoft/TypeScript/pull/13288
-const withColumns = <T>(columns: Array<keyof T>): Schema<T> => ({
-  ...columns.reduce((cols, name) => ({
-    ...(cols as any),
+const withColumns = <T>(columns: Array<keyof T>): Schema<T> =>
+  columns.reduce((cols, name) => ({
+    ...cols,
     [name]: name
-  }), {})
-})
+  }), {} as Schema<T>)
 
-// https://github.com/Microsoft/TypeScript/pull/13288
+
 const withDefaults = <T>(
   columns: Array<keyof T>
-): Schema<T & DefaultCols> => ({
-  ...(withColumns(columns) as any),
+): Schema<T> & DefaultCols => ({
+  ...(withColumns<T>(columns) as any), // FIXME: THIS IS WRONG
   id: 'id',
   created_at: 'created_at',
   updated_at: 'updated_at'
@@ -52,21 +59,44 @@ type WithDefaultCols<T> = T & DefaultCols
 
 
 export namespace Sites {
-  export interface Schema {
-    id: number
-    created_at: string
+  export interface Columns {
+    admin_user_id: number
     hostname: string
+    verified: boolean
   }
+
+  type Schema = WithDefaultCols<Columns>
 
   export const Table: Table<Schema> = {
     name: 'sites',
-    cols: withColumns([
-      'id',
-      'created_at',
-      'hostname'
+    cols: withDefaults([
+      'admin_user_id',
+      'hostname',
+      'verified'
     ])
   }
 }
+
+
+
+
+export namespace Admins {
+  export interface Columns {
+    username: string
+    password: string
+  }
+
+  export type Schema = WithDefaultCols<Columns>
+
+  export const Table: Table<Schema> = {
+    name: 'admin_users',
+    cols: withDefaults([
+      'username',
+      'password'
+    ])
+  }
+}
+
 
 
 
