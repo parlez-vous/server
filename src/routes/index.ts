@@ -5,6 +5,7 @@ import {
   addComment,
   adminSignup,
   adminSignin,
+  adminSignout,
  } from './request-handlers'
 
 const rootRouter = Router()
@@ -24,6 +25,7 @@ const adminRouter = Router()
 adminRouter
   .post('/signup', adminSignup)
   .post('/signin', adminSignin)
+  .post('/signout', adminSignout)
 
 rootRouter.use('/admins', adminRouter)
 

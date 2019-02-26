@@ -1,8 +1,9 @@
 import { Request, Response } from 'express'
 
-import { initAdminSession } from 'db/sessions'
+import { initAdminSession, destroyAdminSession } from 'db/sessions'
 
 import { Record, String, Static, Runtype } from 'runtypes'
+import * as cookie from 'cookie'
 
 import { Admins } from 'db/types'
 import { Result, isUUID } from 'utils'
@@ -44,29 +45,67 @@ export const decode = <T>(decoder: Runtype<T>, raw: unknown, msg?: string): Resu
 //   ???
 // }
 
+enum CookieField {
+  Admin = 'admin_session'
+}
+
 class WrappedResponse {
+  private req: Request
   private res: Response
 
-  constructor(res: Response) {
+  constructor(res: Response, req: Request) {
     this.res = res
+    this.req = req
   }
 
-  createSession = async (user: Admins.Schema): Promise<Admins.Schema> => {
+  createSession = async (user: Admins.Schema): Promise<Result<Admins.Schema, string>> => {
     const oneWeekExpiry = 1000 * 60 * 60 * 24 * 7
 
-    const uuid = await initAdminSession(user)
+    const sessionResult = await initAdminSession(user)
 
-    this.res.cookie(
-      'admin_session',
-      uuid,
-      {
-        maxAge: oneWeekExpiry,
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production'
+    return sessionResult.mapOk((uuid) => {
+      this.res.cookie(
+        CookieField.Admin,
+        uuid,
+        {
+          maxAge: oneWeekExpiry,
+          httpOnly: true,
+          sameSite: true,
+          secure: process.env.NODE_ENV === 'production'
+        }
+      )
+  
+      return user
+    })
+  }
+
+  destroySession = async (): Promise<Result<string, string>> => {
+    try {
+      const cookieHeader = this.req.get('Cookie')
+
+      if (!cookieHeader) {
+        // User-Agent does not have any cookies
+        return Result.err('Unable to destroy session')
       }
-    )
 
-    return user
+      const cookies = cookie.parse(cookieHeader)
+
+      const sessionCoookie = cookies[CookieField.Admin]
+      
+      if (!sessionCoookie) {
+        return Result.err('Unable to destroy session')
+      }
+
+      const sessionResult = await destroyAdminSession(sessionCoookie)
+
+      return sessionResult.mapOk(() => {
+        this.res.clearCookie(CookieField.Admin)
+        
+        return 'Successfully deauthenticated user'
+      })
+    } catch (e) {
+      return Result.err('Error while parsing cookie header')
+    }
   }
 }
 
@@ -74,7 +113,7 @@ export const route = <T>(
   handler: (req: Request, res: WrappedResponse) => Result<Promise<Result<T, string>>, string>
 ) => {
   return async (req: Request, res: Response) => {
-    const response = new WrappedResponse(res)
+    const response = new WrappedResponse(res, req)
 
     handler(req, response)
       .mapOk(async (action) => {

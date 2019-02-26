@@ -25,13 +25,22 @@ const removePassword = ({
   ...rest
 }: Admins.Schema): WithoutPassowrd => rest
 
+
 export const handler = route<WithoutPassowrd>((req, res) =>
   decode(adminDecoder, req.body, 'Invalid request body')
     .mapOk((parsed) => {
       return getAdmin(parsed).then((adminResult) =>
         adminResult.asyncMap((admin) =>
-          res.createSession(admin).then(removePassword)
+          res.createSession(admin).then((sessionResult) => {
+            return sessionResult.mapOk(removePassword)
+          })
         )
+      )
+      .then((outerResult) => 
+          // extendOk can be used to flatten
+          // a Result<Result<T, E2>, E1>
+          // into a Result<T, E2>
+          outerResult.extendOk((innerResult) => innerResult)
       )
     })
 )

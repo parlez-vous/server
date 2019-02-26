@@ -31,3 +31,15 @@ export const initAdminSession = async ({ id }: Admins.Schema): Promise<Result<Uu
   }
 }
 
+
+export const destroyAdminSession = async (cookieId: Uuid): Promise<Result<null, string>> => {
+  try {
+    await db(AdminSessions.Table.name)
+      .del()
+      .where(AdminSessions.Table.cols.uuid, cookieId)
+
+    return Result.ok(null)
+  } catch (e) {
+    return Result.err('Unable to destroy user session')
+  }
+}
