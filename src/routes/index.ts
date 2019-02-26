@@ -1,6 +1,11 @@
 import { Router } from 'express'
 
-import { fetchComments, addComment, adminSignup } from './request-handlers'
+import {
+  fetchComments,
+  addComment,
+  adminSignup,
+  adminSignin,
+ } from './request-handlers'
 
 const rootRouter = Router()
 
@@ -18,6 +23,7 @@ const adminRouter = Router()
 
 adminRouter
   .post('/signup', adminSignup)
+  .post('/signin', adminSignin)
 
 rootRouter.use('/admins', adminRouter)
 

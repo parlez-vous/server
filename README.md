@@ -56,3 +56,9 @@ dns.resolve(
   - probably better as a separate product
   
 - Pin important comments (server side)
+
+
+
+### Things to test
+
+- [ ] Sessions expire after one week of inactivity (currently, sessions are reset when users log in)

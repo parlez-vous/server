@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt'
 
 import { Comment } from 'routes/request-handlers/add-comment'
 import { NewAdmin } from 'routes/request-handlers/create-admin'
+import { Admin } from 'routes/request-handlers/admin-signin'
 
 import { Comments, Posts, Sites, Admins } from './types'
 import { RequestData } from 'routes/request-handlers/types'
@@ -98,5 +99,31 @@ export const createAdmin = async (
     return Result.ok<Ok, string>(result)
   } catch (e) {
     return Result.err<Ok, string>('error while creating admin user')
+  }
+}
+
+
+export const getAdmin = async (
+  data: Admin
+): Promise<Result<Admins.Schema, string>> => {
+  type Ok = Admins.Schema
+
+  try {
+    const admin: Ok | null = await db(Admins.Table.name)
+      .first('*')
+      .where({ username: data.username })
+
+    if (!admin) {
+      return Result.err<Ok, string>('Not found')
+    }
+
+    const match = await bcrypt.compare(data.password, admin.password)
+
+    return match
+      ? Result.ok<Ok, string>(admin)
+      : Result.err<Ok, string>('Incorrect password')
+
+  } catch (e) {
+    return Result.err<Ok, string>('Error while searching for admin')
   }
 }

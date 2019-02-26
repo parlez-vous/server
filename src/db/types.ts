@@ -169,3 +169,22 @@ export namespace Comments {
 
 
 
+
+export namespace AdminSessions {
+  // TODO: assess cookie-based expiry 
+  // (Expires derictive)
+  export interface Columns {
+    uuid: Uuid
+    admin_user_id: number
+  }
+
+  export type Schema = WithDefaultCols<Columns>
+
+  export const Table: Table<Schema> = {
+    name: 'admin_user_sessions',
+    cols: withDefaults([
+      'uuid',
+      'admin_user_id',
+    ])
+  }
+}
