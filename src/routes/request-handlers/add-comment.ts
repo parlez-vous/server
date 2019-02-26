@@ -13,21 +13,21 @@ const commentDecoder = Record({
   parentId: Number.Or(Null),
 })
 
-export const handler = route(async (req) => {
+export const handler = route((req) => {
   const metadata = getMeta(req)
 
   if (metadata.isErr()) {
-    return new Result.Err('Invalid metadata')
+    return Result.err('Invalid metadata')
   }
 
   const body = decode<Comment>(commentDecoder, req.body)
   
   if (body.isErr()) {
-    return new Result.Err('Invalid request body')
+    return Result.err('Invalid request body')
   }
 
-  return addComment({
+  return Result.ok(addComment({
     meta: metadata.unwrap(),
     body: body.unwrap(),
-  })
+  }))
 })
