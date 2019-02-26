@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import * as cors from 'cors'
 
 import {
   fetchComments,
@@ -9,6 +10,8 @@ import {
  } from './request-handlers'
 
 const rootRouter = Router()
+
+rootRouter.use(cors())
 
 rootRouter.use(
   '/posts',
