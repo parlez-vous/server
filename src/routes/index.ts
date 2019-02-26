@@ -10,23 +10,19 @@ import {
 
 const rootRouter = Router()
 
-const postsRouter = Router()
+rootRouter.use(
+  '/posts',
+  Router()
+    .get('/:id/comments', fetchComments)
+    .post('/:id/comments', addComment)
+)
 
-
-postsRouter
-  .get('/:id/comments', fetchComments)
-  .post('/:id/comments', addComment)
-
-rootRouter.use('/posts', postsRouter)
-
-
-const adminRouter = Router()
-
-adminRouter
-  .post('/signup', adminSignup)
-  .post('/signin', adminSignin)
-  .post('/signout', adminSignout)
-
-rootRouter.use('/admins', adminRouter)
+rootRouter.use(
+  '/admins',
+  Router()
+    .post('/signup', adminSignup)
+    .post('/signin', adminSignin)
+    .post('/signout', adminSignout)
+)
 
 export default rootRouter
