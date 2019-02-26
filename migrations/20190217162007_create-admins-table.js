@@ -25,5 +25,5 @@ exports.down = (knex) => knex.raw(`
     DROP COLUMN IF EXISTS admin_user_id,
     DROP COLUMN IF EXISTS verified;
 
-  DROP TABLE IF EXISTS comments;
+  DROP TABLE IF EXISTS ${admin_users};
 `)
