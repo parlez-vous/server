@@ -48,6 +48,10 @@ export namespace Result {
         : new Err(either.value)
     }
 
+    extendOk = <U>(f: (t: T) => Result<U, E>): Result<U, E> => {
+      return f(this.value)
+    }
+
     mapErr = <A>(f: (e: E) => A): Result<T, A> => {
       const either = this.mapLeft(f)
 
@@ -88,6 +92,10 @@ export namespace Result {
       return either.isRight()
         ? new Ok(either.value)
         : new Err(either.value)
+    }
+
+    extendOk = <U>(_f: (t: T) => Result<U, E>): Result<U, E> => {
+      return new Err(this.value)
     }
 
     mapErr = <A>(f: (e: E) => A): Result<T, A> => {

@@ -3,8 +3,6 @@ import { route, getMeta, decode } from './middleware'
 
 import { Record, String, Number, Null, Static } from 'runtypes'
 
-import { Result } from 'utils'
-
 export type Comment = Static<typeof commentDecoder>
 
 const commentDecoder = Record({
@@ -14,20 +12,9 @@ const commentDecoder = Record({
 })
 
 export const handler = route((req) => {
-  const metadata = getMeta(req)
-
-  if (metadata.isErr()) {
-    return Result.err('Invalid metadata')
-  }
-
-  const body = decode<Comment>(commentDecoder, req.body)
-  
-  if (body.isErr()) {
-    return Result.err('Invalid request body')
-  }
-
-  return Result.ok(addComment({
-    meta: metadata.unwrap(),
-    body: body.unwrap(),
-  }))
+  return getMeta(req).extendOk(meta => {
+    return decode(commentDecoder, req.body).mapOk((body) => {
+      return addComment({ meta, body })
+    })
+  })
 })
