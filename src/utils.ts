@@ -70,6 +70,13 @@ export namespace Result {
       return new Ok(result)
     }
 
+    match = <U, A>(
+      ok: (t: T) => U,
+      _err: (e: E) => A
+    ): U => {
+      return ok(this.value)
+    }
+
     unwrap = (): T => this.value
   }
 
@@ -108,6 +115,13 @@ export namespace Result {
 
     asyncMap = async <U>(_f: (t: T) => Promise<U>): Promise<Result<U, E>> => {
       return new Err(this.value)
+    }
+
+    match = <U, A>(
+      _ok: (t: T) => U,
+      err: (e: E) => A
+    ): A => {
+      return err(this.value)
     }
 
     unwrap = (): E => this.value
