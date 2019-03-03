@@ -140,14 +140,14 @@ export const getAdminFromSession = async (
     ].join('.')
 
     const admin: Ok | null = await db(Admins.Table.name)
-      .first(`${AdminSessions.Table.name}.*`)
+      .first(`${Admins.Table.name}.*`)
       .join(
         AdminSessions.Table.name,
         `${Admins.Table.name}.${Admins.Table.cols.id}`,
         adminUserIdColumn
       )
       .where(
-        adminUserIdColumn, 
+        `${AdminSessions.Table.name}.${AdminSessions.Table.cols.uuid}`, 
         sessionId
       )
 
