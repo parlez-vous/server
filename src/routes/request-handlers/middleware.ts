@@ -95,17 +95,19 @@ class SessionManager {
     }
   }
 
-  getSessionUser = async (): Promise<Result<Admins.WithoutPassword, SessionError>> => {
+  getSessionUser = (): Promise<Result<Admins.WithoutPassword, SessionError>> => {
+    type Match = Promise<Result<Admins.WithoutPassword, SessionError>>
+
     return this
       .getCookie()
-      .match(
+      .match<Match, Match>(
         (cookie) => getAdminFromSession(cookie)
           .then(userResult =>
             userResult
               .mapOk(Admins.removePassword)
               .mapErr(() => SessionError.InvalidSession)
         ),
-        (_err) => SessionError.InvalidSession
+        (_err) => Promise.resolve(Result.err(SessionError.InvalidSession))
       )
   }
 
