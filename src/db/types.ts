@@ -88,6 +88,15 @@ export namespace Admins {
 
   export type Schema = WithDefaultCols<Columns>
 
+  export type WithoutPassword =
+    Pick<
+      Schema,
+      'id' |
+      'username' |
+      'created_at' |
+      'updated_at'
+    >
+
   export const Table: Table<Schema> = {
     name: 'admin_users',
     cols: withDefaults([
@@ -95,6 +104,11 @@ export namespace Admins {
       'password'
     ])
   }
+
+  export const removePassword = ({
+    password,
+    ...rest
+  }: Schema): WithoutPassword => rest
 }
 
 

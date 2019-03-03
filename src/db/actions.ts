@@ -4,10 +4,10 @@ import { Result } from 'utils'
 import * as bcrypt from 'bcrypt'
 
 import { Comment } from 'routes/request-handlers/add-comment'
-import { NewAdmin } from 'routes/request-handlers/create-admin'
+import { NewAdmin } from 'routes/request-handlers/admin-signup'
 import { Admin } from 'routes/request-handlers/admin-signin'
 
-import { Comments, Posts, Sites, Admins } from './types'
+import { Comments, Posts, Sites, Admins, Uuid, AdminSessions } from './types'
 import { RequestData } from 'routes/request-handlers/types'
 import { Meta } from 'routes/request-handlers/middleware'
 
@@ -123,6 +123,37 @@ export const getAdmin = async (
       ? Result.ok<Ok, string>(admin)
       : Result.err<Ok, string>('Incorrect password')
 
+  } catch (e) {
+    return Result.err<Ok, string>('Error while searching for admin')
+  }
+}
+
+export const getAdminFromSession = async (
+  sessionId: Uuid,
+): Promise<Result<Admins.Schema, string>> => {
+  type Ok = Admins.Schema
+
+  try {
+    const adminUserIdColumn = [
+      AdminSessions.Table.name,
+      AdminSessions.Table.cols.admin_user_id
+    ].join('.')
+
+    const admin: Ok | null = await db(Admins.Table.name)
+      .first(`${AdminSessions.Table.name}.*`)
+      .join(
+        AdminSessions.Table.name,
+        `${Admins.Table.name}.${Admins.Table.cols.id}`,
+        adminUserIdColumn
+      )
+      .where(
+        adminUserIdColumn, 
+        sessionId
+      )
+
+    return admin
+        ? Result.ok(admin)
+        : Result.err('Admin not found')
   } catch (e) {
     return Result.err<Ok, string>('Error while searching for admin')
   }

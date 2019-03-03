@@ -26,6 +26,7 @@ rootRouter.use(
     .post('/signup', adminSignup)
     .post('/signin', adminSignin)
     .post('/signout', adminSignout)
+    .get('/session_status', )
 )
 
 export default rootRouter

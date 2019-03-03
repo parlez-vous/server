@@ -11,28 +11,13 @@ const adminDecoder = Record({
   password: String,
 })
 
-type WithoutPassowrd =
-  Pick<
-    Admins.Schema,
-    'id' |
-    'username' |
-    'created_at' |
-    'updated_at'
-  >
-
-const removePassword = ({
-  password,
-  ...rest
-}: Admins.Schema): WithoutPassowrd => rest
-
-
-export const handler = route<WithoutPassowrd>((req, res) =>
+export const handler = route<Admins.WithoutPassword>((req, res) =>
   decode(adminDecoder, req.body, 'Invalid request body')
     .mapOk((parsed) => {
       return getAdmin(parsed).then((adminResult) =>
         adminResult.asyncMap((admin) =>
           res.createSession(admin).then((sessionResult) => {
-            return sessionResult.mapOk(removePassword)
+            return sessionResult.mapOk(Admins.removePassword)
           })
         )
       )
