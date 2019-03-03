@@ -64,7 +64,7 @@ export namespace SessionError {
   export const toString = (): string => 'Invalid Session'
 }
 
-class WrappedResponse {
+class SessionManager {
   private req: Request
   private res: Response
 
@@ -148,12 +148,12 @@ class WrappedResponse {
 }
 
 export const route = <T>(
-  handler: (req: Request, res: WrappedResponse) => Result<Promise<Result<T, string>>, string>
+  handler: (req: Request, res: SessionManager) => Result<Promise<Result<T, string>>, string>
 ) => {
   return async (req: Request, res: Response) => {
-    const response = new WrappedResponse(res, req)
+    const sessionMgr = new SessionManager(res, req)
 
-    handler(req, response)
+    handler(req, sessionMgr)
       .mapOk(async (action) => {
         const result = await action
 

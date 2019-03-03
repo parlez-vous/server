@@ -2,9 +2,9 @@ import { route, SessionError } from './middleware'
 
 import { Result } from 'utils'
 
-export const handler = route((_, res) => 
+export const handler = route((_, session) => 
   Result.ok(
-    res.getSessionUser()
+    session.getSessionUser()
       .then((result) => result.mapErr(SessionError.toString))
   )
 )
