@@ -4,6 +4,7 @@ import { route, decode } from './middleware'
 import { Record, String, Static } from 'runtypes'
 
 import { Result } from 'utils'
+import { Admins } from 'db/types'
 
 export type NewAdmin = Static<typeof adminSignupDecoder>
 
@@ -13,7 +14,7 @@ const adminSignupDecoder = Record({
   passwordConfirm: String,
 })
 
-export const handler = route((req) => {
+export const handler = route<Admins.WithoutPassword>((req, session) => {
   return decode(adminSignupDecoder, req.body, 'Invalid request body')
     .mapOk((parsed) => {
       // https://www.npmjs.com/package/bcrypt#security-issuesconcerns
@@ -39,5 +40,18 @@ export const handler = route((req) => {
       }
     
       return createAdmin(parsed)
+        .then(result =>
+          result.asyncMap((admin) =>
+            session.createSession(admin).then((sessionResult) => {
+              return sessionResult.mapOk(Admins.removePassword)
+            })
+          )
+        )
+        .then((outerResult) => 
+          // extendOk can be used to flatten
+          // a Result<Result<T, E2>, E1>
+          // into a Result<T, E2>
+          outerResult.extendOk((innerResult) => innerResult)
+      )
     })
 })

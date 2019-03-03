@@ -76,12 +76,10 @@ export const addComment = async ({ body, meta }: RequestData<Comment, Meta>): Pr
 
 
 
-type NewAdminSuccess = Pick<Admins.Schema, 'id'>
-
 export const createAdmin = async (
   admin: NewAdmin
-): Promise<Result<NewAdminSuccess, string>> => {
-  type Ok = NewAdminSuccess
+): Promise<Result<Admins.Schema, string>> => {
+  type Ok = Admins.Schema
 
   const saltRounds = 10
 
@@ -93,8 +91,8 @@ export const createAdmin = async (
         username: admin.username,
         password: pwHash
       })
-      .returning([ Admins.Table.cols.id ])
-      .then(([ userId ]) => userId)
+      .returning('*')
+      .then(([ user ]) => user)
   
     return Result.ok<Ok, string>(result)
   } catch (e) {
