@@ -123,8 +123,9 @@ class SessionManager {
         {
           maxAge: oneWeekExpiry,
           httpOnly: true,
-          sameSite: true,
-          secure: process.env.NODE_ENV === 'production'
+
+          // investigate csrf
+          // sameSite: true, 
         }
       )
   
