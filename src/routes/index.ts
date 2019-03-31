@@ -12,7 +12,12 @@ import {
 
 const rootRouter = Router()
 
-rootRouter.use(cors())
+rootRouter.use(
+  cors({
+    origin: true,
+    credentials: true
+  })
+)
 
 rootRouter.use(
   '/posts',
