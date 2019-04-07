@@ -5,7 +5,7 @@ const table = 'admin_users'
 exports.up = (knex) => knex.raw(`
   CREATE TABLE IF NOT EXISTS ${table} (
     id SERIAL PRIMARY KEY,
-    username VARCHAR(50) NOT NULL CHECK (LENGTH(username) > 2),
+    username VARCHAR(50) NOT NULL UNIQUE CHECK (LENGTH(username) > 2),
     password TEXT NOT NULL,
     created_at timestamptz NOT NULL DEFAULT NOW(),
     updated_at timestamptz NOT NULL DEFAULT NOW()
