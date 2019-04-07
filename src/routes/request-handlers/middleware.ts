@@ -37,9 +37,23 @@ export const decode = <T>(decoder: Runtype<T>, raw: unknown, msg?: string): Resu
 //   ???
 // }
 
-enum AuthorizationError {
+export enum AuthorizationError {
   MissingHeader,
   InvalidToken,
+}
+
+export namespace AuthorizationError {
+  export const toString = (e: AuthorizationError): string => {
+    switch (e) {
+      case AuthorizationError.InvalidToken: {
+        return 'Invalid Token'
+      }
+
+      case AuthorizationError.MissingHeader: {
+        return 'Missing `Authorization` header'
+      }
+    }
+  }
 }
 
 export enum SessionError {
@@ -47,7 +61,13 @@ export enum SessionError {
 }
 
 export namespace SessionError {
-  export const toString = (): string => 'Invalid Session'
+  export const toString = (e: SessionError): string => {
+    switch (e) {
+      case SessionError.InvalidSession: {
+        return 'Invalid Session'
+      }
+    }
+  }
 }
 
 class SessionManager {
@@ -67,20 +87,17 @@ class SessionManager {
     return getAuthToken(authHeader)
   }
 
-  getSessionUser = (): Promise<Result<Admins.WithoutPassword, SessionError>> => {
-    type Match = Promise<Result<Admins.WithoutPassword, SessionError>>
+  getSessionUser = (): Result<Promise<Result<Admins.WithoutPassword, SessionError>>, AuthorizationError> => {
 
     return this
       .getSessionToken()
-      .match<Match, Match>(
-        (cookie) => getAdminFromSession(cookie)
-          .then(userResult =>
-            userResult
-              .mapOk(Admins.removePassword)
-              .mapErr(() => SessionError.InvalidSession)
-        ),
-        (_err) => Promise.resolve(Result.err(SessionError.InvalidSession))
-      )
+      .mapOk(async (token) => {
+        const userResult = await getAdminFromSession(token)
+
+        return userResult
+          .mapOk(Admins.removePassword)
+          .mapErr(() => SessionError.InvalidSession)
+      })
   }
 
   createSession = async (user: Admins.Schema): Promise<Result<Uuid, string>> => {

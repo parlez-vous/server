@@ -1,16 +1,15 @@
-import { route, AppData, SessionError } from './middleware'
-
-import { Result } from 'utils'
+import { route, AppData, AuthorizationError, SessionError } from './middleware'
 
 import { Admins } from 'db/types'
 
 export const handler = route<Admins.WithoutPassword>((_, session) => 
-  Result.ok(
-    session.getSessionUser()
-      .then((result) =>
-        result
-          .mapOk((user) => AppData.init(user))
-          .mapErr(() => SessionError.toString())
-      )
-  )
+  session.getSessionUser()
+    .mapOk(async (adminResultPromise) => {
+      const adminResult = await adminResultPromise
+
+      return adminResult
+        .mapOk((user) => AppData.init(user))
+        .mapErr((e) => SessionError.toString(e))
+    })
+    .mapErr((e) => AuthorizationError.toString(e))
 )
