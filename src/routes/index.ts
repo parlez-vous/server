@@ -9,7 +9,11 @@ import {
 
 const rootRouter = Router()
 
-rootRouter.use(cors())
+const corsOptions = {
+  allowedHeaders : ['Authorization', 'Content-Type']
+}
+
+rootRouter.use(cors(corsOptions))
 
 rootRouter.use(
   '/admins',
