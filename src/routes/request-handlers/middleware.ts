@@ -1,30 +1,21 @@
 import { Request, Response } from 'express'
 
-import { initAdminSession, destroyAdminSession } from 'db/sessions'
+import { initAdminSession } from 'db/sessions'
 import { getAdminFromSession } from 'db/actions'
 
-import { Record, String, Static, Runtype } from 'runtypes'
-import * as cookie from 'cookie'
+import { String, Runtype } from 'runtypes'
 
-import { Admins } from 'db/types'
+import { Admins, Uuid } from 'db/types'
 import { Result, isUUID } from 'utils'
 
 
-const metaDecoder = Record({
-  id: String.withConstraint(s => isUUID(s) || 'path must be valid uuid'),
-  host: String
-})
+export const getAuthToken = (authHeader: string): Result<string, AuthorizationError> => {
+  const uuidDecoder = String.withConstraint(
+    s => isUUID(s)
+  )
 
-export type Meta = Static<typeof metaDecoder>
-
-
-export const getMeta = (req: Request): Result<Meta, string> => {
-  const rawMeta = {
-    id: req.params.id,
-    host: req.hostname
-  }
-
-  return decode(metaDecoder, rawMeta, 'Invalid request metadata')
+  return decode(uuidDecoder, authHeader)
+    .mapErr(() => AuthorizationError.InvalidToken)
 }
 
 export const decode = <T>(decoder: Runtype<T>, raw: unknown, msg?: string): Result<T, string> => {
@@ -46,14 +37,9 @@ export const decode = <T>(decoder: Runtype<T>, raw: unknown, msg?: string): Resu
 //   ???
 // }
 
-enum CookieField {
-  Admin = 'admin_session'
-}
-
-enum CookieError {
-  MissingCookieHeader,
-  MissingSessionCookie,
-  ParseError,
+enum AuthorizationError {
+  MissingHeader,
+  InvalidToken,
 }
 
 export enum SessionError {
@@ -66,40 +52,26 @@ export namespace SessionError {
 
 class SessionManager {
   private req: Request
-  private res: Response
 
-  constructor(res: Response, req: Request) {
-    this.res = res
+  constructor(req: Request) {
     this.req = req
   }
 
-  private getCookie = (): Result<string, CookieError> => {
-    try {
-      const cookieHeader = this.req.get('Cookie')
-  
-      if (!cookieHeader) {
-        return Result.err(CookieError.MissingCookieHeader)
-      }
-  
-      const cookies = cookie.parse(cookieHeader)
-  
-      const sessionCoookie = cookies[CookieField.Admin]
-      
-      if (!sessionCoookie) {
-        return Result.err(CookieError.MissingSessionCookie)
-      }
+  private getSessionToken = (): Result<string, AuthorizationError> => {
+    const authHeader = this.req.get('Authorization')
 
-      return Result.ok(sessionCoookie)
-    } catch (e) {
-      return Result.err(CookieError.ParseError)
+    if (!authHeader) {
+      return Result.err(AuthorizationError.MissingHeader)
     }
+
+    return getAuthToken(authHeader)
   }
 
   getSessionUser = (): Promise<Result<Admins.WithoutPassword, SessionError>> => {
     type Match = Promise<Result<Admins.WithoutPassword, SessionError>>
 
     return this
-      .getCookie()
+      .getSessionToken()
       .match<Match, Match>(
         (cookie) => getAdminFromSession(cookie)
           .then(userResult =>
@@ -111,61 +83,42 @@ class SessionManager {
       )
   }
 
-  createSession = async (user: Admins.Schema): Promise<Result<Admins.Schema, string>> => {
-    const oneWeekExpiry = 1000 * 60 * 60 * 24 * 7
-
-    const sessionResult = await initAdminSession(user)
-
-    return sessionResult.mapOk((uuid) => {
-      this.res.cookie(
-        CookieField.Admin,
-        uuid,
-        {
-          maxAge: oneWeekExpiry,
-          httpOnly: true,
-
-          // investigate csrf
-          // sameSite: true, 
-        }
-      )
-  
-      return user
-    })
-  }
-
-  destroySession = async (): Promise<Result<string, string>> => {
-    return this.getCookie()
-      .match(
-        async (cookie) => {
-          const sessionResult = await destroyAdminSession(cookie)
-
-          return sessionResult.mapOk(() => {
-            this.res.clearCookie(CookieField.Admin)
-            
-            return 'Successfully deauthenticated user'
-          })
-        },
-        (_err) => 'Unable to destroy session'
-      )
+  createSession = async (user: Admins.Schema): Promise<Result<Uuid, string>> => {
+    return initAdminSession(user)
   }
 }
 
+
+
+
+interface AppData<T> {
+  data: T
+  sessionToken?: string
+}
+
+export namespace AppData {
+  export const init = <T>(data: T, sessionToken?: string): AppData<T> => ({
+    data,
+    sessionToken,
+  })
+}
+
 export const route = <T>(
-  handler: (req: Request, res: SessionManager) => Result<Promise<Result<T, string>>, string>
+  handler: (req: Request, res: SessionManager) => Result<Promise<Result<AppData<T>, string>>, string>
 ) => {
   return async (req: Request, res: Response) => {
-    const sessionMgr = new SessionManager(res, req)
+    const sessionMgr = new SessionManager(req)
 
     handler(req, sessionMgr)
       .mapOk(async (action) => {
         const result = await action
 
         result
-          .mapOk((data) => {
-            // TODO: implement enum to map to http status codes
-            res.status(200).json({ data })
+          .mapOk((appData) => {
+            res.status(200).json(appData)
           })
           .mapErr((error) => {
+            // TODO: implement enum to map to http status codes
             res.status(400).json({ error })
           })
       })

@@ -1,5 +1,5 @@
 import { createAdmin } from 'db/actions'
-import { route, decode } from './middleware'
+import { route, decode, AppData } from './middleware'
 
 import { Record, String, Static } from 'runtypes'
 
@@ -38,20 +38,21 @@ export const handler = route<Admins.WithoutPassword>((req, session) => {
           Result.err('Username must be at least 3 characters in length')
         )
       }
-    
+
       return createAdmin(parsed)
-        .then(result =>
-          result.asyncMap((admin) =>
-            session.createSession(admin).then((sessionResult) => {
-              return sessionResult.mapOk(Admins.removePassword)
-            })
+        .then((adminResult) => adminResult.asyncMap(async (admin) => {
+          const sessionResult = await session.createSession(admin)
+          
+          return sessionResult.mapOk((sessionToken) =>
+            AppData.init(
+              Admins.removePassword(admin),
+              sessionToken
+            )
           )
+        })
         )
-        .then((outerResult) => 
-          // extendOk can be used to flatten
-          // a Result<Result<T, E2>, E1>
-          // into a Result<T, E2>
-          outerResult.extendOk((innerResult) => innerResult)
-      )
+        .then((appDataResult) =>
+          appDataResult.extendOk(innerResult => innerResult)
+        )
     })
 })
