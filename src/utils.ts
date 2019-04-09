@@ -61,10 +61,6 @@ export namespace Result {
     }
 
     asyncMap = async <U>(f: (t: T) => Promise<U>): Promise<Result<U, E>> => {
-      if (this.isLeft()) {
-        return new Err(this.value)
-      }
-
       const result = await f(this.value)
 
       return new Ok(result)
