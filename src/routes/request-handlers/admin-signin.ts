@@ -13,26 +13,25 @@ const adminDecoder = Record({
 
 export const handler = route<Admins.WithoutPassword>((req, session) =>
   decode(adminDecoder, req.body, 'Invalid request body')
-    .mapOk((parsed) => {
-      return getAdmin(parsed).then((adminResult) =>
-        adminResult.asyncMap(async (admin) => {
-          const sessionResult = await session.createSession(admin)
+    .mapOk(async (parsed) => {
+      const adminResult = await getAdmin(parsed)
 
-          return sessionResult.mapOk((sessionToken) =>
-            AppData.init(
-              Admins.removePassword(admin),
-              sessionToken
-            )
+      const outerResult = await adminResult.asyncMap(async (admin) => {
+        const sessionResult = await session.createSession(admin)
+
+        return sessionResult.mapOk((sessionToken) =>
+          AppData.init(
+            Admins.removePassword(admin),
+            sessionToken
           )
-        })
-      )
-      .then((outerResult) => 
-          // extendOk can be used to flatten
-          // a Result<Result<T, E2>, E1>
-          // into a Result<T, E2>
-          outerResult.extendOk(
-            (innerResult) => innerResult
-          )
+        )
+      })
+
+      // extendOk can be used to flatten
+      // a Result<Result<T, E2>, E1>
+      // into a Result<T, E2>
+      return outerResult.extendOk(
+        (innerResult) => innerResult
       )
     })
 )
