@@ -18,7 +18,10 @@ export const getAuthToken = (authHeader: string): Result<string, AuthorizationEr
     .mapErr(() => AuthorizationError.InvalidToken)
 }
 
-export const decode = <T>(decoder: Runtype<T>, raw: unknown, msg?: string): Result<T, string> => {
+
+export type DecodeResult<T> = Result<T, string>
+
+export const decode = <T>(decoder: Runtype<T>, raw: unknown, msg?: string): DecodeResult<T> => {
   try {
     const parsed = decoder.check(raw)
 
@@ -121,7 +124,7 @@ export namespace AppData {
 }
 
 export const route = <T>(
-  handler: (req: Request, res: SessionManager) => Result<Promise<Result<AppData<T>, string>>, string>
+  handler: (req: Request, res: SessionManager) => DecodeResult<Promise<Result<AppData<T>, string>>>
 ) => {
   return async (req: Request, res: Response) => {
     const sessionMgr = new SessionManager(req)
@@ -139,9 +142,10 @@ export const route = <T>(
             res.status(400).json({ error })
           })
       })
-      .mapErr((error) => {
-        // TODO: implement enum to map to http status codes
-        res.status(400).json({ error })
+      .mapErr((parseError) => {
+        res.status(400).json({ 
+          error: parseError 
+        })
       })
   }
 }
