@@ -1,4 +1,5 @@
-import { route, AppData, AuthorizationError, SessionError } from './middleware'
+import { route, AppData } from './middleware'
+import { AuthorizationError, SessionError } from 'routes/session'
 
 import { Admins } from 'db/types'
 

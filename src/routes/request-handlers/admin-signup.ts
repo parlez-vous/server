@@ -1,5 +1,6 @@
 import { createAdmin } from 'db/actions'
-import { route, decode, AppData } from './middleware'
+import { route, AppData } from './middleware'
+import { decode } from 'routes/parser'
 
 import { Record, String, Static } from 'runtypes'
 

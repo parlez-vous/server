@@ -1,0 +1,6 @@
+
+
+
+enum AuthenticationError {
+  InvalidSession
+}
