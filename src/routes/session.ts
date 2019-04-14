@@ -6,25 +6,19 @@ import { getAdminFromSession } from 'db/actions'
 import { Result, isUUID } from 'utils'
 import { decode } from 'routes/parser'
 
-import { Admins, DbError, Uuid } from 'db/types'
+import { Admins, Uuid } from 'db/types'
+import { RouteError } from 'routes/types'
 
 
-export const getAuthToken = (authHeader: string): Result<string, AuthError> => {
+export const getAuthToken = (authHeader: string): Result<string, RouteError> => {
   const uuidDecoder = String.withConstraint(
     s => isUUID(s)
   )
 
   return decode(uuidDecoder, authHeader)
-    .mapErr(() => AuthError.InvalidToken)
+    .mapErr(() => RouteError.InvalidToken)
 }
 
-
-export enum AuthError {
-  MissingHeader,
-  InvalidToken,
-  InvalidSession,
-  Signup,
-}
 
 export class SessionManager {
   private req: Request
@@ -33,17 +27,17 @@ export class SessionManager {
     this.req = req
   }
 
-  private getSessionToken = (): Result<string, AuthError> => {
+  private getSessionToken = (): Result<string, RouteError> => {
     const authHeader = this.req.get('Authorization')
 
     if (!authHeader) {
-      return Result.err(AuthError.MissingHeader)
+      return Result.err(RouteError.MissingHeader)
     }
 
     return getAuthToken(authHeader)
   }
 
-  getSessionUser = async (): Promise<Result<Admins.WithoutPassword, AuthError>> => {
+  getSessionUser = async (): Promise<Result<Admins.WithoutPassword, RouteError>> => {
     const result = await this
       .getSessionToken()
       .asyncMap(async (token) => {
@@ -51,13 +45,13 @@ export class SessionManager {
 
         return userResult
           .mapOk(Admins.removePassword)
-          .mapErr(() => AuthError.InvalidSession)
+          .mapErr(() => RouteError.InvalidSession)
       })
 
     return result.extendOk(r => r)
   }
 
-  createSession = async (user: Admins.Schema): Promise<Result<Uuid, DbError>> => {
+  createSession = async (user: Admins.Schema): Promise<Result<Uuid, RouteError>> => {
     return initAdminSession(user)
   }
 }

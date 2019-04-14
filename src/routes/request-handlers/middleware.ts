@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
 
-import { AuthError, SessionManager } from 'routes/session'
-import { DbError } from 'db/types'
+import { SessionManager } from 'routes/session'
 import { DecodeResult } from 'routes/parser'
 import { Result } from 'utils'
+import { RouteError } from 'routes/types'
 
 
 interface AppData<T> {
@@ -18,11 +18,6 @@ export namespace AppData {
   })
 }
 
-export type RouteError
-  = AuthError
-  | DbError
-
-
 interface RouteErrorHttpResponse {
   statusCode: number
   errorMsg: string
@@ -30,28 +25,28 @@ interface RouteErrorHttpResponse {
 
 const mapRouteError = (err: RouteError): RouteErrorHttpResponse => {
   switch (err) {
-    case AuthError.InvalidToken: {
+    case RouteError.InvalidToken: {
       return {
         statusCode: 400,
         errorMsg: 'Invalid Token Format'
       }
     }
 
-    case AuthError.MissingHeader: {
+    case RouteError.MissingHeader: {
       return {
         statusCode: 400,
         errorMsg: 'Missing `Authorization` header'
       }
     }
 
-    case AuthError.InvalidSession: {
+    case RouteError.InvalidSession: {
       return {
         statusCode: 401,
         errorMsg: 'Invalid Session'
       }
     }
 
-    case AuthError.Signup: {
+    case RouteError.Signup: {
       const errorMsg = [
         'Error while signing up',
         'Username must be between 3 and 30 characters in length',
@@ -64,21 +59,21 @@ const mapRouteError = (err: RouteError): RouteErrorHttpResponse => {
       }
     }
 
-    case DbError.Conflict: {
+    case RouteError.Conflict: {
       return {
         statusCode: 409,
         errorMsg: 'Conflict'
       }
     }
 
-    case DbError.NotFound: {
+    case RouteError.NotFound: {
       return {
         statusCode: 404,
         errorMsg: 'Not Found'
       }
     }
 
-    case DbError.Other: {
+    case RouteError.Other: {
       return {
         statusCode: 500,
         errorMsg: 'An Internal Error Occurred :('

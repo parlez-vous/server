@@ -2,8 +2,9 @@ import db from './index'
 
 import * as uuidv4 from 'uuid/v4'
 
-import { AdminSessions, DbError, Admins, Uuid } from './types'
+import { AdminSessions, Admins, Uuid } from './types'
 import { Result } from 'utils'
+import { RouteError } from 'routes/types'
 
 const cols = [
   AdminSessions.Table.cols.admin_user_id,
@@ -11,7 +12,7 @@ const cols = [
 ].join(', ')
 
 // remove any past sessions pertaining to user
-export const initAdminSession = async ({ id }: Admins.Schema): Promise<Result<Uuid, DbError>> => {
+export const initAdminSession = async ({ id }: Admins.Schema): Promise<Result<Uuid, RouteError>> => {
   const uuid = uuidv4()
 
   try {
@@ -26,7 +27,7 @@ export const initAdminSession = async ({ id }: Admins.Schema): Promise<Result<Uu
     return Result.ok(uuid)
   } catch (e) {
     return Result.err(
-      DbError.Other
+      RouteError.Other
     )
   }
 }

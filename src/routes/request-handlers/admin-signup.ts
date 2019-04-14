@@ -6,7 +6,7 @@ import { decode } from 'routes/parser'
 
 import { Result } from 'utils'
 import { Admins } from 'db/types'
-import { AuthError } from '../session'
+import { RouteError } from 'routes/types'
 
 export type NewAdmin = Static<typeof adminSignupDecoder>
 
@@ -25,19 +25,19 @@ export const handler = route<Admins.WithoutPassword>((req, session) => {
         parsed.password.length > 72
       ) {
         return Promise.resolve(
-          Result.err(AuthError.Signup)
+          Result.err(RouteError.Signup)
         )
       }
     
       if (parsed.password !== parsed.passwordConfirm) {
         return Promise.resolve(
-          Result.err(AuthError.Signup)
+          Result.err(RouteError.Signup)
         )
       }
     
       if (parsed.username.length < 3 || parsed.username.length > 30) {
         return Promise.resolve(
-          Result.err(AuthError.Signup)
+          Result.err(RouteError.Signup)
         )
       }
 
