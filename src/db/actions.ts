@@ -29,7 +29,11 @@ export const createAdmin = async (
   
     return Result.ok(result)
   } catch (e) {
-    return Result.err(RouteError.Other)
+    return Result.err(
+      e.code && e.code === '23505'
+        ? RouteError.Conflict
+        : RouteError.Other
+    )
   }
 }
 
