@@ -26,33 +26,6 @@ export enum AuthError {
   Signup,
 }
 
-export namespace AuthError {
-  export const toString = (e: AuthError): string => {
-    switch (e) {
-      case AuthError.InvalidToken: {
-        return 'Invalid Token'
-      }
-
-      case AuthError.MissingHeader: {
-        return 'Missing `Authorization` header'
-      }
-
-      case AuthError.InvalidSession: {
-        return 'Invalid Session'
-      }
-
-      case AuthError.Signup: {
-        return [
-          'Error while signing up',
-          'Username must be between 3 and 30 characters in length',
-          'Password must be between 8 and 72 characters in length',
-        ].join('. ')
-      }
-    }
-  }
-}
-
-
 export class SessionManager {
   private req: Request
 

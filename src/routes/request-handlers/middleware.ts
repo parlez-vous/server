@@ -23,6 +23,71 @@ export type RouteError
   | DbError
 
 
+interface RouteErrorHttpResponse {
+  statusCode: number
+  errorMsg: string
+}
+
+const mapRouteError = (err: RouteError): RouteErrorHttpResponse => {
+  switch (err) {
+    case AuthError.InvalidToken: {
+      return {
+        statusCode: 400,
+        errorMsg: 'Invalid Token Format'
+      }
+    }
+
+    case AuthError.MissingHeader: {
+      return {
+        statusCode: 400,
+        errorMsg: 'Missing `Authorization` header'
+      }
+    }
+
+    case AuthError.InvalidSession: {
+      return {
+        statusCode: 401,
+        errorMsg: 'Invalid Session'
+      }
+    }
+
+    case AuthError.Signup: {
+      const errorMsg = [
+        'Error while signing up',
+        'Username must be between 3 and 30 characters in length',
+        'Password must be between 8 and 72 characters in length',
+      ].join('. ')
+
+      return {
+        statusCode: 400,
+        errorMsg  
+      }
+    }
+
+    case DbError.Conflict: {
+      return {
+        statusCode: 409,
+        errorMsg: 'Conflict'
+      }
+    }
+
+    case DbError.NotFound: {
+      return {
+        statusCode: 404,
+        errorMsg: 'Not Found'
+      }
+    }
+
+    case DbError.Other: {
+      return {
+        statusCode: 500,
+        errorMsg: 'An Internal Error Occurred :('
+      }
+    }
+  }
+}
+
+
 export type RouteResult<T> = Result<AppData<T>, RouteError>
 
 export const route = <T>(
@@ -40,8 +105,8 @@ export const route = <T>(
             res.status(200).json(appData)
           })
           .mapErr((error) => {
-            // TODO: implement enum to map to http status codes
-            res.status(400).json({ error })
+            const { statusCode, errorMsg } = mapRouteError(error)
+            res.status(statusCode).json({ error: errorMsg })
           })
       })
       .mapErr((parseError) => {
