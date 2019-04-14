@@ -14,16 +14,14 @@ exports.up = (knex) => knex.raw(`
   ${enableAutoUpdate(table)}
 
   ALTER TABLE sites
-    ADD COLUMN admin_user_id integer NOT NULL REFERENCES ${table}(id) ON DELETE CASCADE,
-    ADD COLUMN verified boolean NOT NULL DEFAULT false;
+    ADD COLUMN admin_user_id integer NOT NULL REFERENCES ${table}(id) ON DELETE CASCADE;
 `)
 
 exports.down = (knex) => knex.raw(`
   ${disableAutoUpdate(table)}
 
   ALTER TABLE sites
-    DROP COLUMN IF EXISTS admin_user_id,
-    DROP COLUMN IF EXISTS verified;
+    DROP COLUMN IF EXISTS admin_user_id;
 
   DROP TABLE IF EXISTS ${table};
 `)

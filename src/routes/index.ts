@@ -5,6 +5,7 @@ import {
   adminSignup,
   adminSignin,
   getAdminProfile,
+  getAdminSites
  } from './request-handlers'
 
 const rootRouter = Router()
@@ -21,6 +22,7 @@ rootRouter.use(
     .post('/signup', adminSignup)
     .post('/signin', adminSignin)
     .get('/profile', getAdminProfile)
+    .get('/sites', getAdminSites)
 )
 
 export default rootRouter

@@ -5,7 +5,9 @@ const table = 'sites'
 exports.up = (knex) => knex.raw(`
   CREATE TABLE IF NOT EXISTS ${table} (
     id SERIAL PRIMARY KEY,
-    hostname TEXT NOT NULL,
+    hostname TEXT UNIQUE NOT NULL,
+    verified boolean NOT NULL DEFAULT false,
+    dns_tag UUID UNIQUE NOT NULL,
     created_at timestamptz NOT NULL DEFAULT NOW(),
     updated_at timestamptz NOT NULL DEFAULT NOW()
   );

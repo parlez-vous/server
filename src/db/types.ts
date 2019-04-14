@@ -1,12 +1,5 @@
 export type Uuid = string
 
-export enum DbError {
-  NotFound,
-  Conflict,
-  Other,
-}
-
-
 type Schema<T> = {
   [k in keyof T]: keyof T
 }
@@ -60,16 +53,18 @@ export namespace Sites {
     admin_user_id: number
     hostname: string
     verified: boolean
+    dns_tag: Uuid
   }
 
-  type Schema = WithDefaultCols<Columns>
+  export type Schema = WithDefaultCols<Columns>
 
   export const Table: Table<Schema> = {
     name: 'sites',
     cols: withDefaults([
       'admin_user_id',
       'hostname',
-      'verified'
+      'verified',
+      'dns_tag'
     ])
   }
 }
