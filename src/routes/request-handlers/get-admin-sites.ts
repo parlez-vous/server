@@ -1,5 +1,5 @@
 import * as db from 'db/actions'
-import { route, AppData } from './middleware'
+import { route, AppData } from 'routes/middleware'
 import { DecodeResult } from 'routes/parser'
 
 import { Sites } from 'db/types'

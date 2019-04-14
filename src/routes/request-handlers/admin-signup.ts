@@ -1,7 +1,7 @@
 import { Record, String, Static } from 'runtypes'
 
 import { createAdmin } from 'db/actions'
-import { route, AppData } from './middleware'
+import { route, AppData } from 'routes/middleware'
 import { decode } from 'routes/parser'
 
 import { Result } from 'utils'

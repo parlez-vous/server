@@ -1,4 +1,4 @@
-import { route, AppData } from './middleware'
+import { route, AppData } from 'routes/middleware'
 
 import { DecodeResult } from 'routes/parser'
 
