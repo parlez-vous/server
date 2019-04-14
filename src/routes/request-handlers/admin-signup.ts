@@ -1,11 +1,12 @@
+import { Record, String, Static } from 'runtypes'
+
 import { createAdmin } from 'db/actions'
 import { route, AppData } from './middleware'
 import { decode } from 'routes/parser'
 
-import { Record, String, Static } from 'runtypes'
-
 import { Result } from 'utils'
 import { Admins } from 'db/types'
+import { AuthError } from '../session'
 
 export type NewAdmin = Static<typeof adminSignupDecoder>
 
@@ -24,19 +25,19 @@ export const handler = route<Admins.WithoutPassword>((req, session) => {
         parsed.password.length > 72
       ) {
         return Promise.resolve(
-          Result.err('Password must be between 8 and 72 characters in length')
+          Result.err(AuthError.Signup)
         )
       }
     
       if (parsed.password !== parsed.passwordConfirm) {
         return Promise.resolve(
-          Result.err('Passwords do not match')
+          Result.err(AuthError.Signup)
         )
       }
     
-      if (parsed.username.length < 3) {
+      if (parsed.username.length < 3 || parsed.username.length > 30) {
         return Promise.resolve(
-          Result.err('Username must be at least 3 characters in length')
+          Result.err(AuthError.Signup)
         )
       }
 

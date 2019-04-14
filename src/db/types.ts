@@ -1,13 +1,10 @@
 export type Uuid = string
 
-// export enum QueryErrorType {
-//   NotFound,
-//   Other
-// }
-
-// export type QueryError
-//   = { type: QueryErrorType.NotFound }
-//   | { type: QueryErrorType.Other, msg: string }
+export enum DbError {
+  NotFound,
+  Conflict,
+  Other,
+}
 
 
 type Schema<T> = {

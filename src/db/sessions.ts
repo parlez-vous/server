@@ -2,7 +2,7 @@ import db from './index'
 
 import * as uuidv4 from 'uuid/v4'
 
-import { AdminSessions, Admins, Uuid } from './types'
+import { AdminSessions, DbError, Admins, Uuid } from './types'
 import { Result } from 'utils'
 
 const cols = [
@@ -11,7 +11,7 @@ const cols = [
 ].join(', ')
 
 // remove any past sessions pertaining to user
-export const initAdminSession = async ({ id }: Admins.Schema): Promise<Result<Uuid, string>> => {
+export const initAdminSession = async ({ id }: Admins.Schema): Promise<Result<Uuid, DbError>> => {
   const uuid = uuidv4()
 
   try {
@@ -26,7 +26,7 @@ export const initAdminSession = async ({ id }: Admins.Schema): Promise<Result<Uu
     return Result.ok(uuid)
   } catch (e) {
     return Result.err(
-      'Error while upserting session for admin user'
+      DbError.Other
     )
   }
 }

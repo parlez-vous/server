@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 
-import { SessionManager } from 'routes/session'
+import { AuthError, SessionManager } from 'routes/session'
+import { DbError } from 'db/types'
 import { DecodeResult } from 'routes/parser'
 import { Result } from 'utils'
 
@@ -17,8 +18,15 @@ export namespace AppData {
   })
 }
 
+export type RouteError
+  = AuthError
+  | DbError
+
+
+export type RouteResult<T> = Result<AppData<T>, RouteError>
+
 export const route = <T>(
-  handler: (req: Request, res: SessionManager) => DecodeResult<Promise<Result<AppData<T>, string>>>
+  handler: (req: Request, res: SessionManager) => DecodeResult<Promise<RouteResult<T>>>
 ) => {
   return async (req: Request, res: Response) => {
     const sessionMgr = new SessionManager(req)

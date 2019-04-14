@@ -6,11 +6,11 @@ import * as bcrypt from 'bcrypt'
 import { NewAdmin } from 'routes/request-handlers/admin-signup'
 import { Admin } from 'routes/request-handlers/admin-signin'
 
-import { Admins, Uuid, AdminSessions } from './types'
+import { Admins, DbError, AdminSessions, Uuid } from './types'
 
 export const createAdmin = async (
   admin: NewAdmin
-): Promise<Result<Admins.Schema, string>> => {
+): Promise<Result<Admins.Schema, DbError>> => {
   type Ok = Admins.Schema
 
   const saltRounds = 10
@@ -26,16 +26,16 @@ export const createAdmin = async (
       .returning('*')
       .then(([ user ]) => user)
   
-    return Result.ok<Ok, string>(result)
+    return Result.ok(result)
   } catch (e) {
-    return Result.err<Ok, string>('error while creating admin user')
+    return Result.err(DbError.Other)
   }
 }
 
 
 export const getAdmin = async (
   data: Admin
-): Promise<Result<Admins.Schema, string>> => {
+): Promise<Result<Admins.Schema, DbError>> => {
   type Ok = Admins.Schema
 
   try {
@@ -44,17 +44,17 @@ export const getAdmin = async (
       .where({ username: data.username })
 
     if (!admin) {
-      return Result.err<Ok, string>('Not found')
+      return Result.err(DbError.NotFound)
     }
 
     const match = await bcrypt.compare(data.password, admin.password)
 
     return match
-      ? Result.ok<Ok, string>(admin)
-      : Result.err<Ok, string>('Incorrect password')
+      ? Result.ok(admin)
+      : Result.err(DbError.NotFound)
 
   } catch (e) {
-    return Result.err<Ok, string>('Error while searching for admin')
+    return Result.err(DbError.Other)
   }
 }
 
