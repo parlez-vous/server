@@ -13,6 +13,12 @@ app.use(bodyParser.json())
 
 app.use(routes)
 
+// Add catch-all route for
+// undefined routes
+app.use('*', (_, res) => {
+  res.sendStatus(404)
+})
+
 app.listen(
   serverPort,
   () => console.log(`Listening for tcp connections!`)
