@@ -12,7 +12,9 @@ const cols = [
 ].join(', ')
 
 // remove any past sessions pertaining to user
-export const initAdminSession = async ({ id }: Admins.Schema): Promise<Result<Uuid, RouteError>> => {
+export const initAdminSession = async (
+  { id }: Admins.Schema
+): Promise<Result<Uuid, RouteError>> => {
   const uuid = uuidv4()
 
   try {
@@ -29,5 +31,40 @@ export const initAdminSession = async ({ id }: Admins.Schema): Promise<Result<Uu
     return Result.err(
       RouteError.Other
     )
+  }
+}
+
+export const getAdminFromSession = async (
+  sessionId: Uuid,
+): Promise<Result<Admins.Schema, RouteError>> => {
+  type Ok = Admins.Schema
+
+  try {
+    const adminUserIdColumn = [
+      AdminSessions.Table.name,
+      AdminSessions.Table.cols.admin_user_id
+    ].join('.')
+
+    const admin: Ok | null = await db(Admins.Table.name)
+      .first(`${Admins.Table.name}.*`)
+      .join(
+        AdminSessions.Table.name,
+        `${Admins.Table.name}.${Admins.Table.cols.id}`,
+        adminUserIdColumn
+      )
+      .where(
+        `${AdminSessions.Table.name}.${AdminSessions.Table.cols.uuid}`, 
+        sessionId
+      )
+      // sessions expire after 7 days of inactivity
+      .whereRaw(`
+        date_part('day', NOW() - ${AdminSessions.Table.name}.${AdminSessions.Table.cols.updated_at})::INT <= 7
+      `)
+
+    return admin
+        ? Result.ok(admin)
+        : Result.err(RouteError.NotFound)
+  } catch (e) {
+    return Result.err(RouteError.Other)
   }
 }

@@ -1,8 +1,7 @@
 import { Request } from 'express'
 import { String } from 'runtypes'
 
-import { initAdminSession } from 'db/sessions'
-import { getAdminFromSession } from 'db/actions'
+import { initAdminSession, getAdminFromSession } from 'db/sessions'
 import { Result, isUUID } from 'utils'
 import { decode } from 'routes/parser'
 
@@ -45,7 +44,6 @@ export class SessionManager {
 
         return userResult
           .mapOk(Admins.removePassword)
-          .mapErr(() => RouteError.InvalidSession)
       })
 
     return result.extendOk(r => r)

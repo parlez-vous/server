@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt'
 import { NewAdmin } from 'routes/request-handlers/admin-signup'
 import { Admin } from 'routes/request-handlers/admin-signin'
 
-import { Admins, Sites, AdminSessions, Uuid } from './types'
+import { Admins, Sites } from './types'
 import { RouteError } from 'routes/types'
 
 export const createAdmin = async (
@@ -58,42 +58,6 @@ export const getAdmin = async (
     return Result.err(RouteError.Other)
   }
 }
-
-export const getAdminFromSession = async (
-  sessionId: Uuid,
-): Promise<Result<Admins.Schema, string>> => {
-  type Ok = Admins.Schema
-
-  try {
-    const adminUserIdColumn = [
-      AdminSessions.Table.name,
-      AdminSessions.Table.cols.admin_user_id
-    ].join('.')
-
-    const admin: Ok | null = await db(Admins.Table.name)
-      .first(`${Admins.Table.name}.*`)
-      .join(
-        AdminSessions.Table.name,
-        `${Admins.Table.name}.${Admins.Table.cols.id}`,
-        adminUserIdColumn
-      )
-      .where(
-        `${AdminSessions.Table.name}.${AdminSessions.Table.cols.uuid}`, 
-        sessionId
-      )
-      // sessions expire after 7 days of inactivity
-      .whereRaw(`
-        date_part('day', NOW() - ${AdminSessions.Table.name}.${AdminSessions.Table.cols.updated_at})::INT <= 7
-      `)
-
-    return admin
-        ? Result.ok(admin)
-        : Result.err('Admin not found')
-  } catch (e) {
-    return Result.err<Ok, string>('Error while searching for admin')
-  }
-}
-
 
 export const getAdminSites = async (
   adminUserId: number
