@@ -3,7 +3,7 @@ import db from './index'
 import * as uuidv4 from 'uuid/v4'
 
 import { AdminSessions, Admins, Uuid } from './types'
-import { Result } from 'utils'
+import { Result, ok, err } from 'neverthrow'
 import { RouteError } from 'routes/types'
 
 const cols = [
@@ -26,9 +26,9 @@ export const initAdminSession = async (
       RETURNING *
     `, { adminId: id, uuid })
 
-    return Result.ok(uuid)
+    return ok(uuid)
   } catch (e) {
-    return Result.err(
+    return err(
       RouteError.Other
     )
   }
@@ -62,9 +62,9 @@ export const getAdminFromSession = async (
       `)
 
     return admin
-        ? Result.ok(admin)
-        : Result.err(RouteError.NotFound)
+        ? ok(admin)
+        : err(RouteError.NotFound)
   } catch (e) {
-    return Result.err(RouteError.Other)
+    return err(RouteError.Other)
   }
 }

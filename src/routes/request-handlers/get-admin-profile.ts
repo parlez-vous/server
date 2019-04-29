@@ -8,6 +8,6 @@ export const handler = route<Admins.WithoutPassword>((_, session) => {
   return DecodeResult.ok(
     session
       .getSessionUser()
-      .then((result) => result.mapOk(AppData.init))
+      .then((result) => result.map(AppData.init))
   )
 })

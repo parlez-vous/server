@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 
 import { SessionManager } from 'routes/session'
 import { DecodeResult } from 'routes/parser'
-import { Result } from 'utils'
+import { Result } from 'neverthrow'
 import { RouteError } from 'routes/types'
 
 
@@ -92,11 +92,11 @@ export const route = <T>(
     const sessionMgr = new SessionManager(req)
 
     handler(req, sessionMgr)
-      .mapOk(async (action) => {
+      .map(async (action) => {
         const result = await action
 
         result
-          .mapOk((appData) => {
+          .map((appData) => {
             res.status(200).json(appData)
           })
           .mapErr((error) => {

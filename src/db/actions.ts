@@ -1,5 +1,5 @@
 import db from './index'
-import { Result } from 'utils'
+import { Result, ok, err } from 'neverthrow'
 
 import * as bcrypt from 'bcrypt'
 
@@ -27,9 +27,9 @@ export const createAdmin = async (
       .returning('*')
       .then(([ user ]) => user)
   
-    return Result.ok(result)
+    return ok(result)
   } catch (e) {
-    return Result.err(
+    return err(
       e.code && e.code === '23505'
         ? RouteError.Conflict
         : RouteError.Other
@@ -49,17 +49,17 @@ export const getAdmin = async (
       .where({ username: data.username })
 
     if (!admin) {
-      return Result.err(RouteError.NotFound)
+      return err(RouteError.NotFound)
     }
 
     const match = await bcrypt.compare(data.password, admin.password)
 
     return match
-      ? Result.ok(admin)
-      : Result.err(RouteError.NotFound)
+      ? ok(admin)
+      : err(RouteError.NotFound)
 
   } catch (e) {
-    return Result.err(RouteError.Other)
+    return err(RouteError.Other)
   }
 }
 
@@ -80,9 +80,9 @@ export const getAdminSites = async (
       )
 
     return sites
-      ? Result.ok(sites)
-      : Result.err(RouteError.NotFound)
+      ? ok(sites)
+      : err(RouteError.NotFound)
   } catch (e) {
-    return Result.err(RouteError.Other)
+    return err(RouteError.Other)
   }
 }

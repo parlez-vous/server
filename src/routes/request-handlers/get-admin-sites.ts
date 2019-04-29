@@ -12,8 +12,8 @@ export const handler = route<Array<Sites.Schema>>((_, sessionManager) =>
         result.asyncMap(({ id }) => db.getAdminSites(id))
       )
       .then((result) =>
-        result.extendOk(innerResult =>
-          innerResult.mapOk(AppData.init)
+        result.andThen(innerResult =>
+          innerResult.map(AppData.init)
         )
       )
   )

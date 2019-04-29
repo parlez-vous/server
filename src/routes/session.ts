@@ -2,7 +2,8 @@ import { Request } from 'express'
 import { String } from 'runtypes'
 
 import { initAdminSession, getAdminFromSession } from 'db/sessions'
-import { Result, isUUID } from 'utils'
+import { isUUID } from 'utils'
+import { Result, err } from 'neverthrow'
 import { decode } from 'routes/parser'
 
 import { Admins, Uuid } from 'db/types'
@@ -30,7 +31,7 @@ export class SessionManager {
     const authHeader = this.req.get('Authorization')
 
     if (!authHeader) {
-      return Result.err(RouteError.MissingHeader)
+      return err(RouteError.MissingHeader)
     }
 
     return getAuthToken(authHeader)
@@ -43,10 +44,10 @@ export class SessionManager {
         const userResult = await getAdminFromSession(token)
 
         return userResult
-          .mapOk(Admins.removePassword)
+          .map(Admins.removePassword)
       })
 
-    return result.extendOk(r => r)
+    return result.andThen(r => r)
   }
 
   createSession = async (user: Admins.Schema): Promise<Result<Uuid, RouteError>> => {
