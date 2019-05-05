@@ -1,7 +1,7 @@
 const {
   DATABASE_URL,
   HASH_ID_SALT,
-  SERVER_PORT,
+  PORT,
 } = process.env
 
 
@@ -17,14 +17,14 @@ if (!DATABASE_URL) {
   envError('DATABASE_URL')
 }
 
-if (!SERVER_PORT) {
+if (!PORT) {
   envError('SERVER_PORT')
 }
 
-if (Number.isNaN(parseInt(SERVER_PORT as string))) {
+if (Number.isNaN(parseInt(PORT as string))) {
   throw new Error('Port must be a valid integer')
 }
 
 export const hashIdSalt = HASH_ID_SALT as string
 export const databaseUrl = DATABASE_URL as string
-export const serverPort = parseInt(SERVER_PORT as string)
+export const serverPort = parseInt(PORT as string)
