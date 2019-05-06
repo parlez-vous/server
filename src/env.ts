@@ -18,7 +18,7 @@ if (!DATABASE_URL) {
 }
 
 if (!PORT) {
-  envError('SERVER_PORT')
+  envError('PORT')
 }
 
 if (Number.isNaN(parseInt(PORT as string))) {
