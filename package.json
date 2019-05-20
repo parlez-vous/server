@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": "10.15"
+  },
   "scripts": {
     "build": "rm -rf ./build && tsc",
     "migrate:make": "knex migrate:make",
