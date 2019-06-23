@@ -21,5 +21,5 @@ app.use('*', (_, res) => {
 
 app.listen(
   serverPort,
-  () => console.log(`Listening for tcp connections!`)
+  () => console.log(`Listening for tcp connections on port ${serverPort}`)
 )

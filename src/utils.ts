@@ -1,8 +1,3 @@
-import HashIds from 'hashids'
-
-import { hashIdSalt } from './env'
-
-export const hasher = new HashIds(hashIdSalt, 6)
 
 // https://github.com/chriso/validator.js/blob/master/src/lib/isUUID.js
 export const isUUID = (str: string): boolean => {
