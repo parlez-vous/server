@@ -3,7 +3,7 @@ import { Runtype } from 'runtypes'
 import { Result, ok, err } from 'neverthrow'
 
 export namespace DecodeResult {
-  export const ok = <T>(data: T): DecodeResult<T> => ok(data)
+  export const pass = <T>(data: T): DecodeResult<T> => ok(data)
 }
 
 export type DecodeResult<T> = Result<T, string>
