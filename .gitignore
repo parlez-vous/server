@@ -3,3 +3,5 @@ notes.txt
 build/
 node_modules/
 .env
+
+.vscode
