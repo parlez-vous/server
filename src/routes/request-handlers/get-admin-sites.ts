@@ -5,7 +5,7 @@ import { DecodeResult } from 'routes/parser'
 import { Sites } from 'db/types'
 
 export const handler = route<Array<Sites.Schema>>((_, sessionManager) =>
-  DecodeResult.ok(
+  DecodeResult.pass(
     sessionManager
       .getSessionUser()
       .then((result) =>
