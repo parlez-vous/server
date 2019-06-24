@@ -1,0 +1,7 @@
+docker-compose.yml
+node_modules
+.circleci
+.gitignore
+bootstrap-server-dev.sh
+Dockerfile-dev
+README.md
