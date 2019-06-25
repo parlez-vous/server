@@ -3,7 +3,10 @@ FROM node:10.15.0
 # Create app directory
 WORKDIR /usr/app
 
-ENV DATABASE_URL postgres://gio:testing123@db/my_db
+ENV DATABASE_HOST db
+ENV DATABASE_USER gio
+ENV DATABASE_PASSWORD testing123
+ENV DATABASE_NAME my_db
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
