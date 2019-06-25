@@ -1,4 +1,7 @@
 import db from './index'
+
+import logger from 'logger'
+
 import { Result, ok, err } from 'neverthrow'
 
 import * as bcrypt from 'bcrypt'
@@ -29,11 +32,16 @@ export const createAdmin = async (
   
     return ok(result)
   } catch (e) {
-    return err(
-      e.code && e.code === '23505'
-        ? RouteError.Conflict
-        : RouteError.Other
-    )
+
+    if (e.code && e.code === '23505') {
+      return err(
+        RouteError.Conflict
+      )
+    }
+    
+    logger.warn('Query Error', 'createAdmin', e)
+
+    return err(RouteError.Other) 
   }
 }
 
