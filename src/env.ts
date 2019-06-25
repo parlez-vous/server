@@ -1,3 +1,5 @@
+import { String } from 'runtypes'
+
 const {
   DATABASE_HOST,
   DATABASE_USER,
@@ -5,28 +7,8 @@ const {
   DATABASE_NAME,
 } = process.env
 
-const envError = (name: string) => {
-  throw new Error(`Missing envinroment variable: ${name}`)
-}
-
-if (!DATABASE_HOST) {
-  envError('DATABASE_HOST')
-}
-
-if (!DATABASE_USER) {
-  envError('DATABASE_USER')
-}
-
-if (!DATABASE_PASSWORD) {
-  envError('DATABASE_PASSWORD')
-}
-
-if (!DATABASE_NAME) {
-  envError('DATABASE_NAME')
-}
-
-export const databaseHost = DATABASE_HOST as string
-export const databseUser = DATABASE_USER as string
-export const databasePassword = DATABASE_PASSWORD as string
-export const databaseName = DATABASE_NAME as string
+export const databaseHost = String.check(DATABASE_HOST)
+export const databseUser = String.check(DATABASE_USER)
+export const databasePassword = String.check(DATABASE_PASSWORD)
+export const databaseName = String.check(DATABASE_NAME)
 export const serverPort = 8080
