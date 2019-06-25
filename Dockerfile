@@ -13,9 +13,6 @@ COPY src/ ./src
 COPY knexfile.js ./
 COPY migrations/ ./migrations
 
-
-# NODE_PATH=./build is the runtime version of tsconfig's "baseUrl" setting
-# https://stackoverflow.com/questions/42582807/typescript-baseurl-with-node-js
 RUN npm install && npm run build
 
 EXPOSE 8080
