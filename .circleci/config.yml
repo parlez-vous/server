@@ -1,8 +1,8 @@
 version: 2.1
 jobs:
   build:
-    machine:
-      docker_layer_caching: true
+    docker:
+      - image: parlezvous/ci-base:0.1.0
 
     # export DATABASE_URL
     # npm run migrate:up
@@ -12,4 +12,4 @@ jobs:
 
       - run:
           name: NOOP
-          command: echo "HELLO WORLD :)"
+          command: echo $DATABASE_NAME
