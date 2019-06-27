@@ -23,7 +23,7 @@ obj = yaml.load(app_yaml_base)
 
 # dynamically add sensitive environment variables
 obj['env_variables'].update({
-  "DATABASE_HOST": "/cloudsql/" + os.environ['DATABASE_HOST'],
+  "DATABASE_HOST": "/cloudsql/" + os.environ['CLOUD_SQL_INSTANCES'],
   "DATABASE_USER": os.environ['DATABASE_USER'],
   "DATABASE_PASSWORD": os.environ['DATABASE_PASSWORD'],
   "DATABASE_NAME": os.environ['DATABASE_NAME'],
