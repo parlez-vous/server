@@ -10,12 +10,12 @@ jobs:
       # TODO: run tests + linting
       
       - run:
-          name: "Generate config file"
-          command: python generate-app-yaml.py > app.yaml
-
-      #
-      # TODO: log into gcloud
-      #
-      # - run:
-      #     name: "Deploy"
-      #     command: gcloud app deploy --quiet
+          name: "Deploy"
+          # Generate app.yaml for GAE
+          # logs into gcloud
+          # deploys to GAE
+          command: |
+            python generate-app-yaml.py > app.yaml
+            echo $GCLOUD_SERVICE_ACCOUNT_KEY_FILE | base64 --decode > key.json
+            gcloud auth activate-service-account --key-file=./key.json --project=$GCLOUD_PROJECT_ID
+            gcloud app deploy --quiet
