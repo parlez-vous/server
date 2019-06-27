@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: parlezvous/ci-base:0.1.0
+      - image: parlezvous/ci-base:0.3.0
 
     steps:
       - checkout
@@ -10,15 +10,12 @@ jobs:
       # TODO: run tests + linting
       
       - run:
-          name: Test
-          command: ls -1
-
-      - run:
           name: "Generate config file"
           command: python generate-app-yaml.py > app.yaml
 
       #
       # TODO: log into gcloud
+      #
       # - run:
       #     name: "Deploy"
       #     command: gcloud app deploy --quiet

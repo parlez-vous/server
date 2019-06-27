@@ -2,12 +2,9 @@
 
 FROM google/cloud-sdk:251.0.0-slim
 
-WORKDIR /app
-
-COPY generate-app-yaml.py generate-app-yaml.py
+USER root
 
 RUN apt-get -qqy update && \
     apt-get install -y python-yaml && \
     apt-get install -y nodejs
     
-CMD python generate-app-yaml.py
