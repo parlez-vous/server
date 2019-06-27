@@ -2,7 +2,7 @@
 
 FROM google/cloud-sdk:251.0.0-slim
 
-USER root
+WORKDIR /app
 
 RUN apt-get -qqy update && \
     apt-get install -y python-yaml && \
