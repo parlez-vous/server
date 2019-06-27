@@ -32,8 +32,23 @@ const config = {
   host: DATABASE_HOST
 }
 
+
+const enableAutoUpdate = (tableName) => `
+  CREATE TRIGGER update_${tableName}_modtime
+    BEFORE UPDATE ON ${tableName}
+    FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+`
+
+const disableAutoUpdate = (tableName) => `
+  DROP TRIGGER IF EXISTS update_${tableName}_modtime ON ${tableName};
+`
+
+
+
 module.exports = {
   client: 'pg',
   connection: config,
   pool: { min: 5, max: 50 },
+  enableAutoUpdate,
+  disableAutoUpdate
 }

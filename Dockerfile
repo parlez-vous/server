@@ -8,7 +8,6 @@ WORKDIR /usr/app
 # where available (npm@5+)
 COPY package*.json ./
 COPY tsconfig.json ./
-COPY autoUpdate.js ./
 COPY src/ ./src
 COPY knexfile.js ./
 COPY migrations/ ./migrations

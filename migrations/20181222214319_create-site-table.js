@@ -1,4 +1,4 @@
-const { enableAutoUpdate, disableAutoUpdate } = require('../autoUpdate.js')
+const { enableAutoUpdate, disableAutoUpdate } = require('../knexfile')
 
 const table = 'sites'
 
