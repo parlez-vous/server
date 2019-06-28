@@ -1,12 +1,7 @@
 import { Router } from 'express'
 import * as cors from 'cors'
 
-import {
-  adminSignup,
-  adminSignin,
-  getAdminProfile,
-  getAdminSites
- } from './request-handlers'
+import adminRoutes from './admins'
 
 const rootRouter = Router()
 
@@ -16,13 +11,11 @@ const corsOptions = {
 
 rootRouter.use(cors(corsOptions))
 
+
 rootRouter.use(
   '/admins',
-  Router()
-    .post('/signup', adminSignup)
-    .post('/signin', adminSignin)
-    .get('/profile', getAdminProfile)
-    .get('/sites', getAdminSites)
+  adminRoutes
 )
+
 
 export default rootRouter

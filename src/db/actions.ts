@@ -4,10 +4,14 @@ import logger from 'logger'
 
 import { Result, ok, err } from 'neverthrow'
 
+import { v4 } from 'uuid'
+
 import * as bcrypt from 'bcrypt'
 
-import { NewAdmin } from 'routes/request-handlers/admin-signup'
-import { Admin } from 'routes/request-handlers/admin-signin'
+import { URL } from 'url'
+
+import { NewAdmin } from 'routes/admins/signup'
+import { Admin } from 'routes/admins/signin'
 
 import { Admins, Sites } from './types'
 import { RouteError } from 'routes/types'
@@ -91,6 +95,34 @@ export const getAdminSites = async (
       ? ok(sites)
       : err(RouteError.NotFound)
   } catch (e) {
+    return err(RouteError.Other)
+  }
+}
+
+
+// register website for admin
+export const registerSite = async (adminId: number, url: URL, ): Promise<Result<Sites.Schema, RouteError>> => {
+  try {
+    const newSite: Sites.Schema = await db(Sites.Table.name)
+      .insert({
+        hostname: url.hostname,
+        admin_user_id: adminId,
+
+        // v4 uuid
+        dns_tag: v4(),
+      })
+      .returning('*')
+      .then(([ site ]) => site)
+
+    return ok(newSite)
+  } catch (e) {
+    if (e.code && e.code === '23505') {
+      return err(
+        RouteError.Conflict
+      )
+    }
+
+    logger.warn('Query Error', 'createAdmin', e)    
     return err(RouteError.Other)
   }
 }
