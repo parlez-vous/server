@@ -101,7 +101,7 @@ export const getAdminSites = async (
 
 
 // register website for admin
-export const registerSite = async (adminId: number, url: URL, ): Promise<Result<Sites.Schema, RouteError>> => {
+export const registerSite = async (adminId: number, url: URL): Promise<Result<Sites.Schema, RouteError>> => {
   try {
     const newSite: Sites.Schema = await db(Sites.Table.name)
       .insert({
