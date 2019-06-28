@@ -7,7 +7,10 @@ exports.up = (knex) => knex.raw(`
     id SERIAL PRIMARY KEY,
     hostname TEXT UNIQUE NOT NULL,
     verified boolean NOT NULL DEFAULT false,
+
+    -- to be used on DNS TXT record to confirm domain ownership
     dns_tag UUID UNIQUE NOT NULL,
+
     created_at timestamptz NOT NULL DEFAULT NOW(),
     updated_at timestamptz NOT NULL DEFAULT NOW()
   );
