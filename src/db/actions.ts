@@ -105,11 +105,11 @@ export const registerSite = async (adminId: number, url: URL): Promise<Result<Si
   try {
     const newSite: Sites.Schema = await db(Sites.Table.name)
       .insert({
-        hostname: url.hostname,
-        admin_user_id: adminId,
+        [Sites.Table.cols.hostname]: url.hostname,
+        [Sites.Table.cols.admin_user_id]: adminId,
 
         // v4 uuid
-        dns_tag: v4(),
+        [Sites.Table.cols.dns_tag]: v4()
       })
       .returning('*')
       .then(([ site ]) => site)
