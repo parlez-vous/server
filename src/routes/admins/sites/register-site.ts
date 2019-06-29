@@ -10,7 +10,12 @@ import { URL } from 'url'
 export type Site = Static<typeof siteDataDecoder>
 
 const siteDataDecoder = Record({
-  hostname: String.withConstraint(s => isURL(s)),
+  hostname: String.withConstraint(s =>
+    isURL(s, {
+      protocols: [ 'http', 'https' ],
+      require_protocol: true
+    })
+  ),
 })
 
 export const handler = route<Site>((req, session) =>
