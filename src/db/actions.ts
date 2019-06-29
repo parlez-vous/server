@@ -126,3 +126,25 @@ export const registerSite = async (adminId: number, url: URL): Promise<Result<Si
     return err(RouteError.Other)
   }
 }
+
+export const getUnverifiedSites = async (): Promise<Array<Sites.Schema>> => {
+  const sites = await db(Sites.Table.name)
+    .select('*')
+    .where(
+      Sites.Table.cols.verified,
+      false
+    )
+
+  return sites
+}
+
+export const setSitesAsVerified = async (siteIds: Array<number>): Promise<void> => {
+  await db(Sites.Table.name)
+    .update({
+      [Sites.Table.cols.verified]: true
+    })
+    .whereIn(
+      Sites.Table.cols.id,
+      siteIds
+    )
+}

@@ -16,6 +16,8 @@ type FailedLookup = null
 
 type DnsLookupResult = Result<SuccessfulLookup, FailedLookup> 
 
+export const failedLookupError = err<SuccessfulLookup, FailedLookup>(null)
+
 export const resolveTXTRecord = (hostname: string) => new Promise<DnsLookupResult>((resolve, _) => {
   resolveTxt(
     hostname, 

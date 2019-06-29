@@ -8,6 +8,9 @@ ENV DATABASE_USER gio
 ENV DATABASE_PASSWORD testing123
 ENV DATABASE_NAME my_db
 
+# every minute locally
+ENV CRON_INTERVAL_MINS 60000
+
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)

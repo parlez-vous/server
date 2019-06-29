@@ -5,6 +5,7 @@ import * as helmet from 'helmet'
 import { serverPort } from 'env'
 
 import routes from './routes'
+import { startCronJobs } from './cron'
 
 const app = express()
 
@@ -23,3 +24,5 @@ app.listen(
   serverPort,
   () => console.log(`Listening for tcp connections on port ${serverPort}`)
 )
+
+startCronJobs()
