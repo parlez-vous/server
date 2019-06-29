@@ -1,3 +1,6 @@
+import logger from 'logger'
+import { resolveTxt } from 'dns'
+import { Result, ok, err } from 'neverthrow'
 
 // https://github.com/chriso/validator.js/blob/master/src/lib/isUUID.js
 export const isUUID = (str: string): boolean => {
@@ -6,3 +9,26 @@ export const isUUID = (str: string): boolean => {
 
   return uuidRegex.test(str)
 }
+
+
+type SuccessfulLookup = string[][] | undefined
+type FailedLookup = null
+
+type DnsLookupResult = Result<SuccessfulLookup, FailedLookup> 
+
+export const resolveTXTRecord = (hostname: string) => new Promise<DnsLookupResult>((resolve, _) => {
+  resolveTxt(
+    hostname, 
+    (lookupError, result) => {
+      if (lookupError) {
+        logger.info(
+          `[resolveTXTRecord] Error looking up "${hostname}"`
+        )
+
+        return resolve(err(null))
+      }
+
+      resolve(ok(result))
+     }
+  )
+})
