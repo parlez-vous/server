@@ -43,9 +43,6 @@ const verifyDnsEntries = async () => {
           if (!ok) {
             return false
           }
-          
-          console.log('> TXT INFO FOR ' + site.hostname)
-          console.log(ok)
     
           return ok.some(([ record ]) =>
             record === `parlez-vous-site-verification=${site.dns_tag}`
@@ -57,7 +54,6 @@ const verifyDnsEntries = async () => {
     .map(({ site }) => site.id)
 
   if (verifiedSites.length > 0) {
-    console.log('>> WEEEEEE!')
     await setSitesAsVerified(verifiedSites)
   }
 
