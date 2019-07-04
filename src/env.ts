@@ -5,21 +5,21 @@ const {
   DATABASE_USER,
   DATABASE_PASSWORD,
   DATABASE_NAME,
-  CRON_INTERVAL_MINS
+  CRON_INTERVAL_MS
 } = process.env
 
 
-if (!CRON_INTERVAL_MINS) {
+if (!CRON_INTERVAL_MS) {
   throw new Error('CRON_INTERVAL_MINS is undefined')
 }
 
-const cronIntervalMins_ = parseInt(CRON_INTERVAL_MINS, 10)
+const cronIntervalMs_ = parseInt(CRON_INTERVAL_MS, 10)
 
-if (Number.isNaN(cronIntervalMins_)) {
+if (Number.isNaN(cronIntervalMs_)) {
   throw new Error('CRON_INTERVAL_MINS is not a number')
 }
 
-export const cronIntervalMins = cronIntervalMins_
+export const cronIntervalMs = cronIntervalMs_
 
 export const databaseHost = String.check(DATABASE_HOST)
 export const databseUser = String.check(DATABASE_USER)

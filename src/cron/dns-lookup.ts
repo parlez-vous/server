@@ -3,7 +3,7 @@
  * a verification TXT record to their hostname
  */
 
-import { cronIntervalMins } from 'env'
+import { cronIntervalMs } from 'env'
 import { getUnverifiedSites, setSitesAsVerified } from 'db/actions'
 import { resolveTXTRecord, failedLookupError } from 'utils'
 import logger from 'logger'
@@ -67,5 +67,5 @@ const verifyDnsEntries = async () => {
 export const start = () => {
   setInterval(() => {
     verifyDnsEntries()
-  }, cronIntervalMins)
+  }, cronIntervalMs)
 }
