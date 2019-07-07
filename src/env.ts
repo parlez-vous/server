@@ -10,13 +10,13 @@ const {
 
 
 if (!CRON_INTERVAL_MS) {
-  throw new Error('CRON_INTERVAL_MINS is undefined')
+  throw new Error('CRON_INTERVAL_MS is undefined')
 }
 
 const cronIntervalMs_ = parseInt(CRON_INTERVAL_MS, 10)
 
 if (Number.isNaN(cronIntervalMs_)) {
-  throw new Error('CRON_INTERVAL_MINS is not a number')
+  throw new Error('CRON_INTERVAL_MS is not a number')
 }
 
 export const cronIntervalMs = cronIntervalMs_

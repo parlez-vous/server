@@ -3,12 +3,9 @@ import { route, AppData } from 'routes/middleware'
 import { decode } from 'routes/parser'
 
 import { isURL } from 'validator'
-import { resolveTXTRecord } from 'utils'
 
-import { err } from 'neverthrow'
 import { Record, String, Static } from 'runtypes'
 import { URL } from 'url'
-import { RouteError } from 'routes/types'
 
 export type Site = Static<typeof siteDataDecoder>
 
@@ -16,30 +13,37 @@ const siteDataDecoder = Record({
   hostname: String.withConstraint(s =>
     isURL(s, {
       protocols: [ 'http', 'https' ],
-      require_protocol: true
+      require_protocol: true,
+      require_tld: true
     })
   ),
 })
 
+const decodeErrorMessage = [
+  'Invalid request body',
+  'This endpoint only accepts Fully Qualified Domain Names'
+].join(' ')
+
 export const handler = route<Site>((req, session) =>
-  decode(siteDataDecoder, req.body, 'Invalid request body')
-    .map(async (parsed) => {
-      const sessionResult = await session.getSessionUser()
+  decode(
+    siteDataDecoder,
+    req.body, 
+    decodeErrorMessage
+  )
+  .map(async (parsed) => {
+    const sessionResult = await session.getSessionUser()
 
-      const siteRegistrationResult = await sessionResult
-        .asyncMap(async (admin) => {
-          const url = new URL(parsed.hostname)
+    const siteRegistrationResult = await sessionResult
+      .asyncMap(async (admin) => {
+        const url = new URL(parsed.hostname)
 
-          const dnsLookupResult = await resolveTXTRecord(url.hostname)
+        const registrationResult = await registerSite(admin.id, url)
 
-          return dnsLookupResult.match(
-            _ok => registerSite(admin.id, url),
-            _dnsError => err(RouteError.NotFound)
-          )
-        })
+        return registrationResult
+      })
 
-      return siteRegistrationResult
-        .andThen((r) => r)
-        .map(AppData.init)
-    })
+    return siteRegistrationResult
+      .andThen((r) => r)
+      .map(AppData.init)
+  })
 )
