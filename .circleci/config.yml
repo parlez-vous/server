@@ -1,6 +1,10 @@
 version: 2
 jobs:
   build:
+    branches:
+      only:
+        - master
+        
     docker:
       - image: parlezvous/ci-base:0.3.0
 
