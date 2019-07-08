@@ -2,7 +2,7 @@ version: "3"
 
 services:
   db:
-    image: postgres:9.6.9-alpine
+    image: postgres:9.6.14-alpine
     container_name: psql-db
     environment:
       POSTGRES_USER: 'gio'
