@@ -100,6 +100,38 @@ export const getAdminSites = async (
 }
 
 
+export const getSingleSite = async (
+  adminUserId: number,
+  siteId: number
+): Promise<Result<Sites.Schema, RouteError>> => {
+  try {
+    const site: Sites.Schema | null = await db(Sites.Table.name)
+      .first(`${Sites.Table.name}.*`)
+      .join(
+        Admins.Table.name,
+        `${Admins.Table.name}.${Admins.Table.cols.id}`,
+        `${Sites.Table.name}.${Sites.Table.cols.admin_user_id}`,
+      )
+      .where(
+        `${Admins.Table.name}.${Admins.Table.cols.id}`,
+        adminUserId
+      )
+      .andWhere(
+        `${Sites.Table.name}.${Admins.Table.cols.id}`,
+        siteId
+      )
+
+    return site
+      ? ok(site)
+      : err(RouteError.NotFound)
+  } catch (e) {
+    logger.warn(`[Query Error] getSingleSite - ${e}`)  
+
+    return err(RouteError.Other)
+  }
+}
+
+
 // register website for admin
 export const registerSite = async (adminId: number, url: URL): Promise<Result<Sites.Schema, RouteError>> => {
   try {
