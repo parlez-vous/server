@@ -28,7 +28,7 @@
     "@types/node": "10.14.12",
     "@types/uuid": "3.4.4",
     "@types/validator": "^10.11.1",
-    "bcrypt": "3.0.4",
+    "bcrypt": "3.0.6",
     "body-parser": "1.18.3",
     "cors": "2.8.5",
     "express": "4.16.4",
