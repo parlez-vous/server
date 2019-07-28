@@ -32,7 +32,7 @@
     "body-parser": "1.18.3",
     "cors": "2.8.5",
     "express": "4.16.4",
-    "helmet": "3.15.0",
+    "helmet": "3.20.0",
     "knex": "0.16.3",
     "neverthrow": "^1.0.1",
     "pg": "7.7.1",
