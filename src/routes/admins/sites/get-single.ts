@@ -10,8 +10,11 @@ const siteIdDecoder = String.withConstraint(
   s => !Number.isNaN(parseInt(s, 10))
 )
 
+const errorMsg = 'Request path requires an integer'
+
 export const handler = route<Sites.Schema>((req, sessionManager) =>
-  decode(siteIdDecoder, req.params.id).map(async (siteId) => 
+  decode(siteIdDecoder, req.params.id, errorMsg)
+  .map(async (siteId) => 
     sessionManager
       .getSessionUser()
       .then((result) =>
