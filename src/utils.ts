@@ -11,6 +11,9 @@ export const isUUID = (str: string): boolean => {
 }
 
 
+export const txtRecordValue = (uuid: string) => `parlez-vous-site-verification=${uuid}`
+
+
 type SuccessfulLookup = string[][] | undefined
 type FailedLookup = null
 

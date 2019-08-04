@@ -5,7 +5,7 @@
 
 import { cronIntervalMs } from 'env'
 import { getUnverifiedSites, setSitesAsVerified } from 'db/actions'
-import { resolveTXTRecord, failedLookupError } from 'utils'
+import { resolveTXTRecord, failedLookupError, txtRecordValue } from 'utils'
 import logger from 'logger'
 
 
@@ -45,7 +45,7 @@ const verifyDnsEntries = async () => {
           }
     
           return ok.some(([ record ]) =>
-            record === `parlez-vous-site-verification=${site.dns_tag}`
+            record === txtRecordValue(site.dns_tag)
           )
         },
         _e => false
