@@ -20,8 +20,8 @@ const withColumns = <T>(columns: Array<keyof T>): Schema<T> =>
 
 const withDefaults = <T>(
   columns: Array<keyof T>
-): Schema<T> & DefaultCols => ({
-  ...(withColumns<T>(columns) as any), // FIXME: THIS IS WRONG
+) => ({
+  ...(withColumns<T>(columns)),
   id: 'id',
   created_at: 'created_at',
   updated_at: 'updated_at'
