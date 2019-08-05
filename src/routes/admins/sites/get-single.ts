@@ -2,7 +2,7 @@ import * as db from 'db/actions'
 import { route, AppData } from 'routes/middleware'
 import { decode } from 'routes/parser'
 import { String } from 'runtypes'
-import { txtRecordValue, chain } from 'utils'
+import { txtRecordValue, chain3 } from 'utils'
 import { Result, ok } from 'neverthrow'
 import { getSiteComments } from 'db/actions'
 
@@ -48,34 +48,27 @@ const fetchSiteWithComments = async (
 
 export const handler = route<ExtendedSite>((req, sessionManager) =>
   decode(siteIdDecoder, req.params.id, errorMsg)
-  .map(async (siteId) => 
-    sessionManager
-      .getSessionUser()
-      .then((result) =>
-        result.asyncMap(async ({ id }) => {
-          return chain(
-            db.getSingleSite(id, parseInt(siteId, 10)),
-            fetchSiteWithComments
-          )
-        })
-      )
-      .then((result) => result.andThen((inner) => inner))
-      .then((result) =>
-        result.map((d) => {
-
-          // Consider moving this logic to the db
-          // new column that gets auto calculated
-          const expiryDay = d.created_at.getDate() + 7
-
-          const expiryDate = new Date(d.created_at)
-          expiryDate.setDate(expiryDay)
-
-          return AppData.init({
-            ...d,
-            dns_tag: txtRecordValue(d.dns_tag),
-            expires_by: expiryDate
-          })
-        })
-      )
+  .map((siteId) => 
+    chain3(
+      sessionManager.getSessionUser(),
+      ({ id }) => db.getSingleSite(id, parseInt(siteId, 10)),
+      fetchSiteWithComments
     )
+    .then((result) =>
+      result.map((d) => {
+
+        // Consider moving this logic to the db
+        // new column that gets auto calculated
+        const expiryDay = d.created_at.getDate() + 7
+
+        const expiryDate = new Date(d.created_at)
+        expiryDate.setDate(expiryDay)
+
+        return AppData.init({
+          ...d,
+          dns_tag: txtRecordValue(d.dns_tag),
+          expires_by: expiryDate
+        })
+      })
+    ))
 )
