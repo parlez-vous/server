@@ -37,3 +37,29 @@ export const resolveTXTRecord = (hostname: string) => new Promise<DnsLookupResul
      }
   )
 })
+
+
+export const chain = async <T1, T2, E>(
+  r1: Promise<Result<T1, E>>,
+  r2: (v: T1) => Promise<Result<T2, E>>
+): Promise<Result<T2, E>> => {
+  const inner = await r1
+
+  const mapped = await inner.asyncMap(r2)
+
+  return mapped.andThen((inner) => inner)
+}
+
+
+export const chain3 = async <T1, T2, T3, E>(
+  r1: Promise<Result<T1, E>>,
+  r2: (v: T1) => Promise<Result<T2, E>>,
+  r3: (v: T2) => Promise<Result<T3, E>>
+): Promise<Result<T3, E>> => {
+  const chained = await chain(r1, r2)
+
+  const mapped = await chained.asyncMap(r3)
+
+  return mapped.andThen((inner) => inner)
+}
+

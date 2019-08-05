@@ -13,7 +13,7 @@ import { URL } from 'url'
 import { NewAdmin } from 'routes/admins/signup'
 import { Admin } from 'routes/admins/signin'
 
-import { Admins, Sites } from './types'
+import { Admins, Sites, Comments, Users, Posts } from './types'
 import { RouteError } from 'routes/types'
 
 export const createAdmin = async (
@@ -180,3 +180,37 @@ export const setSitesAsVerified = async (siteIds: Array<number>): Promise<void> 
       siteIds
     )
 }
+
+
+type CommentWithAuthor = Comments.Schema & {
+  author_username: Users.Schema['username']
+}
+
+export const getSiteComments = async (
+  siteId: number
+): Promise<Result<Array<CommentWithAuthor>, RouteError>> => {
+  try {
+    const siteComments = await db(Comments.Table.name)
+      .select(
+        `${Comments.Table.name}.*`,
+        `${Users.Table.name}.${Users.Table.cols.username} as author_username`
+      )
+      .join(
+        Users.Table.name,
+        `${Comments.Table.name}.${Comments.Table.cols.author_id}`,
+        `${Users.Table.name}.${Users.Table.cols.id}`
+      )
+      .join(
+        Posts.Table.name,
+        `${Comments.Table.name}.${Comments.Table.cols.post_id}`,
+        `${Posts.Table.name}.${Posts.Table.cols.id}`
+      )
+      .where(`${Posts.Table.name}.${Posts.Table.cols.site_id}`, siteId)
+
+    return ok(siteComments)
+  } catch (e) {
+    logger.error(`[getSiteComments] - Error getting site comments - ${e}`)
+    return err(RouteError.Other)
+  }
+}
+
