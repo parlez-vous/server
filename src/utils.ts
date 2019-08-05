@@ -26,9 +26,10 @@ export const resolveTXTRecord = (hostname: string) => new Promise<DnsLookupResul
     hostname, 
     (lookupError, result) => {
       if (lookupError) {
-        logger.info(
-          `[resolveTXTRecord] Error looking up "${hostname}"`
-        )
+        logger.info([
+          `[resolveTXTRecord] Error looking up "${hostname}"`,
+          lookupError
+        ].join(' - '))
 
         return resolve(err(null))
       }
