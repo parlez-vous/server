@@ -8,8 +8,6 @@ import { v4 } from 'uuid'
 
 import * as bcrypt from 'bcrypt'
 
-import { URL } from 'url'
-
 import { NewAdmin } from 'routes/admins/signup'
 import { Admin } from 'routes/admins/signin'
 
@@ -133,11 +131,11 @@ export const getSingleSite = async (
 
 
 // register website for admin
-export const registerSite = async (adminId: number, url: URL): Promise<Result<Sites.Schema, RouteError>> => {
+export const registerSite = async (adminId: number, hostname: string): Promise<Result<Sites.Schema, RouteError>> => {
   try {
     const newSite: Sites.Schema = await db(Sites.Table.name)
       .insert({
-        [Sites.Table.cols.hostname]: url.hostname,
+        [Sites.Table.cols.hostname]: hostname,
         [Sites.Table.cols.admin_user_id]: adminId,
 
         // v4 uuid

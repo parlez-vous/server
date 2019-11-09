@@ -5,15 +5,13 @@ import { decode } from 'routes/parser'
 import { isURL } from 'validator'
 
 import { Record, String, Static } from 'runtypes'
-import { URL } from 'url'
 
 export type Site = Static<typeof siteDataDecoder>
 
 const siteDataDecoder = Record({
   hostname: String.withConstraint(s =>
     isURL(s, {
-      protocols: [ 'http', 'https' ],
-      require_protocol: true,
+      require_protocol: false,
       require_tld: true
     })
   ),
@@ -34,13 +32,9 @@ export const handler = route<Site>((req, session) =>
     const sessionResult = await session.getSessionUser()
 
     const siteRegistrationResult = await sessionResult
-      .asyncMap(async (admin) => {
-        const url = new URL(parsed.hostname)
-
-        const registrationResult = await registerSite(admin.id, url)
-
-        return registrationResult
-      })
+      .asyncMap((admin) =>
+        registerSite(admin.id, parsed.hostname)
+      )
 
     return siteRegistrationResult
       .andThen((r) => r)
