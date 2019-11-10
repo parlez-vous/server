@@ -34,7 +34,7 @@
     "express": "4.16.4",
     "helmet": "3.20.0",
     "knex": "0.16.3",
-    "neverthrow": "^1.0.1",
+    "neverthrow": "^2.0.0",
     "pg": "7.7.1",
     "runtypes": "4.0.0",
     "typescript": "3.6.3",
