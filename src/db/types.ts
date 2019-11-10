@@ -58,6 +58,14 @@ export namespace Sites {
 
   export type Schema = WithDefaultCols<Columns>
 
+  interface ComputedColumns {
+    expires_by: Date
+  }
+
+  export type Extended = Schema & ComputedColumns & {
+    comments: Array<Comments.Schema>
+  }
+
   export const Table: Table<Schema> = {
     name: 'sites',
     cols: withDefaults([
