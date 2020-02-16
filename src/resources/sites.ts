@@ -5,15 +5,21 @@ import { txtRecordValue } from 'utils'
 import { getSiteComments } from 'db/actions'
 
 import { RouteError } from 'routes/types'
-import { Sites } from 'db/types'
+import { Site, Comment } from 'db/types'
 
-export type WithComments = Omit<Sites.Extended, 'expires_by'>
+export type SiteWithComments = Site & {
+  comments: Array<Comment>
+}
+
+export type SiteWithExpiry = SiteWithComments & {
+  expires_by: Date
+} 
 
 // TODO: refactor
 // this approach is likely not going to scale
 export const fetchSiteWithComments = async (
-  site: Sites.Schema
-): Promise<Result<WithComments, RouteError>> => {
+  site: Site
+): Promise<Result<SiteWithComments, RouteError>> => {
   if (!site.verified) {
     return ok(({
       ...site,
@@ -31,10 +37,11 @@ export const fetchSiteWithComments = async (
 
 
 // constructs a site that is to be consumed by a front end
-export const buildSite = (site: WithComments): Sites.Extended => {
+// FIXME: https://github.com/parlez-vous/server/issues/32
+export const buildSite = (site: SiteWithComments): SiteWithExpiry => {
   // Consider moving this logic to the db
   // new column that gets auto calculated
-  const expiryDay = site.created_at.getDate() + 7
+  const expiryDay = new Date(site.created_at).getDate() + 7
 
   const expiryDate = new Date(site.created_at)
   expiryDate.setDate(expiryDay)

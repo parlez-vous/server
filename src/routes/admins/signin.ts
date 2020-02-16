@@ -1,38 +1,37 @@
-import { getAdmin } from 'db/actions'
+import { validateAdmin } from 'db/actions'
 import { route, AppData } from 'routes/middleware'
 import { decode } from 'routes/parser'
+import { ok } from 'neverthrow'
 
-import { Record, String, Static } from 'runtypes'
-import { Admins } from 'db/types'
-
-export type Admin = Static<typeof adminDecoder>
+import { Record, String } from 'runtypes'
+import { Admin } from 'db/types'
+import { chain3 } from 'utils'
+import { removePassword } from 'resources/admins'
 
 const adminDecoder = Record({
   username: String,
   password: String,
 })
 
-export const handler = route<Admins.WithoutPassword>((req, session) =>
+export const handler = route<Admin.WithoutPassword>((req, session) =>
   decode(adminDecoder, req.body, 'Invalid request body')
-    .map(async (parsed) => {
-      const adminResult = await getAdmin(parsed)
-
-      const outerResult = await adminResult.asyncMap(async (admin) => {
+    .map((parsed) => chain3(
+      validateAdmin(parsed.username, parsed.password),
+      async (admin) => {
         const sessionResult = await session.createSession(admin)
 
-        return sessionResult.map((sessionToken) =>
-          AppData.init(
-            Admins.removePassword(admin),
-            sessionToken
-          )
-        )
-      })
-
-      // extendOk can be used to flatten
-      // a Result<Result<T, E2>, E1>
-      // into a Result<T, E2>
-      return outerResult.andThen(
-        (innerResult) => innerResult
+        return sessionResult.map((sessionToken) => {
+          return {
+            sessionToken,
+            admin
+          }
+        })
+      },
+      ({ sessionToken, admin }) => Promise.resolve(
+        ok(AppData.init(
+          removePassword(admin),
+          sessionToken
+        ))
       )
-    })
+    ))
 )

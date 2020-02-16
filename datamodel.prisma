@@ -1,0 +1,48 @@
+type Admin {
+  id: ID! @id
+  email: String
+  username: String! @unique
+  password: String!
+  created_at: DateTime! @createdAt
+  updated_at: DateTime! @updatedAt
+  sites: [Site!]! @relation(name: "SitesByAdmin", onDelete: CASCADE)
+}
+
+type User {
+  id: ID! @id
+  username: String @unique
+  password: String
+  karma: Int! @default(value: 0)
+  comments: [Comment!]!
+  created_at: DateTime! @createdAt
+  updated_at: DateTime! @updatedAt
+}
+
+type Comment {
+  id: ID! @id
+  parent: Comment
+  author: User
+  body: String! @default(value: "")
+  votes: Int! @default(value: 0)
+  created_at: DateTime! @createdAt
+  updated_at: DateTime! @updatedAt
+}
+
+type Post {
+  id: ID! @id
+  likes: Int! @default(value: 0)
+  views: Int! @default(value: 0)
+  comments: [Comment!]!
+  created_at: DateTime! @createdAt
+  updated_at: DateTime! @updatedAt
+}
+
+type Site {
+  id: ID! @id
+  hostname: String! @unique
+  verified: Boolean! @default(value: false)
+  dns_tag: ID! @unique
+  created_at: DateTime! @createdAt
+  updated_at: DateTime! @updatedAt
+  posts: [Post!]! @relation(name: "PostsBySite", onDelete: CASCADE)
+}

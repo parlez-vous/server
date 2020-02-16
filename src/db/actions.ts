@@ -1,37 +1,31 @@
-import db from './index'
+import { Admin, Site, prisma } from 'prisma-client'
 
 import logger from 'logger'
 
 import { Result, ok, err } from 'neverthrow'
+import * as rt from 'runtypes'
 
 import { v4 } from 'uuid'
 
 import * as bcrypt from 'bcrypt'
 
 import { NewAdmin } from 'routes/admins/signup'
-import { Admin } from 'routes/admins/signin'
 
-import { Admins, Sites, Comments, Users, Posts } from './types'
 import { RouteError } from 'routes/types'
 
 export const createAdmin = async (
   admin: NewAdmin
-): Promise<Result<Admins.Schema, RouteError>> => {
-  type Ok = Admins.Schema
-
+): Promise<Result<Admin, RouteError>> => {
   const saltRounds = 10
 
   try {
     const pwHash = await bcrypt.hash(admin.password, saltRounds)
 
-    const result: Ok = await db(Admins.Table.name)
-      .insert({
-        username: admin.username,
-        password: pwHash
-      })
-      .returning('*')
-      .then(([ user ]) => user)
-  
+    const result = await prisma.createAdmin({
+      username: admin.username,
+      password: pwHash
+    })
+
     return ok(result)
   } catch (e) {
 
@@ -48,21 +42,20 @@ export const createAdmin = async (
 }
 
 
-export const getAdmin = async (
-  data: Admin
-): Promise<Result<Admins.Schema, RouteError>> => {
-  type Ok = Admins.Schema
-
+export const validateAdmin = async (
+  username: Admin['username'],
+  password: Admin['password']
+): Promise<Result<Admin, RouteError>> => {
   try {
-    const admin: Ok | null = await db(Admins.Table.name)
-      .first('*')
-      .where({ username: data.username })
-
+    const admin = await prisma.admin({
+      username,
+    })
+    
     if (!admin) {
       return err(RouteError.NotFound)
     }
 
-    const match = await bcrypt.compare(data.password, admin.password)
+    const match = await bcrypt.compare(password, admin.password)
 
     return match
       ? ok(admin)
@@ -73,51 +66,54 @@ export const getAdmin = async (
   }
 }
 
-export const getAdminSites = async (
-  adminUserId: number
-): Promise<Result<Array<Sites.Schema>, RouteError>> => {
+export const getAdmin = async (adminId: Admin['id']): Promise<Result<Admin, RouteError>> => {
   try {
-    const sites: Array<Sites.Schema> | null = await db(Sites.Table.name)
-      .select(`${Sites.Table.name}.*`)
-      .join(
-        Admins.Table.name,
-        `${Admins.Table.name}.${Admins.Table.cols.id}`,
-        `${Sites.Table.name}.${Sites.Table.cols.admin_user_id}`,
-      )
-      .where(
-        `${Admins.Table.name}.${Admins.Table.cols.id}`,
-        adminUserId
-      )
+    const admin = await prisma.admin({
+      id: adminId
+    })
 
-    return sites
-      ? ok(sites)
+    return admin
+      ? ok(admin)
       : err(RouteError.NotFound)
+      
   } catch (e) {
     return err(RouteError.Other)
   }
 }
 
 
-export const getSingleSite = async (
-  adminUserId: number,
-  siteId: number
-): Promise<Result<Sites.Schema, RouteError>> => {
+type GetAdminSites = Result<Array<Site>, RouteError>
+export const getAdminSites = async (
+  adminUserId: Admin['id']
+): Promise<GetAdminSites> => {
   try {
-    const site: Sites.Schema | null = await db(Sites.Table.name)
-      .first(`${Sites.Table.name}.*`)
-      .join(
-        Admins.Table.name,
-        `${Admins.Table.name}.${Admins.Table.cols.id}`,
-        `${Sites.Table.name}.${Sites.Table.cols.admin_user_id}`,
-      )
-      .where(
-        `${Admins.Table.name}.${Admins.Table.cols.id}`,
-        adminUserId
-      )
-      .andWhere(
-        `${Sites.Table.name}.${Admins.Table.cols.id}`,
-        siteId
-      )
+    const sites = await prisma.admin({
+      id: adminUserId
+    }).sites()
+
+    return ok(sites)
+  } catch (e) {
+    return err(RouteError.Other)
+  }
+}
+
+
+
+export const getSingleSite = async (
+  adminUserId: Admin['id'],
+  siteId: Site['id']
+): Promise<Result<Site, RouteError>> => {
+  try {
+    const sites = await prisma.admin({
+      id: adminUserId,
+    }).sites({
+      where: {
+        id: siteId,
+      },
+      first: 1,
+    })
+
+    const site = sites[0]
 
     return site
       ? ok(site)
@@ -131,18 +127,26 @@ export const getSingleSite = async (
 
 
 // register website for admin
-export const registerSite = async (adminId: number, hostname: string): Promise<Result<Sites.Schema, RouteError>> => {
+export const registerSite = async (
+  adminId: Admin['id'],
+  hostname: string
+): Promise<Result<Site, RouteError>> => {
   try {
-    const newSite: Sites.Schema = await db(Sites.Table.name)
-      .insert({
-        [Sites.Table.cols.hostname]: hostname,
-        [Sites.Table.cols.admin_user_id]: adminId,
+    const sites = await prisma.updateAdmin({
+      data: {
+        sites: {
+          create: {
+            hostname,
+            dns_tag: v4()
+          }
+        }
+      },
+      where: {
+        id: adminId,
+      }
+    }).sites()
 
-        // v4 uuid
-        [Sites.Table.cols.dns_tag]: v4()
-      })
-      .returning('*')
-      .then(([ site ]) => site)
+    const newSite = sites[0]
 
     return ok(newSite)
   } catch (e) {
@@ -157,53 +161,67 @@ export const registerSite = async (adminId: number, hostname: string): Promise<R
   }
 }
 
-export const getUnverifiedSites = async (): Promise<Array<Sites.Schema>> => {
-  const sites = await db(Sites.Table.name)
-    .select('*')
-    .where(
-      Sites.Table.cols.verified,
-      false
-    )
+export const getUnverifiedSites = async (): Promise<Array<Site>> => {
+  const sites = await prisma.sites({
+    where: {
+      verified: false
+    }
+  })
 
   return sites
 }
 
-export const setSitesAsVerified = async (siteIds: Array<number>): Promise<void> => {
-  await db(Sites.Table.name)
-    .update({
-      [Sites.Table.cols.verified]: true
-    })
-    .whereIn(
-      Sites.Table.cols.id,
-      siteIds
-    )
+export const setSitesAsVerified = async (siteIds: Array<Site['id']>): Promise<void> => {
+  await prisma.updateManySites({
+    data: {
+      verified: true
+    },
+    where: {
+      id_in: siteIds
+    }
+  })
 }
 
 
-type CommentWithAuthor = Comments.Schema & {
-  author_username: Users.Schema['username']
-}
+
+
+// FIXME: this query is wrongs
+
+type GetSiteComments = Result<Array<CommentWithAuthor>, RouteError>
+
+const commentWithAuthorUsernameParser = rt.Record({
+  id: rt.String,
+  body: rt.String,
+  votes: rt.Number,
+  created_at: rt.String,
+  updated_at: rt.String,
+  author_username: rt.String,
+})
+
+type CommentWithAuthor = rt.Static<typeof commentWithAuthorUsernameParser>
 
 export const getSiteComments = async (
-  siteId: number
-): Promise<Result<Array<CommentWithAuthor>, RouteError>> => {
+  siteId: Site['id']
+): Promise<GetSiteComments> => {
   try {
-    const siteComments = await db(Comments.Table.name)
-      .select(
-        `${Comments.Table.name}.*`,
-        `${Users.Table.name}.${Users.Table.cols.username} as author_username`
-      )
-      .join(
-        Users.Table.name,
-        `${Comments.Table.name}.${Comments.Table.cols.author_id}`,
-        `${Users.Table.name}.${Users.Table.cols.id}`
-      )
-      .join(
-        Posts.Table.name,
-        `${Comments.Table.name}.${Comments.Table.cols.post_id}`,
-        `${Posts.Table.name}.${Posts.Table.cols.id}`
-      )
-      .where(`${Posts.Table.name}.${Posts.Table.cols.site_id}`, siteId)
+    const fragment = `
+      fragment SiteComments on Post {
+        comments {
+          id
+          body
+          votes
+          created_at
+          updated_at
+          author
+        }
+      }
+    `
+
+    const siteComments = await prisma.site({
+      id: siteId
+    }).posts().$fragment(fragment).then(
+      rt.Array(commentWithAuthorUsernameParser).check
+    )    
 
     return ok(siteComments)
   } catch (e) {

@@ -6,8 +6,9 @@ import { isUUID } from 'utils'
 import { Result, err } from 'neverthrow'
 import { decode } from 'routes/parser'
 
-import { Admins, Uuid } from 'db/types'
+import { Admin, UUID } from 'db/types'
 import { RouteError } from 'routes/types'
+import { removePassword } from 'resources/admins'
 
 
 export const getAuthToken = (authHeader: string): Result<string, RouteError> => {
@@ -37,20 +38,20 @@ export class SessionManager {
     return getAuthToken(authHeader)
   }
 
-  getSessionUser = async (): Promise<Result<Admins.WithoutPassword, RouteError>> => {
+  getSessionUser = async (): Promise<Result<Admin.WithoutPassword, RouteError>> => {
     const result = await this
       .getSessionToken()
       .asyncMap(async (token) => {
         const userResult = await getAdminFromSession(token)
 
         return userResult
-          .map(Admins.removePassword)
+          .map(removePassword)
       })
 
     return result.andThen(r => r)
   }
 
-  createSession = async (user: Admins.Schema): Promise<Result<Uuid, RouteError>> => {
-    return initAdminSession(user)
+  createSession = async (admin: Admin): Promise<Result<UUID, RouteError>> => {
+    return initAdminSession(admin)
   }
 }

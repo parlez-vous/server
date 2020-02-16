@@ -1,13 +1,11 @@
 import { decode } from 'routes/parser'
 import { String } from 'runtypes'
+import { ok } from 'neverthrow'
 
 import { route, AppData } from 'routes/middleware'
-import { chain3 } from 'utils'
+import { chain4 } from 'utils'
 import { getSingleSite } from 'db/actions'
-import { buildSite, fetchSiteWithComments } from 'resources/sites'
-
-import { Sites } from 'db/types'
-
+import { buildSite, fetchSiteWithComments, SiteWithExpiry } from 'resources/sites'
 
 const siteIdDecoder = String.withConstraint(
   s => !Number.isNaN(parseInt(s, 10))
@@ -16,15 +14,18 @@ const siteIdDecoder = String.withConstraint(
 const errorMsg = 'Request path requires an integer'
 
 
-export const handler = route<Sites.Extended>((req, sessionManager) =>
+export const handler = route<SiteWithExpiry>((req, sessionManager) =>
   decode(siteIdDecoder, req.params.id, errorMsg)
   .map((siteId) => 
-    chain3(
+    chain4(
       sessionManager.getSessionUser(),
-      ({ id }) => getSingleSite(id, parseInt(siteId, 10)),
-      fetchSiteWithComments
+      ({ id }) => getSingleSite(id, siteId),
+      fetchSiteWithComments,
+      (siteWithComments) => Promise.resolve(
+        ok(buildSite(siteWithComments))
+      ),
     )
     .then((result) =>
-      result.map((d) => AppData.init(buildSite(d)))
+      result.map(AppData.init)
     ))
 )

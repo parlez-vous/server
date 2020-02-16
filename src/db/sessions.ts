@@ -1,70 +1,45 @@
-import db from './index'
-
 import * as uuidv4 from 'uuid/v4'
 
-import { AdminSessions, Admins, Uuid } from './types'
-import { Result, ok, err } from 'neverthrow'
-import { RouteError } from 'routes/types'
+import sessiondb from 'resources/sessions'
 
-const cols = [
-  AdminSessions.Table.cols.admin_user_id,
-  AdminSessions.Table.cols.uuid,  
-].join(', ')
+import { Result, ok, err } from 'neverthrow'
+import { DateTime } from 'luxon'
+import { RouteError } from 'routes/types'
+import { Admin, UUID } from './types'
+import { getAdmin } from './actions'
+import sessionDb from 'resources/sessions'
+
 
 // remove any past sessions pertaining to user
 export const initAdminSession = async (
-  { id }: Admins.Schema
-): Promise<Result<Uuid, RouteError>> => {
+  { id }: Admin
+): Promise<Result<UUID, RouteError>> => {
   const uuid = uuidv4()
 
-  try {
-    await db.raw(`
-      INSERT INTO ${AdminSessions.Table.name} (${cols})
-      VALUES (:adminId, :uuid)
-      ON CONFLICT (${AdminSessions.Table.cols.admin_user_id}) DO UPDATE
-        SET ${AdminSessions.Table.cols.uuid} = :uuid
-      RETURNING *
-    `, { adminId: id, uuid })
+  sessiondb.set(uuid, {
+    adminId: id,
+    last_accessed_at: new Date()
+  })
 
-    return ok(uuid)
-  } catch (e) {
-    return err(
-      RouteError.Other
-    )
-  }
+  return ok(uuid)
 }
 
 export const getAdminFromSession = async (
-  sessionId: Uuid,
-): Promise<Result<Admins.Schema, RouteError>> => {
-  type Ok = Admins.Schema
+  sessionId: UUID,
+): Promise<Result<Admin, RouteError>> => {
+  const adminSession = sessionDb.get(sessionId)
 
-  try {
-    const adminUserIdColumn = [
-      AdminSessions.Table.name,
-      AdminSessions.Table.cols.admin_user_id
-    ].join('.')
-
-    const admin: Ok | null = await db(Admins.Table.name)
-      .first(`${Admins.Table.name}.*`)
-      .join(
-        AdminSessions.Table.name,
-        `${Admins.Table.name}.${Admins.Table.cols.id}`,
-        adminUserIdColumn
-      )
-      .where(
-        `${AdminSessions.Table.name}.${AdminSessions.Table.cols.uuid}`, 
-        sessionId
-      )
-      // sessions expire after 7 days of inactivity
-      .whereRaw(`
-        date_part('day', NOW() - ${AdminSessions.Table.name}.${AdminSessions.Table.cols.updated_at})::INT <= 7
-      `)
-
-    return admin
-        ? ok(admin)
-        : err(RouteError.NotFound)
-  } catch (e) {
-    return err(RouteError.Other)
+  if (!adminSession) {
+    return err(RouteError.NotFound)
   }
+
+  const now = DateTime.local()
+  const lastAccessed = DateTime.fromJSDate(adminSession.last_accessed_at)
+  const sessionExpired = lastAccessed.diff(now).days > 7
+
+  if (sessionExpired) {
+    return err(RouteError.InvalidSession)
+  }
+
+  return getAdmin(adminSession.adminId)
 }

@@ -64,3 +64,15 @@ export const chain3 = async <T1, T2, T3, E>(
   return mapped.andThen((inner) => inner)
 }
 
+export const chain4 = async <T1, T2, T3, T4, E>(
+  r1: Promise<Result<T1, E>>,
+  r2: (v: T1) => Promise<Result<T2, E>>,
+  r3: (v: T2) => Promise<Result<T3, E>>,
+  r4: (v: T3) => Promise<Result<T4, E>>
+): Promise<Result<T4, E>> => {
+  const chained = await chain3(r1, r2, r3)
+
+  const mapped = await chained.asyncMap(r4)
+
+  return mapped.andThen((inner) => inner)
+}

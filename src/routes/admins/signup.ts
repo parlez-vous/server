@@ -5,8 +5,9 @@ import { route, AppData } from 'routes/middleware'
 import { decode } from 'routes/parser'
 
 import { err } from 'neverthrow'
-import { Admins } from 'db/types'
+import { Admin } from 'db/types'
 import { RouteError } from 'routes/types'
+import { removePassword } from 'resources/admins'
 
 export type NewAdmin = Static<typeof adminSignupDecoder>
 
@@ -16,7 +17,7 @@ const adminSignupDecoder = Record({
   passwordConfirm: String,
 })
 
-export const handler = route<Admins.WithoutPassword>((req, session) => {
+export const handler = route<Admin.WithoutPassword>((req, session) => {
   return decode(adminSignupDecoder, req.body, 'Invalid request body')
     .map((parsed) => {
       // https://www.npmjs.com/package/bcrypt#security-issuesconcerns
@@ -47,7 +48,7 @@ export const handler = route<Admins.WithoutPassword>((req, session) => {
           
           return sessionResult.map((sessionToken) =>
             AppData.init(
-              Admins.removePassword(admin),
+              removePassword(admin),
               sessionToken
             )
           )
