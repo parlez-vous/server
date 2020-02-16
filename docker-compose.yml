@@ -3,7 +3,6 @@ version: "3"
 services:
   db:
     image: postgres:12.2-alpine
-    container_name: psql-db
     environment:
       POSTGRES_USER: 'gio'
       POSTGRES_PASSWORD: 'testing123'
@@ -21,6 +20,7 @@ services:
         databases:
           default:
             connector: postgres
+            database: my_db
             host: db
             port: 5432
             user: gio

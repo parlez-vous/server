@@ -1,4 +1,4 @@
-import { Admin, Site, prisma } from 'prisma-client'
+import { Admin, Site, Prisma } from 'prisma-client'
 
 import logger from 'logger'
 
@@ -12,6 +12,14 @@ import * as bcrypt from 'bcrypt'
 import { NewAdmin } from 'routes/admins/signup'
 
 import { RouteError } from 'routes/types'
+
+const prisma = new Prisma({
+  // FIXME: use environment variables
+  endpoint: 'http://prisma:4466',
+
+  // FIXME: authenticate prisma server in production
+  secret: undefined
+})
 
 export const createAdmin = async (
   admin: NewAdmin
