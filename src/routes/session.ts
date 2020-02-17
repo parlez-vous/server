@@ -2,8 +2,8 @@ import { Request } from 'express'
 import { String } from 'runtypes'
 
 import { initAdminSession, getAdminFromSession } from 'db/sessions'
-import { isUUID } from 'utils'
-import { Result, err } from 'neverthrow'
+import { isUUID, chain3 } from 'utils'
+import { Result, err, ok } from 'neverthrow'
 import { decode } from 'routes/parser'
 
 import { Admin, UUID } from 'db/types'
@@ -38,17 +38,13 @@ export class SessionManager {
     return getAuthToken(authHeader)
   }
 
+  
   getSessionUser = async (): Promise<Result<Admin.WithoutPassword, RouteError>> => {
-    const result = await this
-      .getSessionToken()
-      .asyncMap(async (token) => {
-        const userResult = await getAdminFromSession(token)
-
-        return userResult
-          .map(removePassword)
-      })
-
-    return result.andThen(r => r)
+    return chain3(
+      Promise.resolve(this.getSessionToken()),
+      (token) => getAdminFromSession(token),
+      async (admin) => ok(removePassword(admin))
+    )
   }
 
   createSession = async (admin: Admin): Promise<Result<UUID, RouteError>> => {
