@@ -812,7 +812,7 @@ type Site {
   id: ID!
   hostname: String!
   verified: Boolean!
-  dns_tag: ID!
+  dns_tag: UUID!
   created_at: DateTime!
   updated_at: DateTime!
   posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post!]
@@ -828,7 +828,7 @@ input SiteCreateInput {
   id: ID
   hostname: String!
   verified: Boolean
-  dns_tag: ID!
+  dns_tag: UUID!
   posts: PostCreateManyInput
 }
 
@@ -861,7 +861,7 @@ type SitePreviousValues {
   id: ID!
   hostname: String!
   verified: Boolean!
-  dns_tag: ID!
+  dns_tag: UUID!
   created_at: DateTime!
   updated_at: DateTime!
 }
@@ -897,20 +897,20 @@ input SiteScalarWhereInput {
   hostname_not_ends_with: String
   verified: Boolean
   verified_not: Boolean
-  dns_tag: ID
-  dns_tag_not: ID
-  dns_tag_in: [ID!]
-  dns_tag_not_in: [ID!]
-  dns_tag_lt: ID
-  dns_tag_lte: ID
-  dns_tag_gt: ID
-  dns_tag_gte: ID
-  dns_tag_contains: ID
-  dns_tag_not_contains: ID
-  dns_tag_starts_with: ID
-  dns_tag_not_starts_with: ID
-  dns_tag_ends_with: ID
-  dns_tag_not_ends_with: ID
+  dns_tag: UUID
+  dns_tag_not: UUID
+  dns_tag_in: [UUID!]
+  dns_tag_not_in: [UUID!]
+  dns_tag_lt: UUID
+  dns_tag_lte: UUID
+  dns_tag_gt: UUID
+  dns_tag_gte: UUID
+  dns_tag_contains: UUID
+  dns_tag_not_contains: UUID
+  dns_tag_starts_with: UUID
+  dns_tag_not_starts_with: UUID
+  dns_tag_ends_with: UUID
+  dns_tag_not_ends_with: UUID
   created_at: DateTime
   created_at_not: DateTime
   created_at_in: [DateTime!]
@@ -953,21 +953,21 @@ input SiteSubscriptionWhereInput {
 input SiteUpdateDataInput {
   hostname: String
   verified: Boolean
-  dns_tag: ID
+  dns_tag: UUID
   posts: PostUpdateManyInput
 }
 
 input SiteUpdateInput {
   hostname: String
   verified: Boolean
-  dns_tag: ID
+  dns_tag: UUID
   posts: PostUpdateManyInput
 }
 
 input SiteUpdateManyDataInput {
   hostname: String
   verified: Boolean
-  dns_tag: ID
+  dns_tag: UUID
 }
 
 input SiteUpdateManyInput {
@@ -985,7 +985,7 @@ input SiteUpdateManyInput {
 input SiteUpdateManyMutationInput {
   hostname: String
   verified: Boolean
-  dns_tag: ID
+  dns_tag: UUID
 }
 
 input SiteUpdateManyWithWhereNestedInput {
@@ -1035,20 +1035,20 @@ input SiteWhereInput {
   hostname_not_ends_with: String
   verified: Boolean
   verified_not: Boolean
-  dns_tag: ID
-  dns_tag_not: ID
-  dns_tag_in: [ID!]
-  dns_tag_not_in: [ID!]
-  dns_tag_lt: ID
-  dns_tag_lte: ID
-  dns_tag_gt: ID
-  dns_tag_gte: ID
-  dns_tag_contains: ID
-  dns_tag_not_contains: ID
-  dns_tag_starts_with: ID
-  dns_tag_not_starts_with: ID
-  dns_tag_ends_with: ID
-  dns_tag_not_ends_with: ID
+  dns_tag: UUID
+  dns_tag_not: UUID
+  dns_tag_in: [UUID!]
+  dns_tag_not_in: [UUID!]
+  dns_tag_lt: UUID
+  dns_tag_lte: UUID
+  dns_tag_gt: UUID
+  dns_tag_gte: UUID
+  dns_tag_contains: UUID
+  dns_tag_not_contains: UUID
+  dns_tag_starts_with: UUID
+  dns_tag_not_starts_with: UUID
+  dns_tag_ends_with: UUID
+  dns_tag_not_ends_with: UUID
   created_at: DateTime
   created_at_not: DateTime
   created_at_in: [DateTime!]
@@ -1076,7 +1076,7 @@ input SiteWhereInput {
 input SiteWhereUniqueInput {
   id: ID
   hostname: String
-  dns_tag: ID
+  dns_tag: UUID
 }
 
 type Subscription {
@@ -1282,4 +1282,6 @@ input UserWhereUniqueInput {
   id: ID
   username: String
 }
+
+scalar UUID
 `

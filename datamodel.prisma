@@ -41,7 +41,7 @@ type Site {
   id: ID! @id
   hostname: String! @unique
   verified: Boolean! @default(value: false)
-  dns_tag: ID! @unique
+  dns_tag: UUID! @unique
   created_at: DateTime! @createdAt
   updated_at: DateTime! @updatedAt
   posts: [Post!]! @relation(name: "PostsBySite", onDelete: CASCADE)
