@@ -36,13 +36,14 @@ export const createAdmin = async (
 
     return ok(result)
   } catch (e) {
-
-    if (e.code && e.code === '23505') {
+    // FIXME: 
+    // https://github.com/parlez-vous/server/issues/39
+    if (e.result && e.result.errors && e.result.errors[0].code === 3010) {
       return err(
         RouteError.Conflict
       )
     }
-    
+
     logger.warn('Query Error', 'createAdmin', e)
 
     return err(RouteError.Other) 
