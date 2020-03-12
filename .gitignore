@@ -1,5 +1,7 @@
 notes.txt
 
+src/prisma-client/
+
 build/
 node_modules/
 .env
