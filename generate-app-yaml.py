@@ -18,7 +18,7 @@ app_yaml_base = """
 """
 
 # convert raw yaml string into a dict
-obj = yaml.load(app_yaml_base)
+obj = yaml.safe_load(app_yaml_base)
 
 # dynamically add sensitive environment variables
 obj['env_variables'].update({
