@@ -10,6 +10,8 @@ services:
     ports:
       - 15432:5432
   prisma:
+    depends_on:
+      - db
     image: prismagraphql/prisma:1.34
     restart: always
     ports:
@@ -27,7 +29,7 @@ services:
             password: testing123
   server:
     depends_on:
-      - db
+      - prisma
     image: parlezvous/server
     build:
       context: .
