@@ -1,5 +1,4 @@
-# FYI: endpoint locally is http://localhost:4466
-endpoint: ${PRISMA_ENDPOINT}
+endpoint: ${env:PRISMA_ENDPOINT}
 datamodel: datamodel.prisma
 generate:
   - generator: typescript-client
