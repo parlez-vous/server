@@ -5,5 +5,9 @@ src/prisma-client/
 build/
 node_modules/
 .env
+.prisma-env
 
 .vscode
+
+app.yaml
+key.json
