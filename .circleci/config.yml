@@ -6,15 +6,45 @@ jobs:
         - master
         
     docker:
-      - image: parlezvous/ci-base:0.3.0
+      - image: parlezvous/ci-base:0.4.0
 
     steps:
       - checkout
 
+      - run:
+          name: "Install Dependencies"
+          command: |
+            echo "Node version: $(node -v)"
+            echo "npm version: $(npm -v)"
+            npm install
+
+      - run:
+          name: "Generate Prisma Env File"
+          command: echo $PRISMA_ENDPOINT > .prisma-env
+
+      - run:
+          name: "Generate Prisma Client"
+          command: prisma generate --env-file .prisma-env
+
+      ##############################    
       # TODO: run tests + linting
+      #############################
+
+      - run:
+          name: "TypeCheck"
+          command: npm run typecheck
       
       - run:
-          name: "Deploy"
+          name: "Deploy Changes To Prisma Server"
+          command: prisma deploy --env-file .prisma-env
+
+      - run:
+          name: "Deploy Changes To Prisma"
+          comman: |
+            prisma generate -e .env
+            
+      - run:
+          name: "Deploy Server"
           # Generate app.yaml for GAE
           # logs into gcloud
           # deploys to GAE
