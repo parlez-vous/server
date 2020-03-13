@@ -19,7 +19,6 @@ COPY tsconfig.json ./
 COPY bootstrap-server-dev.sh ./
 COPY src/ ./src
 COPY knexfile.js ./
-COPY migrations/ ./migrations
 
 RUN npm install && npm run build
 

@@ -10,7 +10,6 @@ COPY package*.json ./
 COPY tsconfig.json ./
 COPY src/ ./src
 COPY knexfile.js ./
-COPY migrations/ ./migrations
 
 RUN npm install && npm run build
 

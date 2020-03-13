@@ -35,7 +35,6 @@ services:
       context: .
       dockerfile: Dockerfile-dev
     volumes:
-      - ./migrations:/usr/app/migrations
       - ./src:/usr/app/src
     ports:
       - 3000:3000
