@@ -6,7 +6,7 @@ import { isURL } from 'validator'
 
 import { Record, String, Static } from 'runtypes'
 
-export type Site = Static<typeof siteDataDecoder>
+type Site = Static<typeof siteDataDecoder>
 
 const siteDataDecoder = Record({
   hostname: String.withConstraint(s =>

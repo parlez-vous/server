@@ -83,7 +83,7 @@ const mapRouteError = (err: RouteError): RouteErrorHttpResponse => {
 }
 
 
-export type RouteResult<T> = Result<AppData<T>, RouteError>
+type RouteResult<T> = Result<AppData<T>, RouteError>
 
 export const route = <T>(
   handler: (req: Request, res: SessionManager) => DecodeResult<Promise<RouteResult<T>>>

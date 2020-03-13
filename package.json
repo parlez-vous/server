@@ -8,10 +8,12 @@
   },
   "scripts": {
     "build": "rm -rf ./build && tsc",
+    "typecheck": "tsc --noEmit",
     "start:dev": "tsc --watch & NODE_ENV=development nodemon --watch ./build ./build/index.js",
     "start:prod": "NODE_ENV=production node ./build/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "tsc --watch --noEmit"
+    "watch": "tsc --watch --noEmit",
+    "export-lint": "ts-unused-exports ./tsconfig.json"
   },
   "author": "Giorgio Delgado",
   "license": "ISC",
@@ -43,6 +45,7 @@
     "winston": "3.2.1"
   },
   "devDependencies": {
-    "nodemon": "1.18.10"
+    "nodemon": "1.18.10",
+    "ts-unused-exports": "^6.1.0"
   }
 }

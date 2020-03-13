@@ -7,7 +7,7 @@ import { getSiteComments } from 'db/actions'
 import { RouteError } from 'routes/types'
 import { Site, Comment } from 'db/types'
 
-export type SiteWithComments = Site & {
+type SiteWithComments = Site & {
   comments: Array<Comment>
 }
 
