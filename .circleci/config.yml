@@ -40,7 +40,7 @@ jobs:
 
       - run:
           name: "Deploy Changes To Prisma"
-          comman: |
+          command: |
             prisma generate -e .env
             
       - run:
