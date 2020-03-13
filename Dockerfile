@@ -9,7 +9,6 @@ WORKDIR /usr/app
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY src/ ./src
-COPY knexfile.js ./
 
 RUN npm install && npm run build
 
