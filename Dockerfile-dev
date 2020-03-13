@@ -21,6 +21,4 @@ COPY src/ ./src
 
 RUN npm install && npm run build
 
-EXPOSE 8080
-
 CMD [ "/usr/app/bootstrap-server-dev.sh" ]
