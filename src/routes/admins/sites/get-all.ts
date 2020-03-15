@@ -1,10 +1,9 @@
 import * as db from 'db/actions'
 import { route,  AppData } from 'routes/middleware'
 import { DecodeResult } from 'routes/parser'
-import { chain3 } from 'utils'
 import { buildSite, fetchSiteWithComments, SiteWithExpiry } from 'resources/sites'
 
-import { ok, Result, err } from 'neverthrow'
+import { ok, Result, err, chain3 } from 'neverthrow'
 import { RouteError } from 'routes/types'
 import { SessionManager } from 'routes/session'
 

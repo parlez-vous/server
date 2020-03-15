@@ -2,8 +2,8 @@ import { Request } from 'express'
 import { String } from 'runtypes'
 
 import { initAdminSession, getAdminFromSession } from 'db/sessions'
-import { isUUID, chain3 } from 'utils'
-import { Result, err, ok } from 'neverthrow'
+import { isUUID } from 'utils'
+import { Result, err, ok, chain3 } from 'neverthrow'
 import { decode } from 'routes/parser'
 
 import { Admin, UUID } from 'db/types'

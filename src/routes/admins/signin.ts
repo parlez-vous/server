@@ -1,11 +1,10 @@
 import { validateAdmin } from 'db/actions'
 import { route, AppData } from 'routes/middleware'
 import { decode } from 'routes/parser'
-import { ok } from 'neverthrow'
+import { ok, chain3 } from 'neverthrow'
 
 import { Record, String } from 'runtypes'
 import { Admin } from 'db/types'
-import { chain3 } from 'utils'
 import { removePassword } from 'resources/admins'
 
 const adminDecoder = Record({
