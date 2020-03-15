@@ -22,7 +22,8 @@ obj = yaml.safe_load(app_yaml_base)
 
 # dynamically add sensitive environment variables
 obj['env_variables'].update({
-  "CRON_INTERVAL_MS": os.environ['CRON_INTERVAL_MS']
+  "CRON_INTERVAL_MS": os.environ['CRON_INTERVAL_MS'],
+  "PRISMA_ENDPOINT": os.environ['PRISMA_ENDPOINT']
 })
 
 print(yaml.dump(obj, default_flow_style=False))

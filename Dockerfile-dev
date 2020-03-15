@@ -9,7 +9,8 @@ ENV DATABASE_PASSWORD testing123
 ENV DATABASE_NAME my_db
 
 # every minute locally
-ENV CRON_INTERVAL_MS 60000
+ENV CRON_INTERVAL_MS 5000
+ENV PRISMA_ENDPOINT http://prisma:4466
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
