@@ -39,6 +39,10 @@ jobs:
           command: prisma deploy --env-file .prisma-env
 
       - run:
+          name: "Compile Project"
+          command: npm run build
+
+      - run:
           name: "Deploy Server"
           # Generate app.yaml for GAE
           # logs into gcloud

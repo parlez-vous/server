@@ -3,6 +3,7 @@
 .env
 .idea
 
+src/
 datamodel.prisma
 generate-app-yaml.py
 key.json
