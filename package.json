@@ -4,13 +4,13 @@
   "description": "",
   "main": "index.js",
   "engines": {
-    "node": "10.16"
+    "node": "10.x.x"
   },
   "scripts": {
     "build": "rm -rf ./build && tsc",
     "typecheck": "tsc --noEmit",
     "start:dev": "tsc --watch & NODE_ENV=development nodemon --watch ./build ./build/index.js",
-    "start:prod": "NODE_ENV=production node ./build/index.js",
+    "start": "node ./build/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "tsc --watch --noEmit",
     "export-lint": "ts-unused-exports ./tsconfig.json"

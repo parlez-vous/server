@@ -9,10 +9,13 @@ import os
 # environment variables dynamically injected
 # at build time (for staging / prod)
 app_yaml_base = """
-  runtime: custom
-  env: flex
-  manual_scaling:
-    instances: 1
+  runtime: nodejs10
+  env: standard
+  instance_class: B1
+  service: default
+  basic_scaling:
+    max_instances: 1
+    idle_timeout: 10m
   env_variables:
     NODE_PATH: "./build"
 """

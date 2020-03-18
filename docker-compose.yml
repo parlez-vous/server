@@ -33,7 +33,7 @@ services:
     image: parlezvous/server
     build:
       context: .
-      dockerfile: Dockerfile-dev
+      dockerfile: Dockerfile
     volumes:
       - ./src:/usr/app/src
     ports:
