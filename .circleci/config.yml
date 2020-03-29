@@ -15,19 +15,12 @@ jobs:
             echo "Node version: $(node -v)"
             echo "npm version: $(npm -v)"
             npm install
-      - save_cache:
-          key: npm-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
-          paths:
-            - ./node_modules
       
   generate_prisma_client:
     docker:
       - image: parlezvous/ci-base:0.4.0
     steps:
       - checkout
-      - restore_cache:
-          keys: npm-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
-
       - run:
           name: "Generate Prisma Env File"
           command: echo "PRISMA_ENDPOINT=$PRISMA_ENDPOINT" > .prisma-env
@@ -36,23 +29,11 @@ jobs:
           name: "Generate Prisma Client"
           command: prisma generate --env-file .prisma-env
 
-      - save_cache:
-          key: prisma-deps-{{ .Branch }}-{{ .Revision }}
-          paths:
-            - ./src/prisma-client
-            - ./.prisma-env
-
   typecheck:
     docker:
       - image: parlezvous/ci-base:0.4.0
     steps:
       - checkout
-
-      - restore_cache:
-          keys: npm-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
-
-      - restore_cache:
-          keys: prisma-deps-{{ .Branch }}-{{ .Revision }}
 
       - run:
           name: "TypeCheck"
@@ -62,10 +43,6 @@ jobs:
       - image: parlezvous/ci-base:0.4.0
     steps:
       - checkout
-      - restore_cache:
-          keys: npm-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
-      - restore_cache:
-          keys: prisma-deps-{{ .Branch }}-{{ .Revision }}
       - run:
           name: "Linting"
           command: echo "linting not implemented" && exit 0
@@ -75,10 +52,6 @@ jobs:
       - image: parlezvous/ci-base:0.4.0
     steps:
       - checkout
-      - restore_cache:
-          keys: npm-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
-      - restore_cache:
-          keys: prisma-deps-{{ .Branch }}-{{ .Revision }}
       - run:
           name: "Testing"
           command: echo "testing not implemented" && exit 0
@@ -88,10 +61,6 @@ jobs:
       - image: parlezvous/ci-base:0.4.0
     steps:
       - checkout
-      - restore_cache:
-          keys: npm-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
-      - restore_cache:
-          keys: prisma-deps-{{ .Branch }}-{{ .Revision }}
       - run:
           name: "Deploy Changes To Prisma Server"
           command: prisma deploy --env-file .prisma-env
@@ -101,10 +70,6 @@ jobs:
       - image: parlezvous/ci-base:0.4.0
     steps:
       - checkout
-      - restore_cache:
-          keys: npm-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
-      - restore_cache:
-          keys: prisma-deps-{{ .Branch }}-{{ .Revision }}
       - run:
           name: "Compile Project"
           command: npm run build
