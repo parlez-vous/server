@@ -1,22 +1,30 @@
-version: 2
-jobs:
-  build:
-    branches:
-      only:
-        - master
-        
-    docker:
-      - image: parlezvous/ci-base:0.4.0
+# TODO: learn how to reuse parts of a config yaml file to reduce
+#       code duplication
+#       i.e. restoring caches
 
+version: 2
+docker:
+  - image: parlezvous/ci-base:0.4.0
+jobs:
+  install_deps:
     steps:
       - checkout
-
       - run:
           name: "Install Dependencies"
           command: |
             echo "Node version: $(node -v)"
             echo "npm version: $(npm -v)"
             npm install
+      - save_cache:
+          key: npm-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          paths:
+            - ./node_modules
+      
+  generate_prisma_client:
+    steps:
+      - checkout
+      - restore_cache:
+          keys: npm-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
 
       - run:
           name: "Generate Prisma Env File"
@@ -26,22 +34,68 @@ jobs:
           name: "Generate Prisma Client"
           command: prisma generate --env-file .prisma-env
 
-      ##############################    
-      # TODO: run tests + linting
-      #############################
+      - save_cache:
+          key: prisma-deps-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - ./src/prisma-client
+            - ./.prisma-env
+
+  typecheck:
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys: npm-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
+
+      - restore_cache:
+          keys: prisma-deps-{{ .Branch }}-{{ .Revision }}
 
       - run:
           name: "TypeCheck"
           command: npm run typecheck
-      
+  lint:
+    steps:
+      - checkout
+      - restore_cache:
+          keys: npm-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - restore_cache:
+          keys: prisma-deps-{{ .Branch }}-{{ .Revision }}
+      - run:
+          name: "Linting"
+          command: echo "linting not implemented" && exit 0
+
+  test:
+    steps:
+      - checkout
+      - restore_cache:
+          keys: npm-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - restore_cache:
+          keys: prisma-deps-{{ .Branch }}-{{ .Revision }}
+      - run:
+          name: "Testing"
+          command: echo "testing not implemented" && exit 0
+
+  migrate:
+    steps:
+      - checkout
+      - restore_cache:
+          keys: npm-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - restore_cache:
+          keys: prisma-deps-{{ .Branch }}-{{ .Revision }}
       - run:
           name: "Deploy Changes To Prisma Server"
           command: prisma deploy --env-file .prisma-env
 
+  deploy:
+    steps:
+      - checkout
+      - restore_cache:
+          keys: npm-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - restore_cache:
+          keys: prisma-deps-{{ .Branch }}-{{ .Revision }}
       - run:
           name: "Compile Project"
           command: npm run build
-
       - run:
           name: "Deploy Server"
           # Generate app.yaml for GAE
@@ -52,3 +106,36 @@ jobs:
             echo $GCLOUD_SERVICE_ACCOUNT_KEY_FILE | base64 --decode > key.json
             gcloud auth activate-service-account --key-file=./key.json --project=$GCLOUD_PROJECT_ID
             gcloud app deploy --quiet
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - install_deps
+      - generate_prisma_client
+      - typecheck:
+          requires:
+            - install_deps
+            - generate_prisma_client
+      - lint:
+          requires:
+            - install_deps
+            - generate_prisma_client
+      - test:
+          requires:
+            - install_deps
+            - generate_prisma_client
+      - migrate:
+          filters:
+            branches:
+              only: master
+          requires:
+            - typecheck
+            - lint
+            - test
+      - deploy:
+          filters:
+            branches:
+              only: master
+          requires:
+            - migrate
