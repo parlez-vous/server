@@ -1,6 +1,6 @@
 # TODO: learn how to reuse parts of a config yaml file to reduce
 #       code duplication
-#       i.e. restoring caches
+#       i.e. restoring caches / workspaces
 
 version: 2
 jobs:
@@ -15,7 +15,14 @@ jobs:
             echo "Node version: $(node -v)"
             echo "npm version: $(npm -v)"
             npm install
-      
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - node_modules
+      - run:
+          name: "Move node_modules to workspace"
+          command: mv ./node_modules /tmp/workspace
+
   generate_prisma_client:
     docker:
       - image: parlezvous/ci-base:0.4.0
@@ -29,15 +36,32 @@ jobs:
           name: "Generate Prisma Client"
           command: prisma generate --env-file .prisma-env
 
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - prisma
+
+      - run:
+          name: "Move prisma files to workspace"
+          command: mv .prisma-env ./src/prisma-client /tmp/prisma/prisma-client
+
   typecheck:
     docker:
       - image: parlezvous/ci-base:0.4.0
     steps:
       - checkout
+      
+      - attach_workspace:
+          at: /tmp/workspace
 
       - run:
           name: "TypeCheck"
-          command: npm run typecheck
+          command: |
+            cp -r /tmp/workspace/node_modules ./node_modules
+            cp -r /tmp/workspace/prisma/prisma-client ./src/prisma-client
+            cp /tmp/workspace/prisma/.prisma-env ./prisma-env
+            npm run typecheck
+      
   lint:
     docker:
       - image: parlezvous/ci-base:0.4.0
