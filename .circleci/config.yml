@@ -4,6 +4,16 @@
 
 version: 2
 jobs:
+  create_workspace:
+    docker:
+      - image: parlezvous/ci-base:0.4.0
+    steps:
+      - run:
+        name: "Create workspace"
+        command: |
+          mkdir -p /tmp/workspace/node_modules
+          mkdir -p /tmp/workspace/prisma
+
   install_deps:
     docker:
       - image: parlezvous/ci-base:0.4.0
@@ -15,10 +25,6 @@ jobs:
             echo "Node version: $(node -v)"
             echo "npm version: $(npm -v)"
             npm install
-
-      - run:
-          name: "Create workspace"
-          command: mkdir -p /tmp/workspace
 
       - persist_to_workspace:
           root: /tmp/workspace
@@ -117,8 +123,13 @@ workflows:
   version: 2
   main:
     jobs:
-      - install_deps
-      - generate_prisma_client
+      - create_workspace
+      - install_deps:
+          requires:
+            - create_workspace
+      - generate_prisma_client:
+          requires:
+            - create_workspace
       - typecheck:
           requires:
             - install_deps
