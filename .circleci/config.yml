@@ -9,10 +9,10 @@ jobs:
       - image: parlezvous/ci-base:0.4.0
     steps:
       - run:
-        name: "Create workspace"
-        command: |
-          mkdir -p /tmp/workspace/node_modules
-          mkdir -p /tmp/workspace/prisma
+          name: "Create workspace"
+          command: |
+            mkdir -p /tmp/workspace/node_modules
+            mkdir -p /tmp/workspace/prisma
 
   install_deps:
     docker:
