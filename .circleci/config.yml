@@ -15,6 +15,11 @@ jobs:
             echo "Node version: $(node -v)"
             echo "npm version: $(npm -v)"
             npm install
+
+      - run:
+          name: "Create workspace"
+          command: mkdir -p /tmp/workspace
+
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
