@@ -4,16 +4,6 @@
 
 version: 2
 jobs:
-  create_workspace:
-    docker:
-      - image: parlezvous/ci-base:0.4.0
-    steps:
-      - run:
-          name: "Create workspace"
-          command: |
-            mkdir -p /tmp/workspace/node_modules
-            mkdir -p /tmp/workspace/prisma
-
   install_deps:
     docker:
       - image: parlezvous/ci-base:0.4.0
@@ -27,12 +17,9 @@ jobs:
             npm install
 
       - persist_to_workspace:
-          root: /tmp/workspace
+          root: .
           paths:
             - node_modules
-      - run:
-          name: "Move node_modules to workspace"
-          command: mv ./node_modules /tmp/workspace
 
   generate_prisma_client:
     docker:
@@ -48,36 +35,31 @@ jobs:
           command: prisma generate --env-file .prisma-env
 
       - persist_to_workspace:
-          root: /tmp/workspace
+          root: .
           paths:
-            - prisma
-
-      - run:
-          name: "Move prisma files to workspace"
-          command: mv .prisma-env ./src/prisma-client /tmp/prisma/prisma-client
+            - src/prisma-client
+            - .prisma-env
 
   typecheck:
     docker:
       - image: parlezvous/ci-base:0.4.0
     steps:
       - checkout
-      
       - attach_workspace:
-          at: /tmp/workspace
-
+          at: .
+      
       - run:
           name: "TypeCheck"
-          command: |
-            cp -r /tmp/workspace/node_modules ./node_modules
-            cp -r /tmp/workspace/prisma/prisma-client ./src/prisma-client
-            cp /tmp/workspace/prisma/.prisma-env ./prisma-env
-            npm run typecheck
+          command: npm run typecheck
       
   lint:
     docker:
       - image: parlezvous/ci-base:0.4.0
     steps:
       - checkout
+      - attach_workspace:
+          at: .
+
       - run:
           name: "Linting"
           command: echo "linting not implemented" && exit 0
@@ -87,6 +69,8 @@ jobs:
       - image: parlezvous/ci-base:0.4.0
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: "Testing"
           command: echo "testing not implemented" && exit 0
@@ -96,6 +80,8 @@ jobs:
       - image: parlezvous/ci-base:0.4.0
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: "Deploy Changes To Prisma Server"
           command: prisma deploy --env-file .prisma-env
@@ -105,6 +91,9 @@ jobs:
       - image: parlezvous/ci-base:0.4.0
     steps:
       - checkout
+      - attach_workspace:
+          at: .
+
       - run:
           name: "Compile Project"
           command: npm run build
@@ -123,13 +112,8 @@ workflows:
   version: 2
   main:
     jobs:
-      - create_workspace
-      - install_deps:
-          requires:
-            - create_workspace
-      - generate_prisma_client:
-          requires:
-            - create_workspace
+      - install_deps
+      - generate_prisma_client
       - typecheck:
           requires:
             - install_deps
