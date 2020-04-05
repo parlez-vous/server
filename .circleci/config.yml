@@ -84,7 +84,7 @@ jobs:
           at: .
       - run:
           name: "Deploy Changes To Prisma Server"
-          command: prisma deploy --env-file .prisma-env
+          command: DEBUG="*" prisma deploy --env-file .prisma-env
 
   deploy:
     docker:
