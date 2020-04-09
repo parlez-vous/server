@@ -73,7 +73,7 @@ jobs:
           at: .
       - run:
           name: "Testing"
-          command: echo "testing not implemented" && exit 0
+          command: npm run test
 
   migrate:
     docker:
