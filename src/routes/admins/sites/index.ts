@@ -6,7 +6,6 @@ import { handler as registerSite } from './register-site'
 
 const router = Router()
 
-
 router.get('/', getAllSites)
 router.post('/register', registerSite)
 router.get('/:id', getSingle)

@@ -1,7 +1,4 @@
-const {
-  CRON_INTERVAL_MS,
-  PORT,
-} = process.env
+const { CRON_INTERVAL_MS, PORT } = process.env
 
 if (!CRON_INTERVAL_MS) {
   throw new Error('CRON_INTERVAL_MS is undefined')

@@ -5,7 +5,6 @@ import { DecodeResult } from 'routes/parser'
 import { Result } from 'neverthrow'
 import { RouteError } from 'routes/types'
 
-
 interface AppData<T> {
   data: T
   sessionToken?: string
@@ -28,21 +27,21 @@ const mapRouteError = (err: RouteError): RouteErrorHttpResponse => {
     case RouteError.InvalidToken: {
       return {
         statusCode: 400,
-        errorMsg: 'Invalid Token Format'
+        errorMsg: 'Invalid Token Format',
       }
     }
 
     case RouteError.MissingHeader: {
       return {
         statusCode: 400,
-        errorMsg: 'Missing `Authorization` header'
+        errorMsg: 'Missing `Authorization` header',
       }
     }
 
     case RouteError.InvalidSession: {
       return {
         statusCode: 401,
-        errorMsg: 'Invalid Session'
+        errorMsg: 'Invalid Session',
       }
     }
 
@@ -55,38 +54,40 @@ const mapRouteError = (err: RouteError): RouteErrorHttpResponse => {
 
       return {
         statusCode: 400,
-        errorMsg  
+        errorMsg,
       }
     }
 
     case RouteError.Conflict: {
       return {
         statusCode: 409,
-        errorMsg: 'Conflict'
+        errorMsg: 'Conflict',
       }
     }
 
     case RouteError.NotFound: {
       return {
         statusCode: 404,
-        errorMsg: 'Not Found'
+        errorMsg: 'Not Found',
       }
     }
 
     case RouteError.Other: {
       return {
         statusCode: 500,
-        errorMsg: 'An Internal Error Occurred :('
+        errorMsg: 'An Internal Error Occurred :(',
       }
     }
   }
 }
 
-
 type RouteResult<T> = Result<AppData<T>, RouteError>
 
 export const route = <T>(
-  handler: (req: Request, res: SessionManager) => DecodeResult<Promise<RouteResult<T>>>
+  handler: (
+    req: Request,
+    res: SessionManager
+  ) => DecodeResult<Promise<RouteResult<T>>>
 ) => {
   return async (req: Request, res: Response) => {
     const sessionMgr = new SessionManager(req)
@@ -105,8 +106,8 @@ export const route = <T>(
           })
       })
       .mapErr((parseError) => {
-        res.status(400).json({ 
-          error: parseError 
+        res.status(400).json({
+          error: parseError,
         })
       })
   }

@@ -11,4 +11,3 @@ interface Session {
 const sessionDb: Map<SessionId, Session> = new Map()
 
 export default sessionDb
-

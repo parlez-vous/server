@@ -10,32 +10,30 @@ export const isUUID = (str: string): boolean => {
   return uuidRegex.test(str)
 }
 
-
-export const txtRecordValue = (uuid: string) => `parlez-vous-site-verification=${uuid}`
-
+export const txtRecordValue = (uuid: string) =>
+  `parlez-vous-site-verification=${uuid}`
 
 type SuccessfulLookup = string[][] | undefined
 type FailedLookup = null
 
-type DnsLookupResult = Result<SuccessfulLookup, FailedLookup> 
+type DnsLookupResult = Result<SuccessfulLookup, FailedLookup>
 
 export const failedLookupError = err<SuccessfulLookup, FailedLookup>(null)
 
-export const resolveTXTRecord = (hostname: string) => new Promise<DnsLookupResult>((resolve, _) => {
-  resolveTxt(
-    hostname, 
-    (lookupError, result) => {
+export const resolveTXTRecord = (hostname: string) =>
+  new Promise<DnsLookupResult>((resolve) => {
+    resolveTxt(hostname, (lookupError, result) => {
       if (lookupError) {
-        logger.info([
-          `[resolveTXTRecord] Error looking up "${hostname}"`,
-          lookupError
-        ].join(' - '))
+        logger.info(
+          [
+            `[resolveTXTRecord] Error looking up "${hostname}"`,
+            lookupError,
+          ].join(' - ')
+        )
 
         return resolve(err(null))
       }
 
       resolve(ok(result))
-     }
-  )
-})
-
+    })
+  })

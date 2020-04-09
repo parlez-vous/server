@@ -20,16 +20,15 @@ app.use('*', (_, res) => {
   res.sendStatus(404)
 })
 
-app.listen(
-  serverPort,
-  () => console.log(`Listening for tcp connections on port ${serverPort}`)
+app.listen(serverPort, () =>
+  console.log(`Listening for tcp connections on port ${serverPort}`)
 )
 
 startCronJobs()
 
 process.on('unhandledRejection', (reason, promise) => {
   console.log({
-    error: `Unhandled Rejection at: ${promise},\nReason: ${reason}`
+    error: `Unhandled Rejection at: ${promise},\nReason: ${reason}`,
   })
 
   // Application specific logging, throwing an error, or other logic here

@@ -8,7 +8,11 @@ export namespace DecodeResult {
 
 export type DecodeResult<T> = Result<T, string>
 
-export const decode = <T>(decoder: Runtype<T>, raw: unknown, msg?: string): DecodeResult<T> => {
+export const decode = <T>(
+  decoder: Runtype<T>,
+  raw: unknown,
+  msg?: string
+): DecodeResult<T> => {
   try {
     const parsed = decoder.check(raw)
 

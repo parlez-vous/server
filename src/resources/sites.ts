@@ -1,4 +1,3 @@
-
 import { Result, ok } from 'neverthrow'
 
 import { txtRecordValue } from 'utils'
@@ -13,7 +12,7 @@ type SiteWithComments = Site & {
 
 export type SiteWithExpiry = SiteWithComments & {
   expires_by: Date
-} 
+}
 
 // TODO: refactor
 // this approach is likely not going to scale
@@ -21,10 +20,10 @@ export const fetchSiteWithComments = async (
   site: Site
 ): Promise<Result<SiteWithComments, RouteError>> => {
   if (!site.verified) {
-    return ok(({
+    return ok({
       ...site,
-      comments: []
-    }))
+      comments: [],
+    })
   }
 
   const commentsResult = await getSiteComments(site.id)
@@ -34,7 +33,6 @@ export const fetchSiteWithComments = async (
     comments,
   }))
 }
-
 
 // constructs a site that is to be consumed by a front end
 // FIXME: https://github.com/parlez-vous/server/issues/32
@@ -46,9 +44,10 @@ export const buildSite = (site: SiteWithComments): SiteWithExpiry => {
   const expiryDate = new Date(site.created_at)
   expiryDate.setDate(expiryDay)
 
+  /* eslint-disable @typescript-eslint/camelcase */
   return {
     ...site,
     dns_tag: txtRecordValue(site.dns_tag),
-    expires_by: expiryDate
+    expires_by: expiryDate,
   }
 }

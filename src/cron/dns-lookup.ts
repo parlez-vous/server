@@ -8,7 +8,6 @@ import { getUnverifiedSites, setSitesAsVerified } from 'db/actions'
 import { resolveTXTRecord, failedLookupError, txtRecordValue } from 'utils'
 import logger from 'logger'
 
-
 const verifyDnsEntries = async () => {
   const startTime = Date.now()
 
@@ -17,38 +16,41 @@ const verifyDnsEntries = async () => {
   const sites = await getUnverifiedSites()
 
   const dnsQueryResults = await Promise.all(
-    sites.map((s) => resolveTXTRecord(s.hostname)
-      .then((result) => ({
-        dnsLookupResult: result,
-        site: s
-      }))
-      .catch(e => {
-        logger.error([
-          `[verifyDnsEntries] Error while resolving TXT record for "${s.hostname}"`,
-          `Error: ${JSON.stringify(e)}`
-        ].join(' '))
+    sites.map((s) =>
+      resolveTXTRecord(s.hostname)
+        .then((result) => ({
+          dnsLookupResult: result,
+          site: s,
+        }))
+        .catch((e) => {
+          logger.error(
+            [
+              `[verifyDnsEntries] Error while resolving TXT record for "${s.hostname}"`,
+              `Error: ${JSON.stringify(e)}`,
+            ].join(' ')
+          )
 
-        return {
-          dnsLookupResult: failedLookupError,
-          site: s
-        }
-      })
+          return {
+            dnsLookupResult: failedLookupError,
+            site: s,
+          }
+        })
     )
   )
 
   const verifiedSites = dnsQueryResults
-    .filter(({ dnsLookupResult, site }) => dnsLookupResult
-      .match(
-        (ok) => {
-          if (!ok) {
+    .filter(({ dnsLookupResult, site }) =>
+      dnsLookupResult.match(
+        (successfulLookupOutcome) => {
+          if (!successfulLookupOutcome) {
             return false
           }
-    
-          return ok.some(([ record ]) =>
-            record === txtRecordValue(site.dns_tag)
+
+          return successfulLookupOutcome.some(
+            ([record]) => record === txtRecordValue(site.dns_tag)
           )
         },
-        _e => false
+        () => false
       )
     )
     .map(({ site }) => site.id)
@@ -62,7 +64,6 @@ const verifyDnsEntries = async () => {
 
   logger.info('[verifyDnsEntries] Job Ended - Total Time ms: ' + totalTime)
 }
-
 
 export const start = () => {
   setInterval(() => {

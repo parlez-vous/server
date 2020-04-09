@@ -6,16 +6,11 @@ import adminRoutes from './admins'
 const rootRouter = Router()
 
 const corsOptions = {
-  allowedHeaders : ['Authorization', 'Content-Type']
+  allowedHeaders: ['Authorization', 'Content-Type'],
 }
 
 rootRouter.use(cors(corsOptions))
 
-
-rootRouter.use(
-  '/admins',
-  adminRoutes
-)
-
+rootRouter.use('/admins', adminRoutes)
 
 export default rootRouter

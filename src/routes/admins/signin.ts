@@ -13,8 +13,8 @@ const adminDecoder = Record({
 })
 
 export const handler = route<Admin.WithoutPassword>((req, session) =>
-  decode(adminDecoder, req.body, 'Invalid request body')
-    .map((parsed) => chain3(
+  decode(adminDecoder, req.body, 'Invalid request body').map((parsed) =>
+    chain3(
       validateAdmin(parsed.username, parsed.password),
       async (admin) => {
         const sessionResult = await session.createSession(admin)
@@ -22,15 +22,12 @@ export const handler = route<Admin.WithoutPassword>((req, session) =>
         return sessionResult.map((sessionToken) => {
           return {
             sessionToken,
-            admin
+            admin,
           }
         })
       },
-      ({ sessionToken, admin }) => Promise.resolve(
-        ok(AppData.init(
-          removePassword(admin),
-          sessionToken
-        ))
-      )
-    ))
+      ({ sessionToken, admin }) =>
+        Promise.resolve(ok(AppData.init(removePassword(admin), sessionToken)))
+    )
+  )
 )

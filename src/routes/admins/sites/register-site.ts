@@ -8,36 +8,30 @@ import { Record, String, Static } from 'runtypes'
 
 type Site = Static<typeof siteDataDecoder>
 
+/* eslint-disable @typescript-eslint/camelcase */
 const siteDataDecoder = Record({
-  hostname: String.withConstraint(s =>
+  hostname: String.withConstraint((s) =>
     isURL(s, {
       require_protocol: false,
-      require_tld: true
+      require_tld: true,
     })
   ),
 })
+/* eslint-enable @typescript-eslint/camelcase */
 
 const decodeErrorMessage = [
   'Invalid request body',
-  'This endpoint only accepts Fully Qualified Domain Names'
+  'This endpoint only accepts Fully Qualified Domain Names',
 ].join(' ')
 
 export const handler = route<Site>((req, session) =>
-  decode(
-    siteDataDecoder,
-    req.body, 
-    decodeErrorMessage
-  )
-  .map(async (parsed) => {
+  decode(siteDataDecoder, req.body, decodeErrorMessage).map(async (parsed) => {
     const sessionResult = await session.getSessionUser()
 
-    const siteRegistrationResult = await sessionResult
-      .asyncMap((admin) =>
-        registerSite(admin.id, parsed.hostname)
-      )
+    const siteRegistrationResult = await sessionResult.asyncMap((admin) =>
+      registerSite(admin.id, parsed.hostname)
+    )
 
-    return siteRegistrationResult
-      .andThen((r) => r)
-      .map(AppData.init)
+    return siteRegistrationResult.andThen((r) => r).map(AppData.init)
   })
 )

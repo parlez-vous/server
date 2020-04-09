@@ -10,16 +10,13 @@ import { Admin, UUID } from 'db/types'
 import { RouteError } from 'routes/types'
 import { removePassword } from 'resources/admins'
 
+export const getAuthToken = (
+  authHeader: string
+): Result<string, RouteError> => {
+  const uuidDecoder = String.withConstraint((s) => isUUID(s))
 
-export const getAuthToken = (authHeader: string): Result<string, RouteError> => {
-  const uuidDecoder = String.withConstraint(
-    s => isUUID(s)
-  )
-
-  return decode(uuidDecoder, authHeader)
-    .mapErr(() => RouteError.InvalidToken)
+  return decode(uuidDecoder, authHeader).mapErr(() => RouteError.InvalidToken)
 }
-
 
 export class SessionManager {
   private req: Request
@@ -38,8 +35,9 @@ export class SessionManager {
     return getAuthToken(authHeader)
   }
 
-  
-  getSessionUser = async (): Promise<Result<Admin.WithoutPassword, RouteError>> => {
+  getSessionUser = async (): Promise<
+    Result<Admin.WithoutPassword, RouteError>
+  > => {
     return chain3(
       Promise.resolve(this.getSessionToken()),
       (token) => getAdminFromSession(token),

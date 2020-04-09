@@ -5,7 +5,6 @@ import logger from 'logger'
 
 import { start as startDnsLookups } from './dns-lookup'
 
-
 export const startCronJobs = () => {
   logger.info('Cron Jobs Started')
   startDnsLookups()

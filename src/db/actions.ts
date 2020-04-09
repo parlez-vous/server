@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import { Admin, Site, prisma } from 'prisma-client'
 
 import logger from 'logger'
@@ -23,25 +24,22 @@ export const createAdmin = async (
 
     const result = await prisma.createAdmin({
       username: admin.username,
-      password: pwHash
+      password: pwHash,
     })
 
     return ok(result)
   } catch (e) {
-    // FIXME: 
+    // FIXME:
     // https://github.com/parlez-vous/server/issues/39
     if (e.result && e.result.errors && e.result.errors[0].code === 3010) {
-      return err(
-        RouteError.Conflict
-      )
+      return err(RouteError.Conflict)
     }
 
     logger.warn('Query Error', 'createAdmin', e)
 
-    return err(RouteError.Other) 
+    return err(RouteError.Other)
   }
 }
-
 
 export const validateAdmin = async (
   username: Admin['username'],
@@ -51,46 +49,43 @@ export const validateAdmin = async (
     const admin = await prisma.admin({
       username,
     })
-    
+
     if (!admin) {
       return err(RouteError.NotFound)
     }
 
     const match = await bcrypt.compare(password, admin.password)
 
-    return match
-      ? ok(admin)
-      : err(RouteError.NotFound)
-
+    return match ? ok(admin) : err(RouteError.NotFound)
   } catch (e) {
     return err(RouteError.Other)
   }
 }
 
-export const getAdmin = async (adminId: Admin['id']): Promise<Result<Admin, RouteError>> => {
+export const getAdmin = async (
+  adminId: Admin['id']
+): Promise<Result<Admin, RouteError>> => {
   try {
     const admin = await prisma.admin({
-      id: adminId
+      id: adminId,
     })
 
-    return admin
-      ? ok(admin)
-      : err(RouteError.NotFound)
-      
+    return admin ? ok(admin) : err(RouteError.NotFound)
   } catch (e) {
     return err(RouteError.Other)
   }
 }
-
 
 type GetAdminSites = Result<Array<Site>, RouteError>
 export const getAdminSites = async (
   adminUserId: Admin['id']
 ): Promise<GetAdminSites> => {
   try {
-    const sites = await prisma.admin({
-      id: adminUserId
-    }).sites()
+    const sites = await prisma
+      .admin({
+        id: adminUserId,
+      })
+      .sites()
 
     return ok(sites)
   } catch (e) {
@@ -98,34 +93,31 @@ export const getAdminSites = async (
   }
 }
 
-
-
 export const getSingleSite = async (
   adminUserId: Admin['id'],
   siteId: Site['id']
 ): Promise<Result<Site, RouteError>> => {
   try {
-    const sites = await prisma.admin({
-      id: adminUserId,
-    }).sites({
-      where: {
-        id: siteId,
-      },
-      first: 1,
-    })
+    const sites = await prisma
+      .admin({
+        id: adminUserId,
+      })
+      .sites({
+        where: {
+          id: siteId,
+        },
+        first: 1,
+      })
 
     const site = sites[0]
 
-    return site
-      ? ok(site)
-      : err(RouteError.NotFound)
+    return site ? ok(site) : err(RouteError.NotFound)
   } catch (e) {
-    logger.warn(`[Query Error] getSingleSite - ${e}`)  
+    logger.warn(`[Query Error] getSingleSite - ${e}`)
 
     return err(RouteError.Other)
   }
 }
-
 
 // register website for admin
 export const registerSite = async (
@@ -133,31 +125,31 @@ export const registerSite = async (
   hostname: string
 ): Promise<Result<Site, RouteError>> => {
   try {
-    const sites = await prisma.updateAdmin({
-      data: {
-        sites: {
-          create: {
-            hostname,
-            dns_tag: v4()
-          }
-        }
-      },
-      where: {
-        id: adminId,
-      }
-    }).sites()
+    const sites = await prisma
+      .updateAdmin({
+        data: {
+          sites: {
+            create: {
+              hostname,
+              dns_tag: v4(),
+            },
+          },
+        },
+        where: {
+          id: adminId,
+        },
+      })
+      .sites()
 
     const newSite = sites[0]
 
     return ok(newSite)
   } catch (e) {
     if (e.code && e.code === '23505') {
-      return err(
-        RouteError.Conflict
-      )
+      return err(RouteError.Conflict)
     }
 
-    logger.warn('Query Error', 'createAdmin', e)    
+    logger.warn('Query Error', 'createAdmin', e)
     return err(RouteError.Other)
   }
 }
@@ -165,26 +157,25 @@ export const registerSite = async (
 export const getUnverifiedSites = async (): Promise<Array<Site>> => {
   const sites = await prisma.sites({
     where: {
-      verified: false
-    }
+      verified: false,
+    },
   })
 
   return sites
 }
 
-export const setSitesAsVerified = async (siteIds: Array<Site['id']>): Promise<void> => {
+export const setSitesAsVerified = async (
+  siteIds: Array<Site['id']>
+): Promise<void> => {
   await prisma.updateManySites({
     data: {
-      verified: true
+      verified: true,
     },
     where: {
-      id_in: siteIds
-    }
+      id_in: siteIds,
+    },
   })
 }
-
-
-
 
 // FIXME: this query is wrongs
 
@@ -218,11 +209,13 @@ export const getSiteComments = async (
       }
     `
 
-    const siteComments = await prisma.site({
-      id: siteId
-    }).posts().$fragment(fragment).then(
-      rt.Array(commentWithAuthorUsernameParser).check
-    )    
+    const siteComments = await prisma
+      .site({
+        id: siteId,
+      })
+      .posts()
+      .$fragment(fragment)
+      .then(rt.Array(commentWithAuthorUsernameParser).check)
 
     return ok(siteComments)
   } catch (e) {
@@ -230,4 +223,3 @@ export const getSiteComments = async (
     return err(RouteError.Other)
   }
 }
-
