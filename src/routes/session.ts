@@ -41,15 +41,11 @@ export class SessionManager {
   }
 
   getSessionUser = (): ResultAsync<Admin.WithoutPassword, RouteError> =>
-    this.getSessionToken()
-      .asyncAndThen(getAdminFromSession)
-      .map(removePassword)
+    this.getSessionToken().asyncAndThen(getAdminFromSession).map(removePassword)
 
   createSession = (admin: Admin): ResultAsync<NewSessionInfo, RouteError> =>
-    initAdminSession(admin)
-      .map((sessionToken) => ({
-        sessionToken,
-        admin: removePassword(admin),
-      }))
+    initAdminSession(admin).map((sessionToken) => ({
+      sessionToken,
+      admin: removePassword(admin),
+    }))
 }
-

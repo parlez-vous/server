@@ -26,9 +26,9 @@ const decodeErrorMessage = [
 
 export const handler = route<Site>((req, session) =>
   decode(siteDataDecoder, req.body, decodeErrorMessage).map((parsed) =>
-    session.getSessionUser()
+    session
+      .getSessionUser()
       .andThen((admin) => registerSite(admin.id, parsed.hostname))
       .map(AppData.init)
   )
 )
-

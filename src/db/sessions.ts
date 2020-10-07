@@ -42,4 +42,3 @@ export const getAdminFromSession = (
 
   return getAdmin(adminSession.adminId)
 }
-

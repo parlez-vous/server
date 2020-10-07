@@ -11,12 +11,10 @@ const adminDecoder = Record({
 })
 
 export const handler = route<Admin.WithoutPassword>((req, session) =>
-  decode(adminDecoder, req.body, 'Invalid request body').map(({ username, password }) =>
-    validateAdmin(username, password)
-      .andThen(session.createSession)
-      .map(({ sessionToken, admin }) =>
-        AppData.init(admin, sessionToken)
-      )
-    )
+  decode(adminDecoder, req.body, 'Invalid request body').map(
+    ({ username, password }) =>
+      validateAdmin(username, password)
+        .andThen(session.createSession)
+        .map(({ sessionToken, admin }) => AppData.init(admin, sessionToken))
+  )
 )
-

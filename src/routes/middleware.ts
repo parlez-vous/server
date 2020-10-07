@@ -83,11 +83,12 @@ const mapRouteError = (err: RouteError): RouteErrorHttpResponse => {
 
 type RouteResult<T> = ResultAsync<AppData<T>, RouteError>
 
-type RouteHandler<T> = (req: Request, mgr: SessionManager) => DecodeResult<RouteResult<T>>
+type RouteHandler<T> = (
+  req: Request,
+  mgr: SessionManager
+) => DecodeResult<RouteResult<T>>
 
-export const route = <T>(
-  handler: RouteHandler<T>
-) => {
+export const route = <T>(handler: RouteHandler<T>) => {
   return async (req: Request, res: Response) => {
     const sessionMgr = new SessionManager(req)
 
@@ -109,4 +110,3 @@ export const route = <T>(
       })
   }
 }
-

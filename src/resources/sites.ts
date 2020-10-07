@@ -23,4 +23,3 @@ export const buildSite = (site: Site): SiteWithExpiry => {
     expires_by: expiryDate,
   }
 }
-

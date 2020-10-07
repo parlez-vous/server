@@ -27,10 +27,9 @@ app.listen(serverPort, () =>
 startCronJobs()
 
 process.on('unhandledRejection', (reason, promise) => {
-  const errorMsg = [
-    `Unhandled Promise Rejection`,
-    `Reason: ${reason}`,
-  ].join(',\n')
+  const errorMsg = [`Unhandled Promise Rejection`, `Reason: ${reason}`].join(
+    ',\n'
+  )
 
   console.log({
     error: errorMsg,
@@ -42,4 +41,3 @@ process.on('unhandledRejection', (reason, promise) => {
 
   process.exit(1)
 })
-
