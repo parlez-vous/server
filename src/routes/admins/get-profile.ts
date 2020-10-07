@@ -4,8 +4,9 @@ import { DecodeResult } from 'routes/parser'
 
 import { Admin } from 'db/types'
 
-export const handler = route<Admin.WithoutPassword>((_, session) => {
-  return DecodeResult.pass(
-    session.getSessionUser().then((result) => result.map(AppData.init))
+export const handler = route<Admin.WithoutPassword>((_, session) =>
+  DecodeResult.pass(
+    session.getSessionUser().map(AppData.init)
   )
-})
+)
+

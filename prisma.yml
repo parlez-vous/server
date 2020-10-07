@@ -1,6 +1,0 @@
-endpoint: ${env:PRISMA_ENDPOINT}
-secret: ${env:PRISMA_SERVICE_SECRET}
-datamodel: datamodel.prisma
-generate:
-  - generator: typescript-client
-    output: ./src/prisma-client/

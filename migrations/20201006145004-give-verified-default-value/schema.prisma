@@ -1,0 +1,74 @@
+// https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url = "***"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output = "./src/prisma-client"
+}
+
+model Admin {
+  @@map("admins")
+  id         String @id @default(cuid()) 
+  email      String @unique
+  username   String @unique
+  password   String
+  sites      Site[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+
+model Site {
+  @@map("sites")
+  id       String @id @default(cuid())
+  hostname String
+  verified Boolean @default(false)
+  dns_tag  String @unique @default(uuid())
+  admin    Admin @relation(fields: [admin_id], references: [id])
+  admin_id String 
+  posts    Post[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+
+model User {
+  @@map("users")
+  id         String @id @default(cuid())
+  email      String @unique
+  username   String @unique
+  password   String
+  comments   Comment[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+
+model Comment {
+  @@map("comments")
+  id         String @id @default(cuid())
+  parent     Comment?
+  author     User?
+  body       String @default("")
+  votes      Int @default(0)
+  post       Post @relation(fields: [post_id], references: [id])
+  post_id    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+
+model Post {
+  @@map("posts")
+  id         String @id @default(cuid())
+  site       Site @relation(fields: [site_id], references: [id])
+  site_id    String
+  comments   Comment[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+

@@ -1,0 +1,30 @@
+{
+  "version": "0.3.14-fixed",
+  "steps": [
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "Site",
+          "field": "verified"
+        },
+        "directive": "default"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "Site",
+          "field": "verified"
+        },
+        "directive": "default"
+      },
+      "argument": "",
+      "value": "false"
+    }
+  ]
+}

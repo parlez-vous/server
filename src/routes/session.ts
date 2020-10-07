@@ -3,12 +3,17 @@ import { String } from 'runtypes'
 
 import { initAdminSession, getAdminFromSession } from 'db/sessions'
 import { isUUID } from 'utils'
-import { Result, err, ok, chain3 } from 'neverthrow'
+import { Result, err, ResultAsync } from 'neverthrow'
 import { decode } from 'routes/parser'
 
 import { Admin, UUID } from 'db/types'
 import { RouteError } from 'routes/types'
 import { removePassword } from 'resources/admins'
+
+interface NewSessionInfo {
+  sessionToken: UUID
+  admin: Admin.WithoutPassword
+}
 
 export const getAuthToken = (
   authHeader: string
@@ -35,17 +40,16 @@ export class SessionManager {
     return getAuthToken(authHeader)
   }
 
-  getSessionUser = async (): Promise<
-    Result<Admin.WithoutPassword, RouteError>
-  > => {
-    return chain3(
-      Promise.resolve(this.getSessionToken()),
-      (token) => getAdminFromSession(token),
-      async (admin) => ok(removePassword(admin))
-    )
-  }
+  getSessionUser = (): ResultAsync<Admin.WithoutPassword, RouteError> =>
+    this.getSessionToken()
+      .asyncAndThen(getAdminFromSession)
+      .map(removePassword)
 
-  createSession = async (admin: Admin): Promise<Result<UUID, RouteError>> => {
-    return initAdminSession(admin)
-  }
+  createSession = (admin: Admin): ResultAsync<NewSessionInfo, RouteError> =>
+    initAdminSession(admin)
+      .map((sessionToken) => ({
+        sessionToken,
+        admin: removePassword(admin),
+      }))
 }
+

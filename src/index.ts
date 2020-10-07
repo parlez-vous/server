@@ -27,11 +27,19 @@ app.listen(serverPort, () =>
 startCronJobs()
 
 process.on('unhandledRejection', (reason, promise) => {
+  const errorMsg = [
+    `Unhandled Promise Rejection`,
+    `Reason: ${reason}`,
+  ].join(',\n')
+
   console.log({
-    error: `Unhandled Rejection at: ${promise},\nReason: ${reason}`,
+    error: errorMsg,
   })
 
-  // Application specific logging, throwing an error, or other logic here
+  // need to log the promise without stringifying it to properly
+  // display all rejection info
+  console.log(promise)
 
   process.exit(1)
 })
+

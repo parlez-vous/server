@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 
 import { SessionManager } from 'routes/session'
 import { DecodeResult } from 'routes/parser'
-import { Result } from 'neverthrow'
+import { ResultAsync } from 'neverthrow'
 import { RouteError } from 'routes/types'
 
 interface AppData<T> {
@@ -81,22 +81,19 @@ const mapRouteError = (err: RouteError): RouteErrorHttpResponse => {
   }
 }
 
-type RouteResult<T> = Result<AppData<T>, RouteError>
+type RouteResult<T> = ResultAsync<AppData<T>, RouteError>
+
+type RouteHandler<T> = (req: Request, mgr: SessionManager) => DecodeResult<RouteResult<T>>
 
 export const route = <T>(
-  handler: (
-    req: Request,
-    res: SessionManager
-  ) => DecodeResult<Promise<RouteResult<T>>>
+  handler: RouteHandler<T>
 ) => {
   return async (req: Request, res: Response) => {
     const sessionMgr = new SessionManager(req)
 
     handler(req, sessionMgr)
-      .map(async (action) => {
-        const result = await action
-
-        result
+      .map((action) => {
+        action
           .map((appData) => {
             res.status(200).json(appData)
           })
@@ -112,3 +109,4 @@ export const route = <T>(
       })
   }
 }
+

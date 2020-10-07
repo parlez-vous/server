@@ -25,13 +25,10 @@ const decodeErrorMessage = [
 ].join(' ')
 
 export const handler = route<Site>((req, session) =>
-  decode(siteDataDecoder, req.body, decodeErrorMessage).map(async (parsed) => {
-    const sessionResult = await session.getSessionUser()
-
-    const siteRegistrationResult = await sessionResult.asyncMap((admin) =>
-      registerSite(admin.id, parsed.hostname)
-    )
-
-    return siteRegistrationResult.andThen((r) => r).map(AppData.init)
-  })
+  decode(siteDataDecoder, req.body, decodeErrorMessage).map((parsed) =>
+    session.getSessionUser()
+      .andThen((admin) => registerSite(admin.id, parsed.hostname))
+      .map(AppData.init)
+  )
 )
+

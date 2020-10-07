@@ -1,0 +1,6 @@
+# Prisma Migrate lockfile v1
+
+20201005173052-init
+20201005180040-add-more-site-fields
+20201005180557-add-date-fields-to-site
+20201006145004-give-verified-default-value

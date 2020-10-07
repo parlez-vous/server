@@ -3,16 +3,16 @@ import { v4 as uuidv4 } from 'uuid'
 
 import sessiondb from 'resources/sessions'
 
-import { Result, ok, err } from 'neverthrow'
+import { ResultAsync, okAsync, errAsync } from 'neverthrow'
 import { DateTime } from 'luxon'
 import { RouteError } from 'routes/types'
 import { Admin, UUID } from './types'
 import { getAdmin } from './actions'
 
 // remove any past sessions pertaining to user
-export const initAdminSession = async ({
+export const initAdminSession = ({
   id,
-}: Admin): Promise<Result<UUID, RouteError>> => {
+}: Admin): ResultAsync<UUID, RouteError> => {
   const uuid = uuidv4()
 
   sessiondb.set(uuid, {
@@ -20,16 +20,16 @@ export const initAdminSession = async ({
     last_accessed_at: new Date(),
   })
 
-  return ok(uuid)
+  return okAsync(uuid)
 }
 
-export const getAdminFromSession = async (
+export const getAdminFromSession = (
   sessionId: UUID
-): Promise<Result<Admin, RouteError>> => {
+): ResultAsync<Admin, RouteError> => {
   const adminSession = sessiondb.get(sessionId)
 
   if (!adminSession) {
-    return err(RouteError.NotFound)
+    return errAsync(RouteError.NotFound)
   }
 
   const now = DateTime.local()
@@ -37,8 +37,9 @@ export const getAdminFromSession = async (
   const sessionExpired = lastAccessed.diff(now).days > 7
 
   if (sessionExpired) {
-    return err(RouteError.InvalidSession)
+    return errAsync(RouteError.InvalidSession)
   }
 
   return getAdmin(adminSession.adminId)
 }
+

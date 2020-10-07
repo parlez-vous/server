@@ -1,3 +1,7 @@
+# This docker-compose file is exclusively for local development
+# hence why we create a volume mapping between the "server" image files and 
+# the files on your file system
+
 version: "3"
 
 services:
@@ -9,27 +13,7 @@ services:
       POSTGRES_DB: 'my_db'
     ports:
       - 15432:5432
-  prisma:
-    depends_on:
-      - db
-    image: prismagraphql/prisma:1.34
-    restart: always
-    ports:
-      - '4466:4466'
-    environment:
-      PRISMA_CONFIG: |
-        port: 4466
-        databases:
-          default:
-            connector: postgres
-            database: my_db
-            host: db
-            port: 5432
-            user: gio
-            password: testing123
   server:
-    depends_on:
-      - prisma
     image: parlezvous/server
     build:
       context: .
@@ -38,3 +22,4 @@ services:
       - ./src:/usr/app/src
     ports:
       - 3000:8080
+

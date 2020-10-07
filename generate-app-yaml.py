@@ -9,13 +9,10 @@ import os
 # environment variables dynamically injected
 # at build time (for staging / prod)
 app_yaml_base = """
-  runtime: nodejs10
-  env: standard
-  instance_class: B1
-  service: default
-  basic_scaling:
-    max_instances: 1
-    idle_timeout: 10m
+  runtime: custom
+  env: flex
+  manual_scaling:
+    instances: 1
   env_variables:
     NODE_PATH: "./build"
 """
@@ -26,7 +23,8 @@ obj = yaml.safe_load(app_yaml_base)
 # dynamically add sensitive environment variables
 obj['env_variables'].update({
   "CRON_INTERVAL_MS": os.environ['CRON_INTERVAL_MS'],
-  "PRISMA_ENDPOINT": os.environ['PRISMA_ENDPOINT']
+  "DATABASE_URL": os.environ['DATABASE_URL'],
 })
 
 print(yaml.dump(obj, default_flow_style=False))
+

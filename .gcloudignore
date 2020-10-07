@@ -1,17 +1,20 @@
-.circleci
+.circleci/
 .gitignore
 .env
 .idea
+.eslintignore
+.eslintrc.js
 
-src/
-datamodel.prisma
+migrations/
+
+.prettierignore
+.prettierrc
+
+jest.config.js
 generate-app-yaml.py
 key.json
-prisma.yml
 docker-compose.yml
-Dockerfile
 node_modules
-bootstrap-server-dev.sh
 README.md
 renovate.json
-tsconfig.json
+

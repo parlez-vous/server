@@ -1,16 +1,14 @@
-# This Dockerfile creates the Staging / Production image that runs on a remote server 
+# Creates the image to run the server locally
 
 FROM node:10.16.0
 
 # Create app directory
 WORKDIR /usr/app
 
-# In production / staging, the following vars are 
-# injected by GCP App Engine
-# - DATABASE_URL
-# - CRON_INTERVAL_MS
-
+ENV CRON_INTERVAL_MS 5000
 ENV PORT 8080
+ENV DATABASE_URL postgresql://gio:testing123@db:5432/my_db
+
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
@@ -25,5 +23,5 @@ RUN npm install && \
     npm run build && \
     npx prisma generate
 
-CMD [ "npm", "start" ]
+CMD [ "/usr/app/bootstrap-server-dev.sh" ]
 
