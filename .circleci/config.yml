@@ -6,7 +6,7 @@ version: 2
 jobs:
   install_deps:
     docker:
-      - image: parlezvous/ci-base:0.4.0
+      - image: parlezvous/ci-base:0.5.0
     steps:
       - checkout
       - run:
@@ -21,28 +21,9 @@ jobs:
           paths:
             - node_modules
 
-  generate_prisma_client:
-    docker:
-      - image: parlezvous/ci-base:0.4.0
-    steps:
-      - checkout
-      - run:
-          name: "Generate Prisma Env File"
-          command: echo "PRISMA_ENDPOINT=$PRISMA_ENDPOINT" > .prisma-env
-
-      - run:
-          name: "Generate Prisma Client"
-          command: prisma generate --env-file .prisma-env
-
-      - persist_to_workspace:
-          root: .
-          paths:
-            - src/prisma-client
-            - .prisma-env
-
   typecheck:
     docker:
-      - image: parlezvous/ci-base:0.4.0
+      - image: parlezvous/ci-base:0.5.0
     steps:
       - checkout
       - attach_workspace:
@@ -54,7 +35,7 @@ jobs:
       
   lint:
     docker:
-      - image: parlezvous/ci-base:0.4.0
+      - image: parlezvous/ci-base:0.5.0
     steps:
       - checkout
       - attach_workspace:
@@ -66,7 +47,7 @@ jobs:
 
   test:
     docker:
-      - image: parlezvous/ci-base:0.4.0
+      - image: parlezvous/ci-base:0.5.0
     steps:
       - checkout
       - attach_workspace:
@@ -77,14 +58,14 @@ jobs:
 
   migrate:
     docker:
-      - image: parlezvous/ci-base:0.4.0
+      - image: parlezvous/ci-base:0.5.0
     steps:
       - checkout
       - attach_workspace:
           at: .
       - run:
           name: "Deploy Changes To Prisma Server"
-          command: DEBUG="*" prisma deploy --env-file .prisma-env
+          command: DEBUG="*" npx prisma migrate up --experimental
 
   deploy:
     docker:
@@ -93,10 +74,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-
-      - run:
-          name: "Compile Project"
-          command: npm run build
       - run:
           name: "Deploy Server"
           # Generate app.yaml for GAE
@@ -113,19 +90,15 @@ workflows:
   main:
     jobs:
       - install_deps
-      - generate_prisma_client
       - typecheck:
           requires:
             - install_deps
-            - generate_prisma_client
       - lint:
           requires:
             - install_deps
-            - generate_prisma_client
       - test:
           requires:
             - install_deps
-            - generate_prisma_client
       - migrate:
           filters:
             branches:

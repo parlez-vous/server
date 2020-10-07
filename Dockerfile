@@ -11,6 +11,7 @@ WORKDIR /usr/app
 # - CRON_INTERVAL_MS
 
 ENV PORT 8080
+ENV NODE_PATH ./build
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
