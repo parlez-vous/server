@@ -18,7 +18,6 @@ ENV NODE_PATH ./build
 # where available (npm@5+)
 COPY package*.json ./
 COPY tsconfig.json ./
-COPY bootstrap-server-dev.sh ./
 COPY src/ ./src
 COPY schema.prisma ./
 
