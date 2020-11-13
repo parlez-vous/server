@@ -5,9 +5,12 @@ import sessiondb from 'resources/sessions'
 
 import { ResultAsync, okAsync, errAsync } from 'neverthrow'
 import { DateTime } from 'luxon'
-import { RouteError } from 'routes/types'
+import * as Errors from 'errors'
 import { Admin, UUID } from './types'
 import { getAdmin } from './actions'
+
+type RouteError = Errors.RouteError
+
 
 // remove any past sessions pertaining to user
 export const initAdminSession = ({
@@ -29,7 +32,7 @@ export const getAdminFromSession = (
   const adminSession = sessiondb.get(sessionId)
 
   if (!adminSession) {
-    return errAsync(RouteError.NotFound)
+    return errAsync(Errors.notFound())
   }
 
   const now = DateTime.local()
@@ -37,7 +40,7 @@ export const getAdminFromSession = (
   const sessionExpired = lastAccessed.diff(now).days > 7
 
   if (sessionExpired) {
-    return errAsync(RouteError.InvalidSession)
+    return errAsync(Errors.invalidSession())
   }
 
   return getAdmin(adminSession.adminId)

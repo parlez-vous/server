@@ -7,8 +7,11 @@ import { Result, err, ResultAsync } from 'neverthrow'
 import { decode } from 'routes/parser'
 
 import { Admin, UUID } from 'db/types'
-import { RouteError } from 'routes/types'
+import * as Errors from 'errors'
 import { removePassword } from 'resources/admins'
+
+type RouteError = Errors.RouteError
+
 
 interface NewSessionInfo {
   sessionToken: UUID
@@ -20,7 +23,8 @@ export const getAuthToken = (
 ): Result<string, RouteError> => {
   const uuidDecoder = String.withConstraint((s) => isUUID(s))
 
-  return decode(uuidDecoder, authHeader).mapErr(() => RouteError.InvalidToken)
+  return decode(uuidDecoder, authHeader)
+    .mapErr(() => Errors.invalidToken())
 }
 
 export class SessionManager {
@@ -34,16 +38,16 @@ export class SessionManager {
     const authHeader = this.req.get('Authorization')
 
     if (!authHeader) {
-      return err(RouteError.MissingHeader)
+      return err(Errors.missingHeader())
     }
 
     return getAuthToken(authHeader)
   }
 
-  getSessionUser = (): ResultAsync<Admin.WithoutPassword, RouteError> =>
+  public getSessionUser = (): ResultAsync<Admin.WithoutPassword, RouteError> =>
     this.getSessionToken().asyncAndThen(getAdminFromSession).map(removePassword)
 
-  createSession = (admin: Admin): ResultAsync<NewSessionInfo, RouteError> =>
+  public createSession = (admin: Admin): ResultAsync<NewSessionInfo, RouteError> =>
     initAdminSession(admin).map((sessionToken) => ({
       sessionToken,
       admin: removePassword(admin),

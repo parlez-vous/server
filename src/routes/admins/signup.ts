@@ -1,5 +1,5 @@
 /**
- * Signup Route
+ * badRequest() Route
  */
 
 import { Record, String, Static } from 'runtypes'
@@ -10,7 +10,7 @@ import { decode } from 'routes/parser'
 
 import { errAsync } from 'neverthrow'
 import { Admin } from 'db/types'
-import { RouteError } from 'routes/types'
+import * as Errors from 'errors'
 
 export type NewAdmin = Static<typeof adminSignupDecoder>
 
@@ -25,15 +25,21 @@ export const handler = route<Admin.WithoutPassword>((req, session) =>
   decode(adminSignupDecoder, req.body, 'Invalid request body').map((parsed) => {
     // https://www.npmjs.com/package/bcrypt#security-issuesconcerns
     if (parsed.password.length <= 7 || parsed.password.length > 72) {
-      return errAsync(RouteError.Signup)
+      return errAsync(
+        Errors.badRequest('Password must be between 8 and 71 characters in length')
+      )
     }
 
     if (parsed.password !== parsed.passwordConfirm) {
-      return errAsync(RouteError.Signup)
+      return errAsync(
+        Errors.badRequest('Passwords do not match')
+      )
     }
 
     if (parsed.username.length < 3 || parsed.username.length > 30) {
-      return errAsync(RouteError.Signup)
+      return errAsync(
+        Errors.badRequest('Username must be between 3 and 30 characters in length')
+      )
     }
 
     return createAdmin(parsed)

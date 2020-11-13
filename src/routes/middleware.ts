@@ -3,7 +3,9 @@ import { Request, Response } from 'express'
 import { SessionManager } from 'routes/session'
 import { DecodeResult } from 'routes/parser'
 import { ResultAsync } from 'neverthrow'
-import { RouteError } from 'routes/types'
+import * as Errors from 'errors'
+
+type RouteError = Errors.RouteError
 
 interface AppData<T> {
   data: T
@@ -23,56 +25,50 @@ interface RouteErrorHttpResponse {
 }
 
 const mapRouteError = (err: RouteError): RouteErrorHttpResponse => {
-  switch (err) {
-    case RouteError.InvalidToken: {
+  switch (err.type) {
+    case 'InvalidToken': {
       return {
         statusCode: 400,
         errorMsg: 'Invalid Token Format',
       }
     }
 
-    case RouteError.MissingHeader: {
+    case 'MissingHeader': {
       return {
         statusCode: 400,
         errorMsg: 'Missing `Authorization` header',
       }
     }
 
-    case RouteError.InvalidSession: {
+    case 'InvalidSession': {
       return {
         statusCode: 401,
         errorMsg: 'Invalid Session',
       }
     }
 
-    case RouteError.Signup: {
-      const errorMsg = [
-        'Error while signing up',
-        'Username must be between 3 and 30 characters in length',
-        'Password must be between 8 and 72 characters in length',
-      ].join('. ')
-
+    case 'BadRequest': {
       return {
         statusCode: 400,
-        errorMsg,
+        errorMsg: err.context,
       }
     }
 
-    case RouteError.Conflict: {
+    case 'Conflict': {
       return {
         statusCode: 409,
         errorMsg: 'Conflict',
       }
     }
 
-    case RouteError.NotFound: {
+    case 'NotFound': {
       return {
         statusCode: 404,
         errorMsg: 'Not Found',
       }
     }
 
-    case RouteError.Other: {
+    case 'Other': {
       return {
         statusCode: 500,
         errorMsg: 'An Internal Error Occurred :(',

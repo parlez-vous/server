@@ -5,9 +5,7 @@ import { buildSite, SiteWithExpiry } from 'resources/sites'
 
 import { isURL } from 'validator'
 
-import { Record, String, Static } from 'runtypes'
-
-type Site = Static<typeof siteDataDecoder>
+import { Record, String } from 'runtypes'
 
 /* eslint-disable @typescript-eslint/camelcase */
 const siteDataDecoder = Record({

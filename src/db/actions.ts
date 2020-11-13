@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { PrismaClient, Admin, Site } from '@prisma/client'
-
+import { PrismaClient } from '@prisma/client'
+import { Admin, Comment, Post, Site } from './types'
 import logger from 'logger'
-
-import { ResultAsync, ok, err, errAsync } from 'neverthrow'
-
+import { ResultAsync, ok, err, errAsync, okAsync } from 'neverthrow'
 import * as bcrypt from 'bcrypt'
-
 import { NewAdmin } from 'routes/admins/signup'
+import * as Errors from 'errors'
 
-import { RouteError } from 'routes/types'
+
+type RouteError = Errors.RouteError
+
 
 const prisma = new PrismaClient()
 
@@ -38,39 +38,47 @@ export const createAdmin = (admin: NewAdmin): ResultAsync<Admin, RouteError> =>
         Array.isArray(e.result.errors) &&
         e.result.errors[0].code === 3010
       ) {
-        return RouteError.Conflict
+        return Errors.conflict()
       }
 
       logger.warn('Query Error', 'createAdmin', e)
 
-      return RouteError.Other
+      return Errors.other()
     }
   )
 
 export const validateAdmin = (
   username: Admin['username'],
   password: Admin['password']
-): ResultAsync<Admin, RouteError> =>
-  ResultAsync.fromPromise(
-    prisma.admin.findOne({
-      where: {
-        username: username,
-      },
-    }),
-    (_prismaError) => RouteError.Other
-  ).andThen((admin) =>
-    !admin
-      ? errAsync(RouteError.NotFound)
-      : ResultAsync.fromPromise(
-          bcrypt.compare(password, admin.password),
-          (_) => {
-            logger.error(
-              'bcrypt error - validateAdmin - threw when comparing passwords'
-            )
-            return RouteError.Other
-          }
-        ).andThen((match) => (match ? ok(admin) : err(RouteError.NotFound)))
-  )
+): ResultAsync<Admin, RouteError> => {
+  const credentialValidationError = Errors.notFound('username and/or password not valid')
+
+  return ResultAsync.fromPromise(
+      prisma.admin.findOne({
+        where: {
+          username: username,
+        },
+      }),
+      (_prismaError) => Errors.other()
+    ).andThen((admin) =>
+      !admin
+        ? errAsync(credentialValidationError)
+        : ResultAsync.fromPromise(
+            bcrypt.compare(password, admin.password),
+            (_) => {
+              logger.error(
+                'bcrypt error - validateAdmin - threw when comparing passwords'
+              )
+              return Errors.other()
+            }
+          ).andThen(
+            (match) =>
+              match
+                ? ok(admin)
+                : err(credentialValidationError)
+          )
+    )
+}
 
 export const getAdmin = (
   adminId: Admin['id']
@@ -81,8 +89,11 @@ export const getAdmin = (
         id: adminId,
       },
     }),
-    (_) => RouteError.Other
-  ).andThen((admin) => (admin ? ok(admin) : err(RouteError.NotFound)))
+    (_) => Errors.other()
+  ).andThen((admin) =>
+    admin ? ok(admin) : err(Errors.notFound())
+  )
+
 
 export const getAdminSites = (
   adminUserId: Admin['id']
@@ -93,8 +104,9 @@ export const getAdminSites = (
         admin_id: adminUserId,
       },
     }),
-    (_) => RouteError.Other
+    (_) => Errors.other()
   )
+
 
 export const getSingleSite = (
   siteId: Site['id']
@@ -108,9 +120,13 @@ export const getSingleSite = (
     (e) => {
       logger.warn(`[Query Error] getSingleSite - ${e}`)
 
-      return RouteError.Other
+      return Errors.other()
     }
-  ).andThen((site) => (site ? ok(site) : err(RouteError.NotFound)))
+  ).andThen((site) =>
+    site ? ok(site) : err(Errors.notFound())
+  )
+
+
 
 // register website for admin
 export const registerSite = (
@@ -131,11 +147,11 @@ export const registerSite = (
 
   return ResultAsync.fromPromise(addSiteForAdmin(), (e) => {
     if (isObj(e) && e.code && e.code === '23505') {
-      return RouteError.Conflict
+      return Errors.conflict()
     }
 
     logger.warn('Query Error', 'createAdmin', e)
-    return RouteError.Other
+    return Errors.other()
   })
 }
 
@@ -160,3 +176,73 @@ export const setSitesAsVerified = async (
     },
   })
 }
+
+
+export const findPost = (postId: string): ResultAsync<Post | null, RouteError> =>
+  ResultAsync.fromPromise(
+    prisma.post.findFirst({
+      where: {
+        id: postId,
+      }
+    }),
+    (_prismaError) => Errors.other(),
+  )
+
+
+export const findOrCreatePost = (postId: string, siteId: string): ResultAsync<Post, RouteError> => {
+  const createPost = ResultAsync.fromPromise(
+    prisma.post.create({
+      data: {
+        id: postId,
+        site: {
+          connect: {
+            id: siteId,
+          }
+        }
+      }
+    }),
+    (_prismaError) => Errors.other()
+  )
+
+  return findPost(postId)
+    .andThen((maybePost) =>
+      !!maybePost
+        ? okAsync(maybePost)
+        : createPost
+    )
+}
+
+
+/*
+interface QueryFilters<T> {
+  orderBy?: keyof T,
+  limit?: number,
+  offset?: number,
+}
+*/
+
+export const getComments = (
+  siteId: string,
+  postId?: string, // optionally filter by post
+  // filters: QueryFilters<Comment> = {}
+): ResultAsync<Comment[], RouteError> =>
+  ResultAsync.fromPromise(
+    prisma.comment.findMany({
+      include: {
+        author: true,
+      },
+      where: {
+        post: {
+          id: postId,
+          site: {
+            is: {
+              id: siteId,
+              verified: true,
+            }
+          }
+        },
+      }
+    }),
+    (_prismaError) => Errors.other()
+  )
+
