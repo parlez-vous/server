@@ -26,19 +26,21 @@ export const handler = route<Admin.WithoutPassword>((req, session) =>
     // https://www.npmjs.com/package/bcrypt#security-issuesconcerns
     if (parsed.password.length <= 7 || parsed.password.length > 72) {
       return errAsync(
-        Errors.badRequest('Password must be between 8 and 71 characters in length')
+        Errors.badRequest(
+          'Password must be between 8 and 71 characters in length'
+        )
       )
     }
 
     if (parsed.password !== parsed.passwordConfirm) {
-      return errAsync(
-        Errors.badRequest('Passwords do not match')
-      )
+      return errAsync(Errors.badRequest('Passwords do not match'))
     }
 
     if (parsed.username.length < 3 || parsed.username.length > 30) {
       return errAsync(
-        Errors.badRequest('Username must be between 3 and 30 characters in length')
+        Errors.badRequest(
+          'Username must be between 3 and 30 characters in length'
+        )
       )
     }
 

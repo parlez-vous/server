@@ -7,9 +7,7 @@ import * as bcrypt from 'bcrypt'
 import { NewAdmin } from 'routes/admins/signup'
 import * as Errors from 'errors'
 
-
 type RouteError = Errors.RouteError
-
 
 const prisma = new PrismaClient()
 
@@ -51,33 +49,32 @@ export const validateAdmin = (
   username: Admin['username'],
   password: Admin['password']
 ): ResultAsync<Admin, RouteError> => {
-  const credentialValidationError = Errors.notFound('username and/or password not valid')
+  const credentialValidationError = Errors.notFound(
+    'username and/or password not valid'
+  )
 
   return ResultAsync.fromPromise(
-      prisma.admin.findOne({
-        where: {
-          username: username,
-        },
-      }),
-      (_prismaError) => Errors.other()
-    ).andThen((admin) =>
-      !admin
-        ? errAsync(credentialValidationError)
-        : ResultAsync.fromPromise(
-            bcrypt.compare(password, admin.password),
-            (_) => {
-              logger.error(
-                'bcrypt error - validateAdmin - threw when comparing passwords'
-              )
-              return Errors.other()
-            }
-          ).andThen(
-            (match) =>
-              match
-                ? ok(admin)
-                : err(credentialValidationError)
-          )
-    )
+    prisma.admin.findOne({
+      where: {
+        username: username,
+      },
+    }),
+    (_prismaError) => Errors.other()
+  ).andThen((admin) =>
+    !admin
+      ? errAsync(credentialValidationError)
+      : ResultAsync.fromPromise(
+          bcrypt.compare(password, admin.password),
+          (_) => {
+            logger.error(
+              'bcrypt error - validateAdmin - threw when comparing passwords'
+            )
+            return Errors.other()
+          }
+        ).andThen((match) =>
+          match ? ok(admin) : err(credentialValidationError)
+        )
+  )
 }
 
 export const getAdmin = (
@@ -90,10 +87,7 @@ export const getAdmin = (
       },
     }),
     (_) => Errors.other()
-  ).andThen((admin) =>
-    admin ? ok(admin) : err(Errors.notFound())
-  )
-
+  ).andThen((admin) => (admin ? ok(admin) : err(Errors.notFound())))
 
 export const getAdminSites = (
   adminUserId: Admin['id']
@@ -106,7 +100,6 @@ export const getAdminSites = (
     }),
     (_) => Errors.other()
   )
-
 
 export const getSingleSite = (
   siteId: Site['id']
@@ -122,11 +115,7 @@ export const getSingleSite = (
 
       return Errors.other()
     }
-  ).andThen((site) =>
-    site ? ok(site) : err(Errors.notFound())
-  )
-
-
+  ).andThen((site) => (site ? ok(site) : err(Errors.notFound())))
 
 // register website for admin
 export const registerSite = (
@@ -177,19 +166,22 @@ export const setSitesAsVerified = async (
   })
 }
 
-
-export const findPost = (postId: string): ResultAsync<Post | null, RouteError> =>
+export const findPost = (
+  postId: string
+): ResultAsync<Post | null, RouteError> =>
   ResultAsync.fromPromise(
     prisma.post.findFirst({
       where: {
         id: postId,
-      }
+      },
     }),
-    (_prismaError) => Errors.other(),
+    (_prismaError) => Errors.other()
   )
 
-
-export const findOrCreatePost = (postId: string, siteId: string): ResultAsync<Post, RouteError> => {
+export const findOrCreatePost = (
+  postId: string,
+  siteId: string
+): ResultAsync<Post, RouteError> => {
   const createPost = ResultAsync.fromPromise(
     prisma.post.create({
       data: {
@@ -197,21 +189,17 @@ export const findOrCreatePost = (postId: string, siteId: string): ResultAsync<Po
         site: {
           connect: {
             id: siteId,
-          }
-        }
-      }
+          },
+        },
+      },
     }),
     (_prismaError) => Errors.other()
   )
 
-  return findPost(postId)
-    .andThen((maybePost) =>
-      !!maybePost
-        ? okAsync(maybePost)
-        : createPost
-    )
+  return findPost(postId).andThen((maybePost) =>
+    maybePost ? okAsync(maybePost) : createPost
+  )
 }
-
 
 /*
 interface QueryFilters<T> {
@@ -223,7 +211,7 @@ interface QueryFilters<T> {
 
 export const getComments = (
   siteId: string,
-  postId?: string, // optionally filter by post
+  postId?: string // optionally filter by post
   // filters: QueryFilters<Comment> = {}
 ): ResultAsync<Comment[], RouteError> =>
   ResultAsync.fromPromise(
@@ -238,11 +226,10 @@ export const getComments = (
             is: {
               id: siteId,
               verified: true,
-            }
-          }
+            },
+          },
         },
-      }
+      },
     }),
     (_prismaError) => Errors.other()
   )
-

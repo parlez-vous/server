@@ -11,7 +11,6 @@ import { getAdmin } from './actions'
 
 type RouteError = Errors.RouteError
 
-
 // remove any past sessions pertaining to user
 export const initAdminSession = ({
   id,

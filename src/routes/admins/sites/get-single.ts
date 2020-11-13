@@ -9,9 +9,7 @@ import { getSingleSite } from 'db/actions'
 import { Admin, Site } from 'db/types'
 import { buildSite, SiteWithExpiry } from 'resources/sites'
 
-
 type RouteError = Errors.RouteError
-
 
 const siteIdDecoder = rt.String.withConstraint(
   (s) => s.startsWith('c') && isAlphanumeric(s)
