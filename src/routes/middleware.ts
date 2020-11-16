@@ -64,9 +64,13 @@ const mapRouteError = (err: RouteError): RouteErrorHttpResponse => {
     }
 
     case 'NotFound': {
+      const withMaybeContext = err.context
+        ? ` - ${err.context}`
+        : ''
+
       return {
         statusCode: 404,
-        errorMsg: 'Not Found',
+        errorMsg: `Not Found${withMaybeContext}`,
       }
     }
 
