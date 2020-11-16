@@ -7,7 +7,6 @@ export type SiteWithExpiry = Site & {
 }
 
 // constructs a site that is to be consumed by a front end
-// FIXME: https://github.com/parlez-vous/server/issues/32
 export const buildSite = (site: Site): SiteWithExpiry => {
   // Consider moving this logic to the db
   // new column that gets auto calculated
