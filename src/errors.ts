@@ -17,10 +17,7 @@ export const conflict = (context?: string): RouteError => ({
   context,
 })
 
-export const other = ({
-  error,
-  context,
-}: { error?: Error; context?: string } = {}): RouteError => ({
+export const other = (context: string, error?: Error): RouteError => ({
   type: 'Other',
   context,
   error,

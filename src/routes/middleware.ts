@@ -4,6 +4,7 @@ import { SessionManager } from 'routes/session'
 import { DecodeResult } from 'routes/parser'
 import { ResultAsync } from 'neverthrow'
 import * as Errors from 'errors'
+import logger from 'logger'
 
 type RouteError = Errors.RouteError
 
@@ -69,6 +70,15 @@ const mapRouteError = (err: RouteError): RouteErrorHttpResponse => {
     }
 
     case 'Other': {
+      const errorInfo = [
+        err.error ? err.error : '',
+        `Context: ${err.context}`,
+      ]
+        .filter((val) => val !== '')
+        .join('\n')
+
+      logger.error(errorInfo)
+
       return {
         statusCode: 500,
         errorMsg: 'An Internal Error Occurred :(',
