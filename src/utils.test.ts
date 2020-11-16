@@ -1,4 +1,4 @@
-import { isUUID } from './utils'
+import { isUUID, genRandomUsername } from './utils'
 
 describe('Utils', () => {
   describe('isUUID', () => {
@@ -13,4 +13,18 @@ describe('Utils', () => {
       expect(result).toBe(false)
     })
   })
+
+  describe('genRandomUsername', () => {
+    it('Always generates three, four or five-word random usernames', () => {
+      for (let i = 0; i < 10000; i++) {
+        const name = genRandomUsername()
+        const wordCount = name.split('-').length
+
+        const hasValidWordCount = [3, 4, 5].includes(wordCount)
+
+        expect(hasValidWordCount).toBe(true)
+      }
+    })
+  })
 })
+

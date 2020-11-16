@@ -1,6 +1,18 @@
 import logger from 'logger'
 import { resolveTxt } from 'dns'
 import { Result, ok, err } from 'neverthrow'
+import * as goby from 'goby'
+
+const goby_ = goby.init({
+  decorator: (pieces) => pieces.join('-').toLowerCase(),
+})
+
+
+// https://linear.app/parlezvous/issue/PAR-41/better-random-username-generation
+export const genRandomUsername = (): string => 
+  goby_.generate(['adj', 'pre', 'suf'])
+
+
 
 // https://github.com/chriso/validator.js/blob/master/src/lib/isUUID.js
 export const isUUID = (str: string): boolean => {
