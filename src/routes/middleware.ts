@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 
+import { Admin } from 'db/types'
 import { SessionManager } from 'routes/session'
 import { DecodeResult } from 'routes/parser'
 import { ResultAsync } from 'neverthrow'
@@ -94,25 +95,59 @@ type RouteHandler<T> = (
   mgr: SessionManager
 ) => DecodeResult<RouteResult<T>>
 
+
+/*
+ * Sends appropriate HTTP responses for a RouteHandler<T>
+ */
+const wrapHandler = <T>(handlerResult: ReturnType<RouteHandler<T>>, res: Response): void => {
+  handlerResult.map((action) => {
+    action
+      .map((appData) => {
+        res.status(200).json(appData)
+      })
+      .mapErr((error) => {
+        const { statusCode, errorMsg } = mapRouteError(error)
+        res.status(statusCode).json({ error: errorMsg })
+      })
+  })
+  .mapErr((parseError) => {
+    res.status(400).json({
+      error: parseError,
+    })
+  })
+}
+
+
 export const route = <T>(handler: RouteHandler<T>) => {
-  return async (req: Request, res: Response) => {
+  return (req: Request, res: Response) => {
     const sessionMgr = new SessionManager(req)
 
-    handler(req, sessionMgr)
-      .map((action) => {
-        action
-          .map((appData) => {
-            res.status(200).json(appData)
-          })
-          .mapErr((error) => {
-            const { statusCode, errorMsg } = mapRouteError(error)
-            res.status(statusCode).json({ error: errorMsg })
-          })
-      })
-      .mapErr((parseError) => {
-        res.status(400).json({
-          error: parseError,
-        })
+    wrapHandler(
+      handler(req, sessionMgr),
+      res,
+    )
+  }
+}
+
+type PrivateRouteHandler<T> = (
+  req: Request,
+  admin: Admin.WithoutPassword,
+) => DecodeResult<RouteResult<T>>
+
+export const protectedRoute = <T>(handler: PrivateRouteHandler<T>) => {
+  return (req: Request, res: Response) => {
+    const sessionMgr = new SessionManager(req)
+
+    sessionMgr.getSessionUser()
+      .map((admin) =>
+        wrapHandler(
+          handler(req, admin),
+          res
+        )
+      )
+      .mapErr((error) => {
+        const { statusCode, errorMsg } = mapRouteError(error)
+        res.status(statusCode).json({ error: errorMsg })
       })
   }
 }

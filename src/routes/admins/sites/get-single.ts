@@ -3,7 +3,7 @@ import * as rt from 'runtypes'
 import { isAlphanumeric } from 'validator'
 import { ok, err, ResultAsync } from 'neverthrow'
 
-import { route, AppData } from 'routes/middleware'
+import { protectedRoute, AppData } from 'routes/middleware'
 import * as Errors from 'errors'
 import { getSingleSite } from 'db/actions'
 import { Admin, Site } from 'db/types'
@@ -29,11 +29,9 @@ const getAdminSite = (
     site.admin_id === adminId ? ok(site) : err(Errors.notFound())
   )
 
-export const handler = route<SiteWithExpiry>((req, sessionManager) =>
+export const handler = protectedRoute<SiteWithExpiry>((req, admin) =>
   decode(siteIdDecoder, req.params.id, errorMsg).map((siteId) =>
-    sessionManager
-      .getSessionUser()
-      .andThen((admin) => getAdminSite(siteId, admin.id))
+    getAdminSite(siteId, admin.id)
       .map(buildSite)
       .map(AppData.init)
   )
