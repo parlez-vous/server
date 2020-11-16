@@ -21,7 +21,7 @@ const getAdminSite = (
   siteId: Site['id'],
   adminId: Admin.WithoutPassword['id']
 ): ResultAsync<Site, RouteError> =>
-  getSingleSite(siteId).andThen((site) =>
+  getSingleSite({ type_: 'Cuid', val: siteId }).andThen((site) =>
     // ensure that the admin owns the site they are requesting
     // looks like i'm re-inventing the wheel on authorization
     // TODO
