@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { PrismaClient } from '@prisma/client'
-import { Admin, Comment, Post, Site } from './types'
+import { PrismaClient, SiteWhereUniqueInput } from '@prisma/client'
+import { Admin, Comment, Id, Post, Site } from './types'
+import { siteCache } from './site-cache'
 import logger from 'logger'
 import { ResultAsync, ok, err, errAsync, okAsync } from 'neverthrow'
 import * as bcrypt from 'bcrypt'
@@ -41,7 +42,7 @@ export const createAdmin = (admin: NewAdmin): ResultAsync<Admin, RouteError> =>
 
       logger.warn('Query Error', 'createAdmin', e)
 
-      return Errors.other()
+      return Errors.other('create admin error')
     }
   )
 
@@ -59,18 +60,15 @@ export const validateAdmin = (
         username: username,
       },
     }),
-    (_prismaError) => Errors.other()
+    (_prismaError) => Errors.other('validateAdmin - could not find user')
   ).andThen((admin) =>
     !admin
       ? errAsync(credentialValidationError)
-      : ResultAsync.fromPromise(
-          bcrypt.compare(password, admin.password),
-          (_) => {
-            logger.error(
-              'bcrypt error - validateAdmin - threw when comparing passwords'
-            )
-            return Errors.other()
-          }
+      : ResultAsync.fromPromise(bcrypt.compare(password, admin.password), (e) =>
+          Errors.other(
+            'bcrypt error - validateAdmin - threw when comparing passwords - Raw: ' +
+              e
+          )
         ).andThen((match) =>
           match ? ok(admin) : err(credentialValidationError)
         )
@@ -86,7 +84,7 @@ export const getAdmin = (
         id: adminId,
       },
     }),
-    (_) => Errors.other()
+    (_) => Errors.other('getAdmin')
   ).andThen((admin) => (admin ? ok(admin) : err(Errors.notFound())))
 
 export const getAdminSites = (
@@ -98,24 +96,36 @@ export const getAdminSites = (
         admin_id: adminUserId,
       },
     }),
-    (_) => Errors.other()
+    (_) => Errors.other('getAdminSites')
   )
 
-export const getSingleSite = (
-  siteId: Site['id']
-): ResultAsync<Site, RouteError> =>
-  ResultAsync.fromPromise(
-    prisma.site.findOne({
-      where: {
-        id: siteId,
-      },
-    }),
-    (e) => {
-      logger.warn(`[Query Error] getSingleSite - ${e}`)
+export const getSingleSite = (siteId: Id): ResultAsync<Site, RouteError> => {
+  const maybeSite = siteCache.findSite(siteId)
 
-      return Errors.other()
+  if (maybeSite) {
+    return okAsync(maybeSite)
+  }
+
+  const query: SiteWhereUniqueInput =
+    siteId.type_ === 'Cuid' ? { id: siteId.val } : { hostname: siteId.val }
+
+  return ResultAsync.fromPromise(
+    prisma.site.findOne({
+      where: query,
+    }),
+    (_) => {
+      return Errors.other('Error getting single site')
     }
-  ).andThen((site) => (site ? ok(site) : err(Errors.notFound())))
+  ).andThen((site) => {
+    if (site) {
+      siteCache.setSite(site)
+
+      return ok(site)
+    }
+
+    return err(Errors.notFound())
+  })
+}
 
 // register website for admin
 export const registerSite = (
@@ -140,7 +150,7 @@ export const registerSite = (
     }
 
     logger.warn('Query Error', 'createAdmin', e)
-    return Errors.other()
+    return Errors.other('create admin error - Raw: ' + e)
   })
 }
 
@@ -166,38 +176,54 @@ export const setSitesAsVerified = async (
   })
 }
 
-export const findPost = (
-  postId: string
-): ResultAsync<Post | null, RouteError> =>
-  ResultAsync.fromPromise(
+export const findPost = (postId: Id): ResultAsync<Post | null, RouteError> => {
+  const query =
+    postId.type_ === 'Cuid' ? { id: postId.val } : { url_slug: postId.val }
+
+  return ResultAsync.fromPromise(
     prisma.post.findFirst({
-      where: {
-        id: postId,
-      },
+      where: query,
     }),
-    (_prismaError) => Errors.other()
+    (_prismaError) => Errors.other('findPost')
   )
+}
 
 export const findOrCreatePost = (
-  postId: string,
+  postUrlSlug: string,
   siteId: string
 ): ResultAsync<Post, RouteError> => {
-  const createPost = ResultAsync.fromPromise(
-    prisma.post.create({
-      data: {
-        id: postId,
-        site: {
-          connect: {
-            id: siteId,
+  const createPost = () =>
+    ResultAsync.fromPromise(
+      prisma.post.create({
+        data: {
+          url_slug: postUrlSlug,
+          site: {
+            connect: {
+              id: siteId,
+            },
           },
         },
-      },
-    }),
-    (_prismaError) => Errors.other()
-  )
+      }),
+      (_prismaError) => {
+        const errorInfo = [
+          'findOrCreatePost',
+          'could not create post',
+          `Post Id: ${postId}`,
+          `Site Id: ${siteId}`,
+          `rawError: ${_prismaError}`,
+        ].join('\n')
+
+        return Errors.other(errorInfo)
+      }
+    )
+
+  const postId: Id = {
+    type_: 'Canonical',
+    val: postUrlSlug,
+  }
 
   return findPost(postId).andThen((maybePost) =>
-    maybePost ? okAsync(maybePost) : createPost
+    maybePost ? okAsync(maybePost) : createPost()
   )
 }
 
@@ -231,5 +257,5 @@ export const getComments = (
         },
       },
     }),
-    (_prismaError) => Errors.other()
+    (_prismaError) => Errors.other('get comments')
   )
