@@ -20,6 +20,11 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
       - ./src:/usr/app/src
+        # mapping everything except the binary since Docker is running in a different OS
+      - ./node_modules/.prisma/client/index.js:/usr/app/node_modules/.prisma/client/index.js
+      - ./node_modules/.prisma/client/index.d.ts:/usr/app/node_modules/.prisma/client/index.d.ts
+      - ./node_modules/.prisma/client/package.json:/usr/app/node_modules/.prisma/client/package.json
+      - ./node_modules/.prisma/client/schema.prisma:/usr/app/node_modules/.prisma/client/schema.prisma
     ports:
       - 3000:8080
 
