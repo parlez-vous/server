@@ -21,6 +21,7 @@ services:
     volumes:
       - ./src:/usr/app/src
         # mapping everything except the binary since Docker is running in a different OS
+      - ./node_modules/.prisma/runtime:/usr/app/node_modules/.prisma/runtime
       - ./node_modules/.prisma/client/index.js:/usr/app/node_modules/.prisma/client/index.js
       - ./node_modules/.prisma/client/index.d.ts:/usr/app/node_modules/.prisma/client/index.d.ts
       - ./node_modules/.prisma/client/package.json:/usr/app/node_modules/.prisma/client/package.json
