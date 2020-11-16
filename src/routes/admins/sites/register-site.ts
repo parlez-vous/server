@@ -19,7 +19,7 @@ const siteDataDecoder = Record({
 /* eslint-enable @typescript-eslint/camelcase */
 
 const decodeErrorMessage = [
-  'Invalid request body',
+  'Invalid request body.',
   'This endpoint only accepts Fully Qualified Domain Names',
 ].join(' ')
 
