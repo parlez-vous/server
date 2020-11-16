@@ -1,13 +1,22 @@
 import * as express from 'express'
 import * as bodyParser from 'body-parser'
 import * as helmet from 'helmet'
+import * as responseTime from 'response-time'
 
 import { serverPort } from 'env'
+import logger from 'logger'
 
 import routes from './routes'
 import { startCronJobs } from './cron'
 
 const app = express()
+
+app.use((req, res, next) =>
+  responseTime((_, __, time) => {
+    const trimmedTimemsg = Math.round(time)
+    logger.info(`[${req.method} ${req.originalUrl}] - Completed in ${trimmedTimemsg}ms`)
+  })(req, res, next)
+)
 
 app.use(helmet())
 app.use(bodyParser.json())
