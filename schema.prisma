@@ -49,18 +49,18 @@ model User {
 }
 
 model Comment {
+  @@map("comments")
+
   id               String   @id @default(cuid())
   parent           Comment? @relation("CommentToComment", fields: [commentId], references: [id])
   author           User?    @relation(fields: [userId], references: [id])
-  anon_author_name String   @unique
+  anon_author_name String
   body             String   @default("")
   votes            Int      @default(0)
   post             Post     @relation(fields: [post_id], references: [id])
   post_id          String
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
-
-  @@map("comments")
   Comment   Comment[] @relation("CommentToComment")
   commentId String?
   userId    String?
