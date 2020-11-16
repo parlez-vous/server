@@ -7,6 +7,8 @@ import { ResultAsync, ok, err, errAsync, okAsync } from 'neverthrow'
 import * as bcrypt from 'bcrypt'
 import { NewAdmin } from 'routes/admins/signup'
 import * as Errors from 'errors'
+import { genRandomUsername } from 'utils'
+import { connectOptionalById, wrapPrismaQuery } from './db-utils'
 
 type RouteError = Errors.RouteError
 
@@ -259,3 +261,25 @@ export const getComments = (
     }),
     (_prismaError) => Errors.other('get comments')
   )
+
+export const createComment = (
+  postId: string,
+  { body, parentCommentId, authorId, anonAuthorName }: Comment.Raw,
+): ResultAsync<Comment, RouteError> =>
+  wrapPrismaQuery(
+    'createComment',
+    prisma.comment.create({
+      data: {
+        anon_author_name: anonAuthorName || genRandomUsername(),
+        body,
+        post: {
+          connect: {
+            id: postId,
+          }
+        },
+        ...connectOptionalById('parent', parentCommentId),
+        ...connectOptionalById('author', authorId)
+      }
+    }),
+  )
+

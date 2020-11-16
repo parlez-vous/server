@@ -12,9 +12,24 @@ export type Id =
   | { type_: 'Cuid'; val: string }
   | { type_: 'Canonical'; val: string }
 
+export type Nullable<T> = T | null
+
 export type Site = prisma.Site
 export type Post = prisma.Post
+
+
 export type Comment = prisma.Comment
+
+export namespace Comment {
+  export type Raw = {
+    body: string
+    parentCommentId: Nullable<string>
+    authorId: Nullable<string>
+    anonAuthorName: Nullable<string>
+  }
+}
+
+
 export type User = prisma.User
 export type Admin = prisma.Admin
 
