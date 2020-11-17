@@ -31,7 +31,7 @@ export const getAdminFromSession = (
   const adminSession = sessiondb.get(sessionId)
 
   if (!adminSession) {
-    return errAsync(Errors.notFound())
+    return errAsync(Errors.invalidSession())
   }
 
   const now = DateTime.local()
