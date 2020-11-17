@@ -63,7 +63,7 @@
     "jest": "25.3.0",
     "nodemon": "2.0.4",
     "prettier": "2.0.4",
-    "ts-jest": "25.3.1",
+    "ts-jest": "25.5.1",
     "ts-unused-exports": "6.1.0"
   }
 }
