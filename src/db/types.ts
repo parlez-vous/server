@@ -8,9 +8,25 @@ export type UUID = string
 //
 // Site.hostname
 // Post.url_slug
+
+export type Cuid = { type_: 'Cuid'; val: string }
+export type CanonicalId = { type_: 'Canonical'; val: string }
+
 export type Id =
-  | { type_: 'Cuid'; val: string }
-  | { type_: 'Canonical'; val: string }
+  | Cuid
+  | CanonicalId
+
+
+export const canonicalId = (val: string): CanonicalId => ({
+  type_: 'Canonical',
+  val,
+})
+
+export const cuid = (val: string): Cuid => ({
+  type_: 'Cuid',
+  val,
+})
+
 
 export type Nullable<T> = T | null
 
