@@ -52,18 +52,18 @@
     "winston": "3.2.1"
   },
   "devDependencies": {
-    "@types/jest": "^25.2.1",
-    "@typescript-eslint/eslint-plugin": "^2.27.0",
-    "@typescript-eslint/parser": "^2.27.0",
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.10.1",
-    "eslint-import-resolver-typescript": "^2.0.0",
-    "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-prettier": "^3.1.2",
-    "jest": "^25.3.0",
+    "@types/jest": "25.2.1",
+    "@typescript-eslint/eslint-plugin": "2.27.0",
+    "@typescript-eslint/parser": "2.27.0",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "6.10.1",
+    "eslint-import-resolver-typescript": "2.0.0",
+    "eslint-plugin-import": "2.20.2",
+    "eslint-plugin-prettier": "3.1.2",
+    "jest": "25.3.0",
     "nodemon": "2.0.4",
-    "prettier": "^2.0.4",
-    "ts-jest": "^25.3.1",
-    "ts-unused-exports": "^6.1.0"
+    "prettier": "2.0.4",
+    "ts-jest": "25.3.1",
+    "ts-unused-exports": "6.1.0"
   }
 }
