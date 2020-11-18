@@ -1,5 +1,5 @@
 declare module 'goby' {
-  type Modifier = 'adj' | 'pre' | 'suf';
+  type Modifier = 'adj' | 'pre' | 'suf'
 
   interface Goby {
     generate: (modifiers: Modifier[]) => string
@@ -9,6 +9,5 @@ declare module 'goby' {
     decorator: (pieces: string[]) => string
   }
 
-  export function init(opts?: Options): Goby;
+  export function init(opts?: Options): Goby
 }
-
