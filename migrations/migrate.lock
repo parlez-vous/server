@@ -7,3 +7,4 @@
 20201116170647-add-canonical-ids
 20201116232440-make-anonymous-comment-names-not-unique
 20201117215345-create-tree-structure-for-comments
+20201118174234-create-comment-tree-state

@@ -10,7 +10,7 @@ export PGPASSWORD=testing123
 
 BASE_PSQL_CMD="psql -U gio -h 127.0.0.1 -p 15432 -d my_db"
 
-TABLES=( "users" "admins" "sites" "posts" "comments" "_Migration" )
+TABLES=( "users" "admins" "sites" "posts" "comments" "_Migration" "comment_tree_state" )
 
 if [ -n "$DOCKER_DB_CONTAINER_ID" ]; then                                 
     echo "> Beginning Reset ..."
