@@ -5,10 +5,13 @@ import * as Errors from 'errors'
 type RouteError = Errors.RouteError
 
 // Reduces boilerplate needed to "connect" optional models together in a prisma query
-export const connectOptionalById = <T>(fieldName: string, value: Nullable<T>) => {
+export const connectOptionalById = <T>(
+  fieldName: string,
+  value: Nullable<T>
+) => {
   if (value) {
     return {
-      [fieldName]: { connect: { id: value } }
+      [fieldName]: { connect: { id: value } },
     }
   }
 
@@ -17,22 +20,25 @@ export const connectOptionalById = <T>(fieldName: string, value: Nullable<T>) =>
 
 const mapPrismaErrorToRouteError = (err: Error): RouteError => {
   // https://github.com/prisma/prisma-client-js/issues/914
-  if (err.message.includes('Expected a valid parent ID to be present for a nested connect on a one-to-many relation.')) {
+  if (
+    err.message.includes(
+      'Expected a valid parent ID to be present for a nested connect on a one-to-many relation.'
+    )
+  ) {
     return Errors.notFound('You specified an ID that is not valid')
   }
 
   return Errors.other('Could not find an appropriate error', err)
 }
 
-export const wrapPrismaQuery = <T>(descriptor: string, query: Promise<T>): ResultAsync<T, RouteError> =>
-  ResultAsync.fromPromise(
-    query,
-    (prismaError) => {
-      if (prismaError instanceof Error) {
-        return mapPrismaErrorToRouteError(prismaError)
-      } else {
-        return Errors.other(`[${descriptor}] - Unkown Error: ${prismaError}`)
-      }
+export const wrapPrismaQuery = <T>(
+  descriptor: string,
+  query: Promise<T>
+): ResultAsync<T, RouteError> =>
+  ResultAsync.fromPromise(query, (prismaError) => {
+    if (prismaError instanceof Error) {
+      return mapPrismaErrorToRouteError(prismaError)
+    } else {
+      return Errors.other(`[${descriptor}] - Unkown Error: ${prismaError}`)
     }
-  )
-
+  })
