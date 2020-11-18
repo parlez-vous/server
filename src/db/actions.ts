@@ -1,18 +1,29 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { PrismaClient, SiteWhereUniqueInput } from '@prisma/client'
-import { Admin, Comment, Id, Post, Site } from './types'
+import { SiteWhereUniqueInput } from '@prisma/client'
+import {
+  Admin,
+  CanonicalId,
+  Comment,
+  cuid,
+  Cuid,
+  Id,
+  Post,
+  Site,
+} from './types'
 import { siteCache } from './site-cache'
+import { commentTreeLeafState } from 'db/comment-cache'
 import logger from 'logger'
 import { ResultAsync, ok, err, errAsync, okAsync } from 'neverthrow'
 import * as bcrypt from 'bcrypt'
 import { NewAdmin } from 'routes/admins/signup'
 import * as Errors from 'errors'
+import { client } from './client'
 import { genRandomUsername } from 'utils'
 import { connectOptionalById, wrapPrismaQuery } from './db-utils'
 
 type RouteError = Errors.RouteError
 
-const prisma = new PrismaClient()
+const prisma = client
 
 const isObj = (val: unknown): val is Record<string, unknown> =>
   typeof val === 'object' && val !== null
@@ -115,9 +126,7 @@ export const getSingleSite = (siteId: Id): ResultAsync<Site, RouteError> => {
     prisma.site.findOne({
       where: query,
     }),
-    (_) => {
-      return Errors.other('Error getting single site')
-    }
+    (_) => Errors.other('Error getting single site')
   ).andThen((site) => {
     if (site) {
       siteCache.setSite(site)
@@ -191,17 +200,17 @@ export const findPost = (postId: Id): ResultAsync<Post | null, RouteError> => {
 }
 
 export const findOrCreatePost = (
-  postUrlSlug: string,
-  siteId: string
+  postId: CanonicalId,
+  siteId: Cuid
 ): ResultAsync<Post, RouteError> => {
   const createPost = () =>
     ResultAsync.fromPromise(
       prisma.post.create({
         data: {
-          url_slug: postUrlSlug,
+          url_slug: postId.val,
           site: {
             connect: {
-              id: siteId,
+              id: siteId.val,
             },
           },
         },
@@ -219,11 +228,6 @@ export const findOrCreatePost = (
       }
     )
 
-  const postId: Id = {
-    type_: 'Canonical',
-    val: postUrlSlug,
-  }
-
   return findPost(postId).andThen((maybePost) =>
     maybePost ? okAsync(maybePost) : createPost()
   )
@@ -237,23 +241,41 @@ interface QueryFilters<T> {
 }
 */
 
+/**
+ * Gets the entire nested tree of comments (recursive)
+ */
 export const getComments = (
   siteId: string,
   postId?: string // optionally filter by post
   // filters: QueryFilters<Comment> = {}
-): ResultAsync<Comment[], RouteError> =>
+): ResultAsync<Comment.WithReplies[], RouteError> =>
   ResultAsync.fromPromise(
     prisma.comment.findMany({
+      distinct: 'id',
       include: {
         author: true,
+        replies: {
+          include: {
+            author: true,
+            replies: {
+              include: {
+                author: true,
+              },
+            },
+          },
+        },
       },
       where: {
+        // top-level comments don't have a parent
+        parent_comment_id: null,
         post: {
           id: postId,
+          // I feel like I can ommit this clause because post ids are unique
+          // howver, I am keeping this for now because I want to test whether the
+          // inclusion of this clause increases or decreases query performance
           site: {
             is: {
               id: siteId,
-              verified: true,
             },
           },
         },
@@ -264,9 +286,10 @@ export const getComments = (
 
 export const createComment = (
   postId: string,
-  { body, parentCommentId, authorId, anonAuthorName }: Comment.Raw,
-): ResultAsync<Comment, RouteError> =>
-  wrapPrismaQuery(
+  { body, parentCommentId, authorId, anonAuthorName }: Comment.Raw
+): ResultAsync<Comment, RouteError> => {
+  // https://linear.app/parlezvous/issue/PAR-43/run-comment-inserts-in-a-transaction
+  const createCommentTransaction = wrapPrismaQuery(
     'createComment',
     prisma.comment.create({
       data: {
@@ -275,11 +298,15 @@ export const createComment = (
         post: {
           connect: {
             id: postId,
-          }
+          },
         },
         ...connectOptionalById('parent', parentCommentId),
-        ...connectOptionalById('author', authorId)
-      }
-    }),
+        ...connectOptionalById('author', authorId),
+      },
+    })
+  ).andThen((comment) =>
+    commentTreeLeafState.addComment(cuid(postId), comment).map(() => comment)
   )
 
+  return createCommentTransaction
+}
