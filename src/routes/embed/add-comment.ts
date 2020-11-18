@@ -24,10 +24,7 @@ export const handler = route<Comment>((req, _) => {
     ...req.body,
   }
 
-  return decode(dataDecoder, data).map(
-    ({ postId, ...rawComment }) =>
-      createComment(postId, rawComment)
-        .map(AppData.init)
+  return decode(dataDecoder, data).map(({ postId, ...rawComment }) =>
+    createComment(postId, rawComment).map(AppData.init)
   )
 })
-

@@ -1,7 +1,7 @@
 import { Router } from 'express'
 
 import { handler as getComments } from './get-comments'
-import { handler as addComment } from './add-comment' 
+import { handler as addComment } from './add-comment'
 
 const router = Router()
 

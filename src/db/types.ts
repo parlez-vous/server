@@ -12,10 +12,7 @@ export type UUID = string
 export type Cuid = { type_: 'Cuid'; val: string }
 export type CanonicalId = { type_: 'Canonical'; val: string }
 
-export type Id =
-  | Cuid
-  | CanonicalId
-
+export type Id = Cuid | CanonicalId
 
 export const canonicalId = (val: string): CanonicalId => ({
   type_: 'Canonical',
@@ -27,12 +24,11 @@ export const cuid = (val: string): Cuid => ({
   val,
 })
 
-
 export type Nullable<T> = T | null
 
 export type Site = prisma.Site
 export type Post = prisma.Post
-
+export type CommentTreeState = prisma.CommentTreeState
 
 export type Comment = prisma.Comment
 
@@ -43,8 +39,13 @@ export namespace Comment {
     authorId: Nullable<string>
     anonAuthorName: Nullable<string>
   }
-}
 
+  // This is the "raw" query response from prisma
+  // Recursive comment tree
+  export type WithReplies = Comment & {
+    replies?: WithReplies[]
+  }
+}
 
 export type User = prisma.User
 export type Admin = prisma.Admin

@@ -25,8 +25,6 @@ const decodeErrorMessage = [
 
 export const handler = protectedRoute<SiteWithExpiry>((req, admin) =>
   decode(siteDataDecoder, req.body, decodeErrorMessage).map((parsed) =>
-    registerSite(admin.id, parsed.hostname)
-      .map(buildSite)
-      .map(AppData.init)
+    registerSite(admin.id, parsed.hostname).map(buildSite).map(AppData.init)
   )
 )

@@ -31,8 +31,6 @@ const getAdminSite = (
 
 export const handler = protectedRoute<SiteWithExpiry>((req, admin) =>
   decode(siteIdDecoder, req.params.id, errorMsg).map((siteId) =>
-    getAdminSite(siteId, admin.id)
-      .map(buildSite)
-      .map(AppData.init)
+    getAdminSite(siteId, admin.id).map(buildSite).map(AppData.init)
   )
 )

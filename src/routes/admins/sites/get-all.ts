@@ -5,7 +5,8 @@ import { buildSite, SiteWithExpiry } from 'resources/sites'
 
 export const handler = protectedRoute<Array<SiteWithExpiry>>((_, admin) =>
   DecodeResult.pass(
-    db.getAdminSites(admin.id)
+    db
+      .getAdminSites(admin.id)
       .map((sitesWithComments) => sitesWithComments.map(buildSite))
       .map(AppData.init)
   )
