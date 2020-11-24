@@ -42,8 +42,9 @@ export namespace Comment {
 
   // This is the "raw" query response from prisma
   // Recursive comment tree
-  export type WithReplies = Comment & {
-    replies?: WithReplies[]
+  export type WithRepliesAndAuthor = Comment & {
+    replies?: WithRepliesAndAuthor[]
+    author: Nullable<User>
   }
 }
 

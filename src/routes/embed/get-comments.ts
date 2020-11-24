@@ -11,7 +11,7 @@ import * as Errors from 'errors'
 type RouteError = Errors.RouteError
 
 interface CommentResponse {
-  comments: Comment.WithReplies[]
+  comments: Comment.WithRepliesAndAuthor[]
   leafIds: string[]
   siteVerified: boolean
   postId: string

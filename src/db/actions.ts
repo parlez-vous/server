@@ -248,7 +248,7 @@ export const getComments = (
   siteId: string,
   postId?: string // optionally filter by post
   // filters: QueryFilters<Comment> = {}
-): ResultAsync<Comment.WithReplies[], RouteError> =>
+): ResultAsync<Comment.WithRepliesAndAuthor[], RouteError> =>
   ResultAsync.fromPromise(
     prisma.comment.findMany({
       distinct: 'id',
