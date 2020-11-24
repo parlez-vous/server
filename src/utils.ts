@@ -3,6 +3,22 @@ import { resolveTxt } from 'dns'
 import { Result, ok, err } from 'neverthrow'
 import * as goby from 'goby'
 
+
+
+export const omit = <T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => {
+  return Object.entries(obj).reduce((subset, [key, val]) => {
+    if (keys.includes(key as K)) {
+      return subset
+    }
+
+    return {
+      ...subset,
+      [key]: val,
+    }
+  }, {} as Omit<T, K>)
+}
+
+
 const goby_ = goby.init({
   decorator: (pieces) => pieces.join('-').toLowerCase(),
 })

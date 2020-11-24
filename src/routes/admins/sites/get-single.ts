@@ -3,11 +3,11 @@ import * as rt from 'runtypes'
 import { isAlphanumeric } from 'validator'
 import { ok, err, ResultAsync } from 'neverthrow'
 
-import { protectedRoute, AppData } from 'routes/middleware'
+import { protectedRoute, AppData } from 'router'
 import * as Errors from 'errors'
 import { getSingleSite } from 'db/actions'
 import { Admin, Site } from 'db/types'
-import { buildSite, SiteWithExpiry } from 'resources/sites'
+import { buildSite, SiteWithExpiry, serialize } from 'resources/sites'
 
 type RouteError = Errors.RouteError
 
@@ -19,7 +19,7 @@ const errorMsg = 'Request path requires a cuid'
 
 const getAdminSite = (
   siteId: Site['id'],
-  adminId: Admin.WithoutPassword['id']
+  adminId: Admin['id']
 ): ResultAsync<Site, RouteError> =>
   getSingleSite({ type_: 'Cuid', val: siteId }).andThen((site) =>
     // ensure that the admin owns the site they are requesting
@@ -32,5 +32,6 @@ const getAdminSite = (
 export const handler = protectedRoute<SiteWithExpiry>((req, admin) =>
   decode(siteIdDecoder, req.params.id, errorMsg).map((siteId) =>
     getAdminSite(siteId, admin.id).map(buildSite).map(AppData.init)
-  )
+  ), 
+  serialize
 )

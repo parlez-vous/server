@@ -1,6 +1,21 @@
-import { isUUID, genRandomUsername } from './utils'
+import { isUUID, genRandomUsername, omit } from './utils'
 
 describe('Utils', () => {
+  describe('omit', () => {
+    it('Correctly omits keys from object', () => {
+      const myObj = {
+        name: 'Gio',
+        age: 100,
+        password: 'data-leak!!!!',
+      }
+
+
+      const newObj = omit(myObj, ['password'])
+
+      expect(newObj).toStrictEqual({ name: 'Gio', age: 100 })
+    })
+  })
+
   describe('isUUID', () => {
     it('Correctly identifies v4 uuid as a valid uuid', () => {
       const result = isUUID('2f85d9fc-6073-42d0-a0f3-53cf989542d7')

@@ -28,6 +28,11 @@ const mapPrismaErrorToRouteError = (err: Error): RouteError => {
     return Errors.notFound('You specified an ID that is not valid')
   }
 
+  // Example: Unique constraint failed on the fields: (`email`)
+  if (err.message.includes('Unique constraint failed on the fields')) {
+    return Errors.conflict()
+  }
+
   return Errors.other('Could not find an appropriate error', err)
 }
 

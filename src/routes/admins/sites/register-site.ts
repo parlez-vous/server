@@ -1,7 +1,7 @@
 import { registerSite } from 'db/actions'
-import { protectedRoute, AppData } from 'routes/middleware'
+import { protectedRoute, AppData } from 'router'
 import { decode } from 'routes/parser'
-import { buildSite, SiteWithExpiry } from 'resources/sites'
+import { buildSite, SiteWithExpiry, serialize } from 'resources/sites'
 
 import { isURL } from 'validator'
 
@@ -26,5 +26,7 @@ const decodeErrorMessage = [
 export const handler = protectedRoute<SiteWithExpiry>((req, admin) =>
   decode(siteDataDecoder, req.body, decodeErrorMessage).map((parsed) =>
     registerSite(admin.id, parsed.hostname).map(buildSite).map(AppData.init)
-  )
+  ),
+  serialize
 )
+

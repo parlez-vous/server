@@ -1,4 +1,4 @@
-import { route, AppData } from 'routes/middleware'
+import { route, AppData } from 'router'
 
 import { ResultAsync } from 'neverthrow'
 import * as rt from 'runtypes'
@@ -16,6 +16,12 @@ interface CommentResponse {
   siteVerified: boolean
   postId: string
 }
+
+const serializer = (data: CommentResponse) => ({
+  ...data,
+  comments: data.comments.map(Comment.serialize)
+})
+
 
 const getSiteComments = (
   siteId: Id,
@@ -49,5 +55,7 @@ export const handler = route<CommentResponse>((req, _) =>
       // and not a cuid
       return getSiteComments(siteId_, postId_).map(AppData.init)
     }
-  )
+  ),
+  serializer
 )
+

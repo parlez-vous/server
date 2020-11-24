@@ -32,15 +32,7 @@ const BCRYPT_HASH_ROUNDS = 10
 
 export const createAdmin = (admin: NewAdmin): ResultAsync<Admin, RouteError> =>
   ResultAsync.fromPromise(
-    bcrypt.hash(admin.password, BCRYPT_HASH_ROUNDS).then((pwHash) =>
-      prisma.admin.create({
-        data: {
-          email: admin.email,
-          username: admin.username,
-          password: pwHash,
-        },
-      })
-    ),
+    bcrypt.hash(admin.password, BCRYPT_HASH_ROUNDS),
     (e) => {
       // FIXME:
       // https://github.com/parlez-vous/server/issues/39
@@ -53,10 +45,22 @@ export const createAdmin = (admin: NewAdmin): ResultAsync<Admin, RouteError> =>
         return Errors.conflict()
       }
 
-      logger.warn('Query Error', 'createAdmin', e)
+      logger.warn('bcrypt error while creating admin: ', e)
 
       return Errors.other('create admin error')
     }
+  )
+  .andThen((pwHash) =>
+    wrapPrismaQuery(
+      'create admin',
+      prisma.admin.create({
+        data: {
+          email: admin.email,
+          username: admin.username,
+          password: pwHash,
+        },
+      })
+    )
   )
 
 export const validateAdmin = (

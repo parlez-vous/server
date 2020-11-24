@@ -1,3 +1,11 @@
+/**
+ * Abstraction on top of express JS. 
+ *
+ * Takes care of sending consistently-shaped data (see `AppData`), sends consistent HTTP status codes based on a type, etc.
+ *
+ * Namely the `route` and `protectedRoute` functions.
+ *
+ */
 import { Request, Response } from 'express'
 
 import { Admin } from 'db/types'
@@ -6,8 +14,28 @@ import { DecodeResult } from 'routes/parser'
 import { ResultAsync } from 'neverthrow'
 import * as Errors from 'errors'
 import logger from 'logger'
+import {removePassword} from 'resources/admins'
 
 type RouteError = Errors.RouteError
+
+
+/**
+ * Custom subset of the JSON spec that omits the 'password' field from JSON objects.
+ *
+ * source:
+ *  - https://www.typescriptlang.org/play?#code/FDAuE8AcFMAICkDKB5AcgNQIYBsCu0BnYWE2AXlgDtcBbAI2gCdjSAfWA0RgS0oHMWJdtWzZBsdnQD2U7NEyVx7AN6wA2gGsAXBy68+AXR1I0WPIVgBfWADJYqyJgIEA7lMYATAPw7K0AG5MVkoIKBg4+ARqBiAgvKBMAGaYAMZwAApMBFKU9uK4BEyUmDTQOpw8-OKOzm6e5XpVpLCYfGVUtAzMlrEA9L2wABI0IyOwAHST4yApOZywBUzGYWaR5HnNi4zFpToARADi3O7cfFJ7ADTifpzQHjpq4s3KT82kABbcOgDkddge3yub2BVEICXu6leINIL2hcNINB27W+fGOgKh8NINVc7gh3wATABGfEAZmJJO+GOhPUxsBi1PEBiBpFa7XJwB6wCAA
+ *  - https://stackoverflow.com/q/58594051/4259341
+ */
+export type JSONValues
+    = number
+    | string
+    | null
+    | boolean
+    | JSONObject
+    | JSONValues[]
+
+export type JSONObject = { [k: string]: JSONValues } & { password?: never }
+
 
 interface AppData<T> {
   data: T
@@ -16,6 +44,7 @@ interface AppData<T> {
 
 export namespace AppData {
   export const init = <T>(data: T, sessionToken?: string): AppData<T> => ({
+    // note that this data is serialized to JSON before getting sent out of the server
     data,
     sessionToken,
   })
@@ -87,6 +116,8 @@ const mapRouteError = (err: RouteError): RouteErrorHttpResponse => {
   }
 }
 
+type Serializer<T> = (val: T) => JSONValues
+
 type RouteResult<T> = ResultAsync<AppData<T>, RouteError>
 
 type RouteHandler<T> = (
@@ -99,13 +130,18 @@ type RouteHandler<T> = (
  */
 const wrapHandler = <T>(
   handlerResult: ReturnType<RouteHandler<T>>,
-  res: Response
+  res: Response,
+  serializer: Serializer<T>,
 ): void => {
   handlerResult
     .map((action) => {
       action
-        .map((appData) => {
-          res.status(200).json(appData)
+        .map(({ sessionToken, data }) => {
+
+          res.status(200).json({
+            sessionToken,
+            data: serializer(data),
+          })
         })
         .mapErr((error) => {
           const { statusCode, errorMsg } = mapRouteError(error)
@@ -119,26 +155,35 @@ const wrapHandler = <T>(
     })
 }
 
-export const route = <T>(handler: RouteHandler<T>) => {
+
+export const route = <T>(handler: RouteHandler<T>, serializer: Serializer<T>) => {
   return (req: Request, res: Response) => {
     const sessionMgr = new SessionManager(req)
 
-    wrapHandler(handler(req, sessionMgr), res)
+    wrapHandler(handler(req, sessionMgr), res, serializer)
   }
 }
 
 type PrivateRouteHandler<T> = (
   req: Request,
-  admin: Admin.WithoutPassword
+  admin: Omit<Admin, 'password'>
 ) => DecodeResult<RouteResult<T>>
 
-export const protectedRoute = <T>(handler: PrivateRouteHandler<T>) => {
+export const protectedRoute = <T>(handler: PrivateRouteHandler<T>, serializer: Serializer<T>) => {
   return (req: Request, res: Response) => {
     const sessionMgr = new SessionManager(req)
 
     sessionMgr
       .getSessionUser()
-      .map((admin) => wrapHandler(handler(req, admin), res))
+      .map((admin) => {
+        const adminWithoutPassword = removePassword(admin)
+
+        return wrapHandler(
+          handler(req, adminWithoutPassword),
+          res,
+          serializer
+        )
+      })
       .mapErr((error) => {
         const { statusCode, errorMsg } = mapRouteError(error)
         res.status(statusCode).json({ error: errorMsg })

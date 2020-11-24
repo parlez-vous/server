@@ -8,13 +8,12 @@ import { decode } from 'routes/parser'
 
 import { Admin, UUID } from 'db/types'
 import * as Errors from 'errors'
-import { removePassword } from 'resources/admins'
 
 type RouteError = Errors.RouteError
 
 interface NewSessionInfo {
   sessionToken: UUID
-  admin: Admin.WithoutPassword
+  admin: Admin
 }
 
 export const getAuthToken = (
@@ -42,14 +41,14 @@ export class SessionManager {
     return getAuthToken(authHeader)
   }
 
-  public getSessionUser = (): ResultAsync<Admin.WithoutPassword, RouteError> =>
-    this.getSessionToken().asyncAndThen(getAdminFromSession).map(removePassword)
+  public getSessionUser = (): ResultAsync<Admin, RouteError> =>
+    this.getSessionToken().asyncAndThen(getAdminFromSession)
 
   public createSession = (
     admin: Admin
   ): ResultAsync<NewSessionInfo, RouteError> =>
     initAdminSession(admin).map((sessionToken) => ({
       sessionToken,
-      admin: removePassword(admin),
+      admin, 
     }))
 }

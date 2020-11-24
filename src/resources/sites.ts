@@ -1,6 +1,7 @@
 import { txtRecordValue } from 'utils'
 
-import { Site } from 'db/types'
+import { Site, serializeDate } from 'db/types'
+import { JSONValues } from 'router'
 
 export type SiteWithExpiry = Site & {
   expires_by: Date
@@ -22,3 +23,11 @@ export const buildSite = (site: Site): SiteWithExpiry => {
     expires_by: expiryDate,
   }
 }
+
+export const serialize = (site: SiteWithExpiry): JSONValues => ({
+  ...site,
+  expires_by: serializeDate(site.expires_by),
+  created_at: serializeDate(site.created_at),
+  updated_at: serializeDate(site.updated_at),
+})
+
