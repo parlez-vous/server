@@ -1,6 +1,6 @@
 import { decode } from 'routes/parser'
 import * as rt from 'runtypes'
-import { isAlphanumeric } from 'validator'
+import validator from 'validator'
 import { ok, err, ResultAsync } from 'neverthrow'
 
 import { protectedRoute, AppData } from 'router'
@@ -12,7 +12,7 @@ import { buildSite, SiteWithExpiry, serialize } from 'resources/sites'
 type RouteError = Errors.RouteError
 
 const siteIdDecoder = rt.String.withConstraint(
-  (s) => s.startsWith('c') && isAlphanumeric(s)
+  (s) => s.startsWith('c') && validator.isAlphanumeric(s)
 )
 
 const errorMsg = 'Request path requires a cuid'

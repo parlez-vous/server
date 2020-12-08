@@ -4,7 +4,7 @@
 
 import { Record, String, Static } from 'runtypes'
 
-import { isEmail } from 'validator'
+import validator from 'validator'
 import { createAdmin } from 'db/actions'
 import { route, AppData } from 'router'
 import { decode } from 'routes/parser'
@@ -19,7 +19,7 @@ export type NewAdmin = Static<typeof adminSignupDecoder>
 
 const adminSignupDecoder = Record({
   username: String,
-  email: String.withConstraint((s) => isEmail(s)),
+  email: String.withConstraint((s) => validator.isEmail(s)),
   password: String,
   passwordConfirm: String,
 })
