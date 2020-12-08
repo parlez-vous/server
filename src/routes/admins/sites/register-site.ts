@@ -3,14 +3,14 @@ import { protectedRoute, AppData } from 'router'
 import { decode } from 'routes/parser'
 import { buildSite, SiteWithExpiry, serialize } from 'resources/sites'
 
-import { isURL } from 'validator'
+import validator from 'validator'
 
 import { Record, String } from 'runtypes'
 
 /* eslint-disable @typescript-eslint/camelcase */
 const siteDataDecoder = Record({
   hostname: String.withConstraint((s) =>
-    isURL(s, {
+    validator.isURL(s, {
       require_protocol: false,
       require_tld: true,
     })
