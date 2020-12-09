@@ -1,4 +1,4 @@
-import { isUUID, genRandomUsername, omit } from './utils'
+import { isUUID, genRandomUsername, omit, isCuid } from './utils'
 
 describe('Utils', () => {
   describe('omit', () => {
@@ -13,6 +13,20 @@ describe('Utils', () => {
       const newObj = omit(myObj, ['password'])
 
       expect(newObj).toStrictEqual({ name: 'Gio', age: 100 })
+    })
+  })
+
+  describe('isCuid', () => {
+    it('Correctly validates a real cuid', () => {
+      const validCuids = [
+        'ckihwfi3e00004mp4b00oa8ko',
+        'ckihwg7nw000026lg2u7618u9',
+        'cjld2cyuq0000t3rmniod1foy',
+      ]
+
+      const result = validCuids.every(isCuid)
+
+      expect(result).toBe(true)
     })
   })
 

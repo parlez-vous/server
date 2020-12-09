@@ -35,6 +35,12 @@ export const isUUID = (str: string): boolean => {
   return uuidRegex.test(str)
 }
 
+
+// from https://hexojs.github.io/warehouse/types_cuid.js.html
+export const isCuid = (str: string): boolean =>
+  str.charAt(0) === 'c' && str.length === 25
+  
+
 export const txtRecordValue = (uuid: string) =>
   `parlez-vous-site-verification=${uuid}`
 

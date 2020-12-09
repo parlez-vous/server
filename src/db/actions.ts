@@ -245,13 +245,17 @@ interface QueryFilters<T> {
 }
 */
 
+
+interface GetCommentsFilters {
+  postId?: string
+  parentCommentId?: string
+}
 /**
  * Gets the entire nested tree of comments (recursive)
  */
 export const getComments = (
   siteId: string,
-  postId?: string // optionally filter by post
-  // filters: QueryFilters<Comment> = {}
+  filters: GetCommentsFilters = {},
 ): ResultAsync<Comment.WithRepliesAndAuthor[], RouteError> =>
   ResultAsync.fromPromise(
     prisma.comment.findMany({
@@ -270,10 +274,10 @@ export const getComments = (
         },
       },
       where: {
-        // top-level comments don't have a parent
-        parent_comment_id: null,
+        // get replies for a given parent, or get top-level comments
+        parent_comment_id: filters.parentCommentId || null,
         post: {
-          id: postId,
+          id: filters.postId,
           // I feel like I can ommit this clause because post ids are unique
           // howver, I am keeping this for now because I want to test whether the
           // inclusion of this clause increases or decreases query performance
@@ -287,6 +291,7 @@ export const getComments = (
     }),
     (_prismaError) => Errors.other('get comments')
   )
+
 
 export const createComment = (
   postId: string,
