@@ -49,8 +49,7 @@ export const createAdmin = (admin: NewAdmin): ResultAsync<Admin, RouteError> =>
 
       return Errors.other('create admin error')
     }
-  )
-  .andThen((pwHash) =>
+  ).andThen((pwHash) =>
     wrapPrismaQuery(
       'create admin',
       prisma.admin.create({
@@ -245,7 +244,6 @@ interface QueryFilters<T> {
 }
 */
 
-
 interface GetCommentsFilters {
   postId?: string
   parentCommentId?: string
@@ -255,7 +253,7 @@ interface GetCommentsFilters {
  */
 export const getComments = (
   siteId: string,
-  filters: GetCommentsFilters = {},
+  filters: GetCommentsFilters = {}
 ): ResultAsync<Comment.WithRepliesAndAuthor[], RouteError> =>
   ResultAsync.fromPromise(
     prisma.comment.findMany({
@@ -291,7 +289,6 @@ export const getComments = (
     }),
     (_prismaError) => Errors.other('get comments')
   )
-
 
 export const createComment = (
   postId: string,

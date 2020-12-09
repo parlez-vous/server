@@ -9,7 +9,6 @@ describe('Utils', () => {
         password: 'data-leak!!!!',
       }
 
-
       const newObj = omit(myObj, ['password'])
 
       expect(newObj).toStrictEqual({ name: 'Gio', age: 100 })

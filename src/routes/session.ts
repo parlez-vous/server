@@ -49,6 +49,6 @@ export class SessionManager {
   ): ResultAsync<NewSessionInfo, RouteError> =>
     initAdminSession(admin).map((sessionToken) => ({
       sessionToken,
-      admin, 
+      admin,
     }))
 }

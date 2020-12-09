@@ -20,14 +20,13 @@ interface CommentResponse {
 
 const serializer = (data: CommentResponse) => ({
   ...data,
-  comments: data.comments.map(Comment.serialize)
+  comments: data.comments.map(Comment.serialize),
 })
-
 
 const getSiteComments = (
   siteId: Id,
   postId: CanonicalId,
-  parentCommentId?: Cuid,
+  parentCommentId?: Cuid
 ): ResultAsync<CommentResponse, RouteError> =>
   getSingleSite(siteId)
     .andThen((site) =>
@@ -47,7 +46,6 @@ const getSiteComments = (
       }))
     })
 
-
 const cuidDecoder = rt.String.withConstraint(isCuid)
 
 const requestParamsDecoder = rt.Record({
@@ -56,9 +54,13 @@ const requestParamsDecoder = rt.Record({
   parentCommentId: cuidDecoder.Or(rt.Undefined),
 })
 
-export const handler = route<CommentResponse>((req, _) =>
-  decode(requestParamsDecoder, { ...req.params, ...req.query }, 'invalid data').map(
-    ({ siteId, postId, parentCommentId }) => {
+export const handler = route<CommentResponse>(
+  (req, _) =>
+    decode(
+      requestParamsDecoder,
+      { ...req.params, ...req.query },
+      'invalid data'
+    ).map(({ siteId, postId, parentCommentId }) => {
       const siteId_ = canonicalId(siteId)
       const postId_ = canonicalId(postId)
       const parentCommentId_ = parentCommentId
@@ -67,9 +69,9 @@ export const handler = route<CommentResponse>((req, _) =>
 
       // Currently assuming that siteId is always the site's hostname value
       // and not a cuid
-      return getSiteComments(siteId_, postId_, parentCommentId_).map(AppData.init)
-    }
-  ),
+      return getSiteComments(siteId_, postId_, parentCommentId_).map(
+        AppData.init
+      )
+    }),
   serializer
 )
-

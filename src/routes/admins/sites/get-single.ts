@@ -29,9 +29,10 @@ const getAdminSite = (
     site.admin_id === adminId ? ok(site) : err(Errors.notFound())
   )
 
-export const handler = protectedRoute<SiteWithExpiry>((req, admin) =>
-  decode(siteIdDecoder, req.params.id, errorMsg).map((siteId) =>
-    getAdminSite(siteId, admin.id).map(buildSite).map(AppData.init)
-  ), 
+export const handler = protectedRoute<SiteWithExpiry>(
+  (req, admin) =>
+    decode(siteIdDecoder, req.params.id, errorMsg).map((siteId) =>
+      getAdminSite(siteId, admin.id).map(buildSite).map(AppData.init)
+    ),
   serialize
 )

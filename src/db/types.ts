@@ -1,11 +1,10 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import * as prisma from '@prisma/client'
 
 import { JSONValues } from 'router'
 import { omit } from 'utils'
 
-
 export const serializeDate = (d: Date): number => d.getTime()
-
 
 export type UUID = string
 
@@ -31,7 +30,6 @@ export const cuid = (val: string): Cuid => ({
   val,
 })
 
-
 export type Nullable<T> = T | null
 
 export type Site = prisma.Site
@@ -56,12 +54,10 @@ export namespace Comment {
     author: Nullable<User>
   }
 
-
   type SerializedComment = Omit<Comment, 'updated_at' | 'created_at'> & {
     updated_at: number
     created_at: number
   }
-
 
   export const simpleSerialize = (comment: Comment): SerializedComment => ({
     ...comment,
@@ -69,24 +65,20 @@ export namespace Comment {
     created_at: serializeDate(comment.created_at),
   })
 
-
   export const serialize = (comment: WithRepliesAndAuthor): JSONValues => {
     const author = comment.author && omit(comment.author, ['password'])
 
     return {
       ...simpleSerialize(comment),
-      replies: comment.replies
-        ? comment.replies.map(serialize)
-        : null, 
+      replies: comment.replies ? comment.replies.map(serialize) : null,
       author: author && {
         ...author,
         created_at: serializeDate(author.created_at),
         updated_at: serializeDate(author.updated_at),
-      }
+      },
     }
   }
 }
 
 export type User = prisma.User
 export type Admin = prisma.Admin
-

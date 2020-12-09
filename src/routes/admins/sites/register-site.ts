@@ -23,10 +23,10 @@ const decodeErrorMessage = [
   'This endpoint only accepts Fully Qualified Domain Names',
 ].join(' ')
 
-export const handler = protectedRoute<SiteWithExpiry>((req, admin) =>
-  decode(siteDataDecoder, req.body, decodeErrorMessage).map((parsed) =>
-    registerSite(admin.id, parsed.hostname).map(buildSite).map(AppData.init)
-  ),
+export const handler = protectedRoute<SiteWithExpiry>(
+  (req, admin) =>
+    decode(siteDataDecoder, req.body, decodeErrorMessage).map((parsed) =>
+      registerSite(admin.id, parsed.hostname).map(buildSite).map(AppData.init)
+    ),
   serialize
 )
-

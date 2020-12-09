@@ -30,4 +30,3 @@ export const serialize = (site: SiteWithExpiry): JSONValues => ({
   created_at: serializeDate(site.created_at),
   updated_at: serializeDate(site.updated_at),
 })
-

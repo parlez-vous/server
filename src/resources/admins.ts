@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/camelcase */
+
 import { Admin, serializeDate } from 'db/types'
 
 export const removePassword = ({
@@ -11,4 +13,3 @@ export const serialize = (admin: Admin) => ({
   created_at: serializeDate(admin.created_at),
   updated_at: serializeDate(admin.updated_at),
 })
-

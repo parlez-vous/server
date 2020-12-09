@@ -18,17 +18,13 @@ const requestParamsDecoder = rt.Record({
 
 const dataDecoder = requestParamsDecoder.And(rawCommentDecoder)
 
-export const handler = route<Comment>(
-  (req, _) => {
-    const data = {
-      ...req.params,
-      ...req.body,
-    }
+export const handler = route<Comment>((req, _) => {
+  const data = {
+    ...req.params,
+    ...req.body,
+  }
 
-    return decode(dataDecoder, data).map(({ postId, ...rawComment }) =>
-      createComment(postId, rawComment).map(AppData.init)
-    )
-  },
-  Comment.simpleSerialize
-)
-
+  return decode(dataDecoder, data).map(({ postId, ...rawComment }) =>
+    createComment(postId, rawComment).map(AppData.init)
+  )
+}, Comment.simpleSerialize)

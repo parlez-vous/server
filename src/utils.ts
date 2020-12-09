@@ -3,8 +3,6 @@ import { resolveTxt } from 'dns'
 import { Result, ok, err } from 'neverthrow'
 import * as goby from 'goby'
 
-
-
 export const omit = <T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => {
   return Object.entries(obj).reduce((subset, [key, val]) => {
     if (keys.includes(key as K)) {
@@ -17,7 +15,6 @@ export const omit = <T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => {
     }
   }, {} as Omit<T, K>)
 }
-
 
 const goby_ = goby.init({
   decorator: (pieces) => pieces.join('-').toLowerCase(),
@@ -35,11 +32,9 @@ export const isUUID = (str: string): boolean => {
   return uuidRegex.test(str)
 }
 
-
 // from https://hexojs.github.io/warehouse/types_cuid.js.html
 export const isCuid = (str: string): boolean =>
   str.charAt(0) === 'c' && str.length === 25
-  
 
 export const txtRecordValue = (uuid: string) =>
   `parlez-vous-site-verification=${uuid}`
