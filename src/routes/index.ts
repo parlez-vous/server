@@ -17,6 +17,6 @@ rootRouter.use('/admins', adminRoutes)
 
 // Routes to be used by the embed widget
 // Hence all of these routes are public
-rootRouter.use('/embed/', embedRoutes)
+rootRouter.use('/embed', embedRoutes)
 
 export default rootRouter
