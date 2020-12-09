@@ -20,8 +20,8 @@
   "author": "Giorgio Delgado",
   "license": "ISC",
   "dependencies": {
-    "@prisma/cli": "^2.11.0",
-    "@prisma/client": "^2.11.0",
+    "@prisma/cli": "^2.13.0",
+    "@prisma/client": "^2.13.0",
     "@types/bcrypt": "3.0.0",
     "@types/body-parser": "1.19.0",
     "@types/cors": "2.8.7",

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { SiteWhereUniqueInput } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import {
   Admin,
   CanonicalId,
@@ -72,7 +72,7 @@ export const validateAdmin = (
   )
 
   return ResultAsync.fromPromise(
-    prisma.admin.findOne({
+    prisma.admin.findUnique({
       where: {
         username: username,
       },
@@ -96,7 +96,7 @@ export const getAdmin = (
   adminId: Admin['id']
 ): ResultAsync<Admin, RouteError> =>
   ResultAsync.fromPromise(
-    prisma.admin.findOne({
+    prisma.admin.findUnique({
       where: {
         id: adminId,
       },
@@ -123,11 +123,11 @@ export const getSingleSite = (siteId: Id): ResultAsync<Site, RouteError> => {
     return okAsync(maybeSite)
   }
 
-  const query: SiteWhereUniqueInput =
+  const query: Prisma.SiteWhereUniqueInput =
     siteId.type_ === 'Cuid' ? { id: siteId.val } : { hostname: siteId.val }
 
   return ResultAsync.fromPromise(
-    prisma.site.findOne({
+    prisma.site.findUnique({
       where: query,
     }),
     (_) => Errors.other('Error getting single site')
