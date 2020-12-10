@@ -11,4 +11,3 @@ export const handler = protectedRoute<Array<SiteWithExpiry>>((_, admin) =>
       .map(AppData.init)
   )
 )
-

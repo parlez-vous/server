@@ -126,7 +126,7 @@ type RouteHandler<T> = (
  */
 const wrapHandler = <T>(
   handlerResult: ReturnType<RouteHandler<T>>,
-  res: Response,
+  res: Response
 ): void => {
   handlerResult
     .map((action) => {
@@ -149,9 +149,7 @@ const wrapHandler = <T>(
     })
 }
 
-export const route = <T>(
-  handler: RouteHandler<T>,
-) => {
+export const route = <T>(handler: RouteHandler<T>) => {
   return (req: Request, res: Response) => {
     const sessionMgr = new SessionManager(req)
 
@@ -164,9 +162,7 @@ type PrivateRouteHandler<T> = (
   admin: Omit<Admin, 'password'>
 ) => DecodeResult<RouteResult<T>>
 
-export const protectedRoute = <T>(
-  handler: PrivateRouteHandler<T>,
-) => {
+export const protectedRoute = <T>(handler: PrivateRouteHandler<T>) => {
   return (req: Request, res: Response) => {
     const sessionMgr = new SessionManager(req)
 

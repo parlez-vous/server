@@ -7,4 +7,3 @@ export const removePassword = ({
   password,
   ...rest
 }: Admin): Admin.WithoutPassword => rest
-

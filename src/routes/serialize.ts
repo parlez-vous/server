@@ -6,8 +6,10 @@ const dateSerializer = (date: Date): number => date.getTime()
 // recursively traverse object and:
 //  - serialize dates
 //  - strip password fields
-const objectSerializer = <T extends Record<string, unknown>>(obj: T): JSONObject =>
-  Object.entries(obj).reduce((serialized, [ key, val ]) => {
+const objectSerializer = <T extends Record<string, unknown>>(
+  obj: T
+): JSONObject =>
+  Object.entries(obj).reduce((serialized, [key, val]) => {
     if (key === 'password') {
       return serialized
     }
@@ -22,7 +24,7 @@ const objectSerializer = <T extends Record<string, unknown>>(obj: T): JSONObject
     if (Array.isArray(val)) {
       return {
         ...serialized,
-        [key]: val.map(valueSerializer)
+        [key]: val.map(valueSerializer),
       }
     }
 
@@ -31,7 +33,6 @@ const objectSerializer = <T extends Record<string, unknown>>(obj: T): JSONObject
       [key]: valueSerializer(val),
     }
   }, {})
-
 
 export const valueSerializer = <T>(val: T): JSONValues => {
   if (val instanceof Date) {
@@ -42,6 +43,5 @@ export const valueSerializer = <T>(val: T): JSONValues => {
     return objectSerializer(val)
   }
 
-  return val as unknown as JSONValues
+  return (val as unknown) as JSONValues
 }
-

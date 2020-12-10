@@ -36,13 +36,16 @@ export const isUUID = (str: string): boolean => {
 export const isCuid = (str: string): boolean =>
   str.charAt(0) === 'c' && str.length === 25
 
-
 export const isObject = (val: unknown): val is Record<string, unknown> =>
   // is object type
   typeof val === 'object' &&
   // and is none of these
-  !(val === null || Array.isArray(val) || typeof val == 'function' || val instanceof Date)
-
+  !(
+    val === null ||
+    Array.isArray(val) ||
+    typeof val == 'function' ||
+    val instanceof Date
+  )
 
 export const txtRecordValue = (uuid: string) =>
   `parlez-vous-site-verification=${uuid}`

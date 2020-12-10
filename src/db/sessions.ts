@@ -8,7 +8,7 @@ import { DateTime } from 'luxon'
 import * as Errors from 'errors'
 import { Admin, UUID } from './types'
 import { getAdmin } from './actions'
-import {removePassword} from 'resources/admins'
+import { removePassword } from 'resources/admins'
 
 type RouteError = Errors.RouteError
 

@@ -28,4 +28,3 @@ export const handler = route<Comment>((req, _) => {
     createComment(postId, rawComment).map(AppData.init)
   )
 })
-

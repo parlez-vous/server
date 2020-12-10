@@ -59,4 +59,3 @@ export type Admin = prisma.Admin
 export namespace Admin {
   export type WithoutPassword = Omit<Admin, 'password'>
 }
-
