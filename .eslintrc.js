@@ -44,7 +44,7 @@ module.exports = {
       },
 
       typescript: {
-        directory: './',
+        project: './',
       },
     },
   },
