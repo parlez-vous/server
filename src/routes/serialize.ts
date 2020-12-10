@@ -1,4 +1,4 @@
-import { isObject } from 'utils'
+import { camelCase, isObject } from 'utils'
 import { JSONObject, JSONValues } from 'router'
 
 const dateSerializer = (date: Date): number => date.getTime()
@@ -14,23 +14,25 @@ const objectSerializer = <T extends Record<string, unknown>>(
       return serialized
     }
 
+    const camelCasedKey = camelCase(key)
+
     if (isObject(val)) {
       return {
         ...serialized,
-        [key]: objectSerializer(val),
+        [camelCasedKey]: objectSerializer(val),
       }
     }
 
     if (Array.isArray(val)) {
       return {
         ...serialized,
-        [key]: val.map(valueSerializer),
+        [camelCasedKey]: val.map(valueSerializer),
       }
     }
 
     return {
       ...serialized,
-      [key]: valueSerializer(val),
+      [camelCasedKey]: valueSerializer(val),
     }
   }, {})
 

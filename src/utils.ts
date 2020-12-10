@@ -2,6 +2,7 @@ import logger from 'logger'
 import { resolveTxt } from 'dns'
 import { Result, ok, err } from 'neverthrow'
 import * as goby from 'goby'
+import * as _ from 'lodash'
 
 export const omit = <T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => {
   return Object.entries(obj).reduce((subset, [key, val]) => {
@@ -46,6 +47,11 @@ export const isObject = (val: unknown): val is Record<string, unknown> =>
     typeof val == 'function' ||
     val instanceof Date
   )
+
+
+
+export const camelCase = (val: string): string => _.camelCase(val)
+
 
 export const txtRecordValue = (uuid: string) =>
   `parlez-vous-site-verification=${uuid}`
