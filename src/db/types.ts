@@ -47,11 +47,14 @@ export namespace Comment {
     anonAuthorName: Nullable<string>
   }
 
+  export type WithAuthor = Comment & {
+    author: Nullable<User>
+  }
+
   // This is the "raw" query response from prisma
   // Recursive comment tree
-  export type WithRepliesAndAuthor = Comment & {
+  export type WithRepliesAndAuthor = WithAuthor & {
     replies?: WithRepliesAndAuthor[]
-    author: Nullable<User>
   }
 
   type SerializedComment = Omit<Comment, 'updated_at' | 'created_at'> & {

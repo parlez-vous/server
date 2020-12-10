@@ -2,26 +2,65 @@ import { route, AppData } from 'router'
 
 import { ResultAsync } from 'neverthrow'
 import * as rt from 'runtypes'
-import { Comment, Id, canonicalId, CanonicalId, Cuid, cuid } from 'db/types'
+import { Comment, Id, canonicalId, CanonicalId, Cuid, cuid, Site } from 'db/types'
 import { commentTreeLeafState } from 'db/comment-cache'
 import { decode } from 'routes/parser'
 import { findOrCreatePost, getComments, getSingleSite } from 'db/actions'
 import * as Errors from 'errors'
-import { isCuid } from 'utils'
+import { isCuid, omit } from 'utils'
+import {valueSerializer} from 'routes/serialize'
 
 type RouteError = Errors.RouteError
 
-interface CommentResponse {
-  comments: Comment.WithRepliesAndAuthor[]
-  leafIds: string[]
-  siteVerified: boolean
-  postId: string
+// RecursiveCommentTree is a comment with an indefinite level of nested replies / comments 
+type RecursiveCommentTree = Comment.WithRepliesAndAuthor[]
+
+// replies here represent ids of comments
+type FlattenedComment = Comment.WithAuthor & {
+  replyIds: Array<Comment['id']>
+  isLeaf: boolean
 }
 
-const serializer = (data: CommentResponse) => ({
-  ...data,
-  comments: data.comments.map(Comment.serialize),
-})
+type CommentsMap = Record<Comment['id'], FlattenedComment>
+
+interface CommentResponse {
+  comments: CommentsMap
+  topLevelComments: Array<Comment['id']>
+  siteVerified: boolean
+  postId: Site['id']
+}
+
+const flattenRecursiveCommentTree = (
+  tree: RecursiveCommentTree,
+  postId: Cuid,
+  leafIds: Array<Comment['id']> 
+): CommentsMap =>
+  tree.reduce((flattened, comment) => {
+    const [ replyIds, flattenedReplies ] = comment.replies
+      // note that these operations are _NOT_ running in parallel.
+      // they are running sequentially.
+      ? [
+          comment.replies.map(({ id }) => id),
+          flattenRecursiveCommentTree(comment.replies, postId, leafIds)
+        ]
+      : [ [], {} as CommentsMap ]
+
+    const withoutReplies = omit(comment, ['replies'])
+
+    const flattenedComment: FlattenedComment = {
+      ...withoutReplies,
+      replyIds,
+      isLeaf: leafIds.includes(withoutReplies.id),
+    }
+
+    return {
+      ...flattened,
+      ...flattenedReplies,
+      [flattenedComment.id]: flattenedComment
+    }
+  }, {})
+
+
 
 const getSiteComments = (
   siteId: Id,
@@ -38,13 +77,21 @@ const getSiteComments = (
         parentCommentId: parentCommentId?.val,
       }
 
-      return getComments(site.id, filters).map((comments) => ({
-        comments,
-        siteVerified: site.verified,
-        postId: post.id,
-        leafIds: commentTreeLeafState.getLeafCommentsForPost(cuid(post.id)),
-      }))
+      return getComments(site.id, filters).map((comments) => {
+        const postCuid = cuid(post.id)
+        const leafIds = commentTreeLeafState.getLeafCommentsForPost(postCuid)
+        const commentsMap = flattenRecursiveCommentTree(comments, postCuid, leafIds)
+        const topLevelComments = comments.map(({ id }) => id)
+
+        return {
+          comments: commentsMap,
+          siteVerified: site.verified,
+          postId: post.id,
+          topLevelComments,
+        }
+      })
     })
+
 
 const cuidDecoder = rt.String.withConstraint(isCuid)
 
@@ -73,5 +120,5 @@ export const handler = route<CommentResponse>(
         AppData.init
       )
     }),
-  serializer
+  valueSerializer
 )
