@@ -45,5 +45,6 @@ export const valueSerializer = <T>(val: T): JSONValues => {
     return objectSerializer(val)
   }
 
+  // FIXME: improve typesafety here
   return (val as unknown) as JSONValues
 }
