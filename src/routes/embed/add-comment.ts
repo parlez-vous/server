@@ -27,4 +27,5 @@ export const handler = route<Comment>((req, _) => {
   return decode(dataDecoder, data).map(({ postId, ...rawComment }) =>
     createComment(postId, rawComment).map(AppData.init)
   )
-}, Comment.simpleSerialize)
+})
+

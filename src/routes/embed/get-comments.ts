@@ -8,7 +8,6 @@ import { decode } from 'routes/parser'
 import { findOrCreatePost, getComments, getSingleSite } from 'db/actions'
 import * as Errors from 'errors'
 import { isCuid, omit } from 'utils'
-import {valueSerializer} from 'routes/serialize'
 
 type RouteError = Errors.RouteError
 
@@ -101,24 +100,22 @@ const requestParamsDecoder = rt.Record({
   parentCommentId: cuidDecoder.Or(rt.Undefined),
 })
 
-export const handler = route<CommentResponse>(
-  (req, _) =>
-    decode(
-      requestParamsDecoder,
-      { ...req.params, ...req.query },
-      'invalid data'
-    ).map(({ siteId, postId, parentCommentId }) => {
-      const siteId_ = canonicalId(siteId)
-      const postId_ = canonicalId(postId)
-      const parentCommentId_ = parentCommentId
-        ? cuid(parentCommentId)
-        : undefined
+export const handler = route<CommentResponse>((req, _) =>
+  decode(
+    requestParamsDecoder,
+    { ...req.params, ...req.query },
+    'invalid data'
+  ).map(({ siteId, postId, parentCommentId }) => {
+    const siteId_ = canonicalId(siteId)
+    const postId_ = canonicalId(postId)
+    const parentCommentId_ = parentCommentId
+      ? cuid(parentCommentId)
+      : undefined
 
-      // Currently assuming that siteId is always the site's hostname value
-      // and not a cuid
-      return getSiteComments(siteId_, postId_, parentCommentId_).map(
-        AppData.init
-      )
-    }),
-  valueSerializer
+    // Currently assuming that siteId is always the site's hostname value
+    // and not a cuid
+    return getSiteComments(siteId_, postId_, parentCommentId_).map(
+      AppData.init
+    )
+  })
 )

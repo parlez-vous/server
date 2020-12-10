@@ -41,7 +41,7 @@ export class SessionManager {
     return getAuthToken(authHeader)
   }
 
-  public getSessionUser = (): ResultAsync<Admin, RouteError> =>
+  public getSessionUser = (): ResultAsync<Admin.WithoutPassword, RouteError> =>
     this.getSessionToken().asyncAndThen(getAdminFromSession)
 
   public createSession = (

@@ -8,6 +8,7 @@ import { DateTime } from 'luxon'
 import * as Errors from 'errors'
 import { Admin, UUID } from './types'
 import { getAdmin } from './actions'
+import {removePassword} from 'resources/admins'
 
 type RouteError = Errors.RouteError
 
@@ -27,7 +28,7 @@ export const initAdminSession = ({
 
 export const getAdminFromSession = (
   sessionId: UUID
-): ResultAsync<Admin, RouteError> => {
+): ResultAsync<Admin.WithoutPassword, RouteError> => {
   const adminSession = sessiondb.get(sessionId)
 
   if (!adminSession) {
@@ -42,5 +43,5 @@ export const getAdminFromSession = (
     return errAsync(Errors.invalidSession())
   }
 
-  return getAdmin(adminSession.adminId)
+  return getAdmin(adminSession.adminId).map(removePassword)
 }

@@ -1,7 +1,7 @@
 import { registerSite } from 'db/actions'
 import { protectedRoute, AppData } from 'router'
 import { decode } from 'routes/parser'
-import { buildSite, SiteWithExpiry, serialize } from 'resources/sites'
+import { buildSite, SiteWithExpiry } from 'resources/sites'
 
 import validator from 'validator'
 
@@ -23,10 +23,8 @@ const decodeErrorMessage = [
   'This endpoint only accepts Fully Qualified Domain Names',
 ].join(' ')
 
-export const handler = protectedRoute<SiteWithExpiry>(
-  (req, admin) =>
-    decode(siteDataDecoder, req.body, decodeErrorMessage).map((parsed) =>
-      registerSite(admin.id, parsed.hostname).map(buildSite).map(AppData.init)
-    ),
-  serialize
+export const handler = protectedRoute<SiteWithExpiry>((req, admin) =>
+  decode(siteDataDecoder, req.body, decodeErrorMessage).map((parsed) =>
+    registerSite(admin.id, parsed.hostname).map(buildSite).map(AppData.init)
+  )
 )
