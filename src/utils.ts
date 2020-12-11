@@ -50,7 +50,11 @@ export const isObject = (val: unknown): val is Record<string, unknown> =>
 
 
 
-export const camelCase = (val: string): string => _.camelCase(val)
+export const camelCase = (val: string): string =>
+  // lodash messess with cuid's
+  isCuid(val)
+    ? val
+    : _.camelCase(val)
 
 
 export const txtRecordValue = (uuid: string) =>
