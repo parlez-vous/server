@@ -293,11 +293,14 @@ export const getComments = (
 export const createComment = (
   postId: string,
   { body, parentCommentId, authorId, anonAuthorName }: Comment.Raw
-): ResultAsync<Comment, RouteError> => {
+): ResultAsync<Comment.WithAuthor, RouteError> => {
   // https://linear.app/parlezvous/issue/PAR-43/run-comment-inserts-in-a-transaction
   const createCommentTransaction = wrapPrismaQuery(
     'createComment',
     prisma.comment.create({
+      include: {
+        author: true,
+      },
       data: {
         anon_author_name: anonAuthorName || genRandomUsername(),
         body,

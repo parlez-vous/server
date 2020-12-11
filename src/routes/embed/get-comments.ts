@@ -15,18 +15,13 @@ import { commentTreeLeafState } from 'db/comment-cache'
 import { decode } from 'routes/parser'
 import { findOrCreatePost, getComments, getSingleSite } from 'db/actions'
 import * as Errors from 'errors'
+import { FlattenedComment } from '../output'
 import { isCuid, omit } from 'utils'
 
 type RouteError = Errors.RouteError
 
 // RecursiveCommentTree is a comment with an indefinite level of nested replies / comments
 type RecursiveCommentTree = Comment.WithRepliesAndAuthor[]
-
-// replies here represent ids of comments
-type FlattenedComment = Comment.WithAuthor & {
-  replyIds: Array<Comment['id']>
-  isLeaf: boolean
-}
 
 type CommentsMap = Record<Comment['id'], FlattenedComment>
 
