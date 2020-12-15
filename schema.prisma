@@ -10,25 +10,14 @@ generator client {
   output   = "./node_modules/.prisma/client"
 }
 
-model Admin {
-  id         String   @id @default(cuid())
-  email      String   @unique
-  username   String   @unique
-  password   String
-  sites      Site[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("admins")
-}
 
 model Site {
   id         String   @id @default(cuid())
   hostname   String   @unique
   verified   Boolean  @default(false)
   dns_tag    String   @unique @default(uuid())
-  admin      Admin    @relation(fields: [admin_id], references: [id])
-  admin_id   String
+  owner      User @relation(fields: [owner_id], references: [id])
+  owner_id   String
   posts      Post[]
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -36,11 +25,13 @@ model Site {
   @@map("sites")
 }
 
+
 model User {
   id         String    @id @default(cuid())
   email      String    @unique
   username   String    @unique
   password   String
+  sites      Site[]
   comments   Comment[]
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt

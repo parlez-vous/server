@@ -6,7 +6,7 @@ import sessiondb from 'resources/sessions'
 import { ResultAsync, okAsync, errAsync } from 'neverthrow'
 import { DateTime } from 'luxon'
 import * as Errors from 'errors'
-import { Admin, UUID } from './types'
+import { User, UUID } from './types'
 import { getAdmin } from './actions'
 import { removePassword } from 'resources/admins'
 
@@ -15,7 +15,7 @@ type RouteError = Errors.RouteError
 // remove any past sessions pertaining to user
 export const initAdminSession = ({
   id,
-}: Admin): ResultAsync<UUID, RouteError> => {
+}: User): ResultAsync<UUID, RouteError> => {
   const uuid = uuidv4()
 
   sessiondb.set(uuid, {
@@ -28,7 +28,7 @@ export const initAdminSession = ({
 
 export const getAdminFromSession = (
   sessionId: UUID
-): ResultAsync<Admin.WithoutPassword, RouteError> => {
+): ResultAsync<User.WithoutPassword, RouteError> => {
   const adminSession = sessiondb.get(sessionId)
 
   if (!adminSession) {

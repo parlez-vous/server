@@ -1,10 +1,10 @@
-import { Admin, UUID } from 'db/types'
+import { User, UUID } from 'db/types'
 // https://trello.com/c/9jyhDVuh
 
 type SessionId = UUID
 
 interface Session {
-  adminId: Admin['id']
+  adminId: User['id']
   last_accessed_at: Date
 }
 

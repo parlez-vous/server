@@ -8,7 +8,7 @@
  */
 import { Request, Response } from 'express'
 
-import { Admin } from 'db/types'
+import { User } from 'db/types'
 import { SessionManager } from 'routes/session'
 import { DecodeResult } from 'routes/parser'
 import { ResultAsync } from 'neverthrow'
@@ -159,7 +159,7 @@ export const route = <T>(handler: RouteHandler<T>) => {
 
 type PrivateRouteHandler<T> = (
   req: Request,
-  admin: Omit<Admin, 'password'>
+  admin: Omit<User, 'password'>
 ) => DecodeResult<RouteResult<T>>
 
 export const protectedRoute = <T>(handler: PrivateRouteHandler<T>) => {

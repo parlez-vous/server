@@ -3,14 +3,14 @@ import { route, AppData } from 'router'
 import { decode } from 'routes/parser'
 
 import { Record, String } from 'runtypes'
-import { Admin } from 'db/types'
+import { User } from 'db/types'
 
 const adminDecoder = Record({
   username: String,
   password: String,
 })
 
-export const handler = route<Admin>((req, session) =>
+export const handler = route<User>((req, session) =>
   decode(adminDecoder, req.body, 'Invalid request body').map(
     ({ username, password }) =>
       validateAdmin(username, password)

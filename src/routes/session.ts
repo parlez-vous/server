@@ -6,14 +6,14 @@ import { isUUID } from 'utils'
 import { Result, err, ResultAsync } from 'neverthrow'
 import { decode } from 'routes/parser'
 
-import { Admin, UUID } from 'db/types'
+import { User, UUID } from 'db/types'
 import * as Errors from 'errors'
 
 type RouteError = Errors.RouteError
 
 interface NewSessionInfo {
   sessionToken: UUID
-  admin: Admin
+  admin: User
 }
 
 export const getAuthToken = (
@@ -41,11 +41,11 @@ export class SessionManager {
     return getAuthToken(authHeader)
   }
 
-  public getSessionUser = (): ResultAsync<Admin.WithoutPassword, RouteError> =>
+  public getSessionUser = (): ResultAsync<User.WithoutPassword, RouteError> =>
     this.getSessionToken().asyncAndThen(getAdminFromSession)
 
   public createSession = (
-    admin: Admin
+    admin: User
   ): ResultAsync<NewSessionInfo, RouteError> =>
     initAdminSession(admin).map((sessionToken) => ({
       sessionToken,

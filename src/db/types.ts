@@ -54,8 +54,8 @@ export namespace Comment {
 }
 
 export type User = prisma.User
-export type Admin = prisma.Admin
 
-export namespace Admin {
-  export type WithoutPassword = Omit<Admin, 'password'>
+export namespace User {
+  export type WithoutPassword = Omit<User, 'password'>
 }
+

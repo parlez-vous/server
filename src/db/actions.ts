@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { Prisma } from '@prisma/client'
 import {
-  Admin,
+  User,
   CanonicalId,
   Comment,
   cuid,
@@ -15,7 +15,7 @@ import { commentTreeLeafState } from 'db/comment-cache'
 import logger from 'logger'
 import { ResultAsync, ok, err, errAsync, okAsync } from 'neverthrow'
 import * as bcrypt from 'bcrypt'
-import { NewAdmin } from 'routes/admins/signup'
+import { NewUser } from 'routes/admins/signup'
 import * as Errors from 'errors'
 import { client } from './client'
 import { genRandomUsername } from 'utils'
@@ -30,9 +30,9 @@ const isObj = (val: unknown): val is Record<string, unknown> =>
 
 const BCRYPT_HASH_ROUNDS = 10
 
-export const createAdmin = (admin: NewAdmin): ResultAsync<Admin, RouteError> =>
+export const createUser = (user: NewUser): ResultAsync<User, RouteError> =>
   ResultAsync.fromPromise(
-    bcrypt.hash(admin.password, BCRYPT_HASH_ROUNDS),
+    bcrypt.hash(user.password, BCRYPT_HASH_ROUNDS),
     (e) => {
       // FIXME:
       // https://github.com/parlez-vous/server/issues/39
@@ -52,10 +52,10 @@ export const createAdmin = (admin: NewAdmin): ResultAsync<Admin, RouteError> =>
   ).andThen((pwHash) =>
     wrapPrismaQuery(
       'create admin',
-      prisma.admin.create({
+      prisma.user.create({
         data: {
-          email: admin.email,
-          username: admin.username,
+          email: user.email,
+          username: user.username,
           password: pwHash,
         },
       })
@@ -63,15 +63,15 @@ export const createAdmin = (admin: NewAdmin): ResultAsync<Admin, RouteError> =>
   )
 
 export const validateAdmin = (
-  username: Admin['username'],
-  password: Admin['password']
-): ResultAsync<Admin, RouteError> => {
+  username: User['username'],
+  password: User['password']
+): ResultAsync<User, RouteError> => {
   const credentialValidationError = Errors.notFound(
     'username and/or password not valid'
   )
 
   return ResultAsync.fromPromise(
-    prisma.admin.findUnique({
+    prisma.user.findUnique({
       where: {
         username: username,
       },
@@ -92,10 +92,10 @@ export const validateAdmin = (
 }
 
 export const getAdmin = (
-  adminId: Admin['id']
-): ResultAsync<Admin, RouteError> =>
+  adminId: User['id']
+): ResultAsync<User, RouteError> =>
   ResultAsync.fromPromise(
-    prisma.admin.findUnique({
+    prisma.user.findUnique({
       where: {
         id: adminId,
       },
@@ -104,12 +104,12 @@ export const getAdmin = (
   ).andThen((admin) => (admin ? ok(admin) : err(Errors.notFound())))
 
 export const getAdminSites = (
-  adminUserId: Admin['id']
+  adminUserId: User['id']
 ): ResultAsync<Array<Site>, RouteError> =>
   ResultAsync.fromPromise(
     prisma.site.findMany({
       where: {
-        admin_id: adminUserId,
+        owner_id: adminUserId,
       },
     }),
     (_) => Errors.other('getAdminSites')
@@ -143,14 +143,14 @@ export const getSingleSite = (siteId: Id): ResultAsync<Site, RouteError> => {
 
 // register website for admin
 export const registerSite = (
-  adminId: Admin['id'],
+  adminId: User['id'],
   hostname: string
 ): ResultAsync<Site, RouteError> => {
   const addSiteForAdmin = () =>
     prisma.site.create({
       data: {
         hostname,
-        admin: {
+        owner: {
           connect: {
             id: adminId,
           },
