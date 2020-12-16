@@ -18,12 +18,10 @@ ENV NODE_PATH ./build
 # where available (npm@5+)
 COPY package*.json ./
 COPY tsconfig.json ./
-COPY src/ ./src
-COPY schema.prisma ./
+COPY temp_do_src/ ./temp_do_src
 
 RUN npm install && \
-    npm run build && \
-    npx prisma generate
+    npm run build
 
 CMD [ "npm", "start" ]
 
