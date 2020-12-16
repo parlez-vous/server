@@ -16,7 +16,7 @@ import { decode } from 'routes/parser'
 import { findOrCreatePost, getComments, getSingleSite } from 'db/actions'
 import * as Errors from 'errors'
 import { FlattenedComment } from '../output'
-import { isCuid, omit } from 'utils'
+import { isCuid, isValidPath, omit } from 'utils'
 
 type RouteError = Errors.RouteError
 
@@ -98,24 +98,37 @@ const getSiteComments = (
 
 const cuidDecoder = rt.String.withConstraint(isCuid)
 
-const requestParamsDecoder = rt.Record({
+const requestParamsDecoder = (hostname: string) => rt.Record({
+  //////////////////
+  // route params
   siteId: rt.String,
-  postId: rt.String,
+
+  //////////////////
+  // query params
   parentCommentId: cuidDecoder.Or(rt.Undefined),
+  postId: rt.String.withConstraint((val) =>
+    val === 'root' ||
+    isValidPath(hostname, val) ||
+    isCuid(val)
+  ),
 })
 
 export const handler = route<CommentResponse>((req, _) =>
   decode(
-    requestParamsDecoder,
+    requestParamsDecoder(req.hostname),
     { ...req.params, ...req.query },
     'invalid data'
-  ).map(({ siteId, postId, parentCommentId }) => {
+  )
+  .map(({ siteId, postId, parentCommentId }) => {
+    // currently assuming that the site id is always a hostname
+    // and not a CUID, hence why i'm passing in siteId to create a
+    // canonical id
+    //
+    // assuming postID is a path for now as well
     const siteId_ = canonicalId(siteId)
     const postId_ = canonicalId(postId)
     const parentCommentId_ = parentCommentId ? cuid(parentCommentId) : undefined
 
-    // Currently assuming that siteId is always the site's hostname value
-    // and not a cuid
     return getSiteComments(siteId_, postId_, parentCommentId_).map(AppData.init)
   })
 )

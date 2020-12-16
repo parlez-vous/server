@@ -1,6 +1,22 @@
-import { isUUID, genRandomUsername, omit, isCuid } from './utils'
+import { isUUID, genRandomUsername, omit, isCuid, isValidPath } from './utils'
 
 describe('Utils', () => {
+  describe('isValidPath', () => {
+    it('Correctly validates a correct url path', () => {
+      const hostname = 'developer.mozilla.org'
+      const path = '/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test'
+
+      expect(isValidPath(hostname, path)).toBe(true)
+    })
+
+    it('Correctly rejects a invalid url path', () => {
+      const hostname = 'developer.mozilla.org'
+      const path = 'hahahhahahaha'
+
+      expect(isValidPath(hostname, path)).toBe(false)
+    })
+  })
+
   describe('omit', () => {
     it('Correctly omits keys from object', () => {
       const myObj = {

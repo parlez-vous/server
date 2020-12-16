@@ -3,6 +3,23 @@ import { resolveTxt } from 'dns'
 import { Result, ok, err } from 'neverthrow'
 import * as goby from 'goby'
 import * as _ from 'lodash'
+import validator from 'validator'
+
+
+export const isValidPath = (domain: string, rawPath: string): boolean => {
+  if (!rawPath.startsWith('/')) {
+    return false
+  }
+
+  return validator.isURL(domain + rawPath, {
+    require_protocol: false, 
+    // this allows for urls such as 'localhost/yo-dude' to be valid.
+    // useful for local development
+    require_tld: process.env.NODE_ENV === 'production',
+  })
+}
+
+
 
 export const omit = <T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => {
   return Object.entries(obj).reduce((subset, [key, val]) => {

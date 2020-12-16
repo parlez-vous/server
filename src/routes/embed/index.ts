@@ -5,7 +5,7 @@ import { handler as addComment } from './add-comment'
 
 const router = Router()
 
-router.get('/sites/:siteId/posts/:postId/comments', getComments)
+router.get('/sites/:siteId/comments', getComments)
 router.post('/posts/:postId/comments', addComment)
 
 export default router
