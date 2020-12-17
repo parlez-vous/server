@@ -29,6 +29,10 @@ app.use((req, res, next) =>
 app.use(helmet())
 app.use(bodyParser.json())
 
+app.get('/health-check', (_, res) => {
+  res.sendStatus(200)
+})
+
 app.use(routes)
 
 // Add catch-all route for

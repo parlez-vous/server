@@ -8,7 +8,12 @@ const rootRouter = Router()
 
 const corsOptions = {
   allowedHeaders: ['Authorization', 'Content-Type'],
-  origin: ['http://localhost:3060', 'http://localhost:8080']
+  origin: [
+    'http://localhost:3060',
+    'http://localhost:8080',
+    'http://dev.parlezvous.io:8080',
+    'https://demo.parlezvous.io'
+  ]
 }
 
 rootRouter.use(cors(corsOptions))
