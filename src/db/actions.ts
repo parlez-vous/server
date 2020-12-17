@@ -1,15 +1,5 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { Prisma } from '@prisma/client'
-import {
-  User,
-  CanonicalId,
-  Comment,
-  cuid,
-  Cuid,
-  Id,
-  Post,
-  Site,
-} from './types'
+import { User, CanonicalId, Comment, cuid, Cuid, Id, Post, Site } from './types'
 import { siteCache } from './site-cache'
 import { commentTreeLeafState } from 'db/comment-cache'
 import logger from 'logger'
@@ -91,9 +81,7 @@ export const validateAdmin = (
   )
 }
 
-export const getAdmin = (
-  adminId: User['id']
-): ResultAsync<User, RouteError> =>
+export const getAdmin = (adminId: User['id']): ResultAsync<User, RouteError> =>
   ResultAsync.fromPromise(
     prisma.user.findUnique({
       where: {
@@ -167,7 +155,6 @@ export const registerSite = (
     return Errors.other('create admin error - Raw: ' + e)
   })
 }
-
 
 export const findPost = (postId: Id): ResultAsync<Post | null, RouteError> => {
   const query =

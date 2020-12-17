@@ -98,28 +98,26 @@ const getSiteComments = (
 
 const cuidDecoder = rt.String.withConstraint(isCuid)
 
-const requestParamsDecoder = (hostname: string) => rt.Record({
-  //////////////////
-  // route params
-  siteId: rt.String,
+const requestParamsDecoder = (hostname: string) =>
+  rt.Record({
+    //////////////////
+    // route params
+    siteId: rt.String,
 
-  //////////////////
-  // query params
-  parentCommentId: cuidDecoder.Or(rt.Undefined),
-  postId: rt.String.withConstraint((val) =>
-    val === 'root' ||
-    isValidPath(hostname, val) ||
-    isCuid(val)
-  ),
-})
+    //////////////////
+    // query params
+    parentCommentId: cuidDecoder.Or(rt.Undefined),
+    postId: rt.String.withConstraint(
+      (val) => val === 'root' || isValidPath(hostname, val) || isCuid(val)
+    ),
+  })
 
 export const handler = route<CommentResponse>((req, _) =>
   decode(
     requestParamsDecoder(req.hostname),
     { ...req.params, ...req.query },
     'invalid data'
-  )
-  .map(({ siteId, postId, parentCommentId }) => {
+  ).map(({ siteId, postId, parentCommentId }) => {
     // currently assuming that the site id is always a hostname
     // and not a CUID, hence why i'm passing in siteId to create a
     // canonical id

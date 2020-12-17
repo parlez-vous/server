@@ -7,7 +7,6 @@ import validator from 'validator'
 
 import { Record, String } from 'runtypes'
 
-/* eslint-disable @typescript-eslint/camelcase */
 const siteDataDecoder = Record({
   hostname: String.withConstraint((s) =>
     validator.isURL(s, {
@@ -16,7 +15,6 @@ const siteDataDecoder = Record({
     })
   ),
 })
-/* eslint-enable @typescript-eslint/camelcase */
 
 const decodeErrorMessage = [
   'Invalid request body.',

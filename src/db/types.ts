@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import * as prisma from '@prisma/client'
 
 export type UUID = string
@@ -58,4 +57,3 @@ export type User = prisma.User
 export namespace User {
   export type WithoutPassword = Omit<User, 'password'>
 }
-

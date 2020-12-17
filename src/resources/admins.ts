@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
-
 import { User } from 'db/types'
 
 export const removePassword = ({

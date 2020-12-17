@@ -34,8 +34,6 @@ export const handler = route<LeafComment>((req, _) => {
   }
 
   return decode(dataDecoder, data).map(({ postId, ...rawComment }) =>
-    createComment(postId, rawComment)
-      .map(intoLeaf)
-      .map(AppData.init)
+    createComment(postId, rawComment).map(intoLeaf).map(AppData.init)
   )
 })

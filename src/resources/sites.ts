@@ -15,7 +15,6 @@ export const buildSite = (site: Site): SiteWithExpiry => {
   const expiryDate = new Date(site.created_at)
   expiryDate.setDate(expiryDay)
 
-  /* eslint-disable @typescript-eslint/camelcase */
   return {
     ...site,
     dns_tag: txtRecordValue(site.dns_tag),

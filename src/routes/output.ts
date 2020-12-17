@@ -9,4 +9,3 @@ export type FlattenedComment = Comment.WithAuthor & {
   replyIds: Array<Comment['id']>
   isLeaf: boolean
 }
-

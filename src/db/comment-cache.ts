@@ -53,7 +53,7 @@ class CommentTreeCache {
   public addComment(
     postId: Cuid,
     comment: Comment
-  ): ResultAsync<{}, RouteError> {
+  ): ResultAsync<null, RouteError> {
     const postLeafCommentIds: string[] | undefined = this.commentTree[
       postId.val
     ]
@@ -69,17 +69,17 @@ class CommentTreeCache {
 
       return wrapPrismaQuery(
         'CommentTreeCache.addComment.updateState',
-        client.commentTreeState.update({
-          select: null,
-          where: {
-            /* eslint-disable @typescript-eslint/camelcase */
-            post_id: postId.val,
-          },
-          data: {
-            /* eslint-disable @typescript-eslint/camelcase */
-            comment_tree_leafs: newTreeLeafStateForPost,
-          },
-        })
+        client.commentTreeState
+          .update({
+            select: null,
+            where: {
+              post_id: postId.val,
+            },
+            data: {
+              comment_tree_leafs: newTreeLeafStateForPost,
+            },
+          })
+          .then(() => null)
       )
     } else {
       // create tree state for first comment in post
@@ -89,18 +89,19 @@ class CommentTreeCache {
 
       return wrapPrismaQuery(
         'CommentTreeCache.addComment.createState',
-        client.commentTreeState.create({
-          select: null,
-          data: {
-            /* eslint-disable @typescript-eslint/camelcase */
-            comment_tree_leafs: leafComments,
-            post: {
-              connect: {
-                id: postId.val,
+        client.commentTreeState
+          .create({
+            select: null,
+            data: {
+              comment_tree_leafs: leafComments,
+              post: {
+                connect: {
+                  id: postId.val,
+                },
               },
             },
-          },
-        })
+          })
+          .then(() => null)
       )
     }
   }

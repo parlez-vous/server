@@ -2,9 +2,8 @@ import logger from 'logger'
 import { resolveTxt } from 'dns'
 import { Result, ok, err } from 'neverthrow'
 import * as goby from 'goby'
-import * as _ from 'lodash'
+import _ from 'lodash'
 import validator from 'validator'
-
 
 export const isValidPath = (domain: string, rawPath: string): boolean => {
   if (!rawPath.startsWith('/')) {
@@ -12,14 +11,12 @@ export const isValidPath = (domain: string, rawPath: string): boolean => {
   }
 
   return validator.isURL(domain + rawPath, {
-    require_protocol: false, 
+    require_protocol: false,
     // this allows for urls such as 'localhost/yo-dude' to be valid.
     // useful for local development
     require_tld: process.env.NODE_ENV === 'production',
   })
 }
-
-
 
 export const omit = <T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => {
   return Object.entries(obj).reduce((subset, [key, val]) => {
@@ -65,14 +62,9 @@ export const isObject = (val: unknown): val is Record<string, unknown> =>
     val instanceof Date
   )
 
-
-
 export const camelCase = (val: string): string =>
   // lodash messess with cuid's
-  isCuid(val)
-    ? val
-    : _.camelCase(val)
-
+  isCuid(val) ? val : _.camelCase(val)
 
 export const txtRecordValue = (uuid: string) =>
   `parlez-vous-site-verification=${uuid}`
