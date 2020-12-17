@@ -1,0 +1,38 @@
+databases:
+- cluster_name: db-postgresql-tor1-46625
+  db_name: app
+  db_user: prisma
+  engine: PG
+  name: db-postgresql-tor1-46625
+  production: true
+  version: "12"
+name: api-server
+region: nyc
+services:
+- dockerfile_path: Dockerfile
+  envs:
+  - key: DATABASE_URL
+    scope: RUN_TIME
+    value: ${db-postgresql-tor1-46625.DATABASE_URL}
+  - key: CRON_INTERVAL_MS
+    scope: RUN_AND_BUILD_TIME
+    value: "60000"
+  - key: PORT
+    scope: RUN_AND_BUILD_TIME
+    value: "8080"
+  github:
+    branch: master
+    repo: parlez-vous/server
+  http_port: 8080
+  health_check:
+    initial_delay_seconds: 3
+    period_seconds: 5
+    timeout_seconds: 3
+    success_threshold: 2
+    failure_threshold: 2
+    http_path: "/health-check"
+  instance_count: 1
+  instance_size_slug: basic-xs
+  name: api-server
+  routes:
+  - path: /
