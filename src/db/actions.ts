@@ -168,27 +168,6 @@ export const registerSite = (
   })
 }
 
-export const getUnverifiedSites = (): Promise<Array<Site>> =>
-  prisma.site.findMany({
-    where: {
-      verified: false,
-    },
-  })
-
-export const setSitesAsVerified = async (
-  siteIds: Array<Site['id']>
-): Promise<void> => {
-  await prisma.site.updateMany({
-    data: {
-      verified: true,
-    },
-    where: {
-      id: {
-        in: siteIds,
-      },
-    },
-  })
-}
 
 export const findPost = (postId: Id): ResultAsync<Post | null, RouteError> => {
   const query =

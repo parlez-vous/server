@@ -9,7 +9,6 @@ import { serverPort } from 'env'
 import logger from 'logger'
 
 import routes from './routes'
-import { startCronJobs } from './cron'
 
 const app = express()
 
@@ -48,7 +47,6 @@ const startServer = async () => {
 }
 
 startServer()
-startCronJobs()
 
 process.on('uncaughtException', (err) => {
   logger.error('Uncaugh Exception ' + err)
