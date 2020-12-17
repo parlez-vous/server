@@ -36,6 +36,9 @@ const objectSerializer = <T extends Record<string, unknown>>(
     }
   }, {})
 
+export const arraySerializer = <T>(list: T[]): JSONValues[] =>
+  list.map(valueSerializer)
+
 export const valueSerializer = <T>(val: T): JSONValues => {
   if (val instanceof Date) {
     return dateSerializer(val)
@@ -43,6 +46,11 @@ export const valueSerializer = <T>(val: T): JSONValues => {
 
   if (isObject(val)) {
     return objectSerializer(val)
+  }
+
+  if (Array.isArray(val)) {
+    // FIXME: improve typesafety here
+    return arraySerializer(val as any[])
   }
 
   // FIXME: improve typesafety here
