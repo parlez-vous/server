@@ -3,6 +3,7 @@
       "module": "CommonJS",
       "noImplicitAny": true,
       "sourceMap": false,
+      "esModuleInterop": true,
       "allowSyntheticDefaultImports": true,
       "downlevelIteration": true,
       "noUnusedLocals": true,

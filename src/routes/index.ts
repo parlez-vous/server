@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import * as cors from 'cors'
+import cors from 'cors'
 
 import adminRoutes from './admins'
 import embedRoutes from './embed'
@@ -8,6 +8,7 @@ const rootRouter = Router()
 
 const corsOptions = {
   allowedHeaders: ['Authorization', 'Content-Type'],
+  origin: ['http://localhost:3060', 'http://localhost:8080']
 }
 
 rootRouter.use(cors(corsOptions))

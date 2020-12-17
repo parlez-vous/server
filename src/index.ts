@@ -1,7 +1,7 @@
-import * as express from 'express'
-import * as bodyParser from 'body-parser'
-import * as helmet from 'helmet'
-import * as responseTime from 'response-time'
+import express from 'express'
+import bodyParser from 'body-parser'
+import helmet from 'helmet'
+import responseTime from 'response-time'
 import { commentTreeLeafState } from 'db/comment-cache'
 import { client as dbClient } from 'db/client'
 
