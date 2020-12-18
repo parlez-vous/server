@@ -1,6 +1,6 @@
 # This Dockerfile creates the Staging / Production image that runs on a remote server 
 
-FROM node:10.16.0
+FROM node:14.15-stretch
 
 # Create app directory
 WORKDIR /usr/app
@@ -22,8 +22,7 @@ COPY src/ ./src
 COPY schema.prisma ./
 
 RUN npm install && \
-    npm run build && \
-    npx prisma generate
+    npm run build
 
 CMD [ "npm", "start" ]
 
