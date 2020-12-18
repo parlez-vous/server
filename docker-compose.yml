@@ -15,6 +15,8 @@ services:
       - 15432:5432
   server:
     image: parlezvous/server
+    env_file:
+      - .env
     build:
       context: .
       dockerfile: Dockerfile.dev

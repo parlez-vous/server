@@ -5,9 +5,6 @@ FROM node:14.15-stretch
 # Create app directory
 WORKDIR /usr/app
 
-ENV CRON_INTERVAL_MS 5000
-ENV PORT 8080
-ENV DATABASE_URL postgresql://gio:testing123@db:5432/my_db
 
 
 # Install app dependencies
