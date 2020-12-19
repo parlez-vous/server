@@ -7,5 +7,3 @@ const router = Router()
 router.post('/', handleBugReport)
 
 export default router
-
-

@@ -5,7 +5,6 @@ import adminRoutes from './admins'
 import embedRoutes from './embed'
 import errorReportingRoutes from './error-reporting'
 
-
 const rootRouter = Router()
 
 const corsOptions = {
@@ -14,12 +13,11 @@ const corsOptions = {
     'http://localhost:3060',
     'http://localhost:8080',
     'http://dev.parlezvous.io:8080',
-    'https://demo.parlezvous.io'
-  ]
+    'https://demo.parlezvous.io',
+  ],
 }
 
 rootRouter.use(cors(corsOptions))
-
 
 rootRouter.use('/error-reporting', errorReportingRoutes)
 

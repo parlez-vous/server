@@ -50,7 +50,7 @@ export const valueSerializer = <T>(val: T): JSONValues => {
 
   if (Array.isArray(val)) {
     // FIXME: improve typesafety here
-    return arraySerializer(val as any[])
+    return arraySerializer(val as unknown[])
   }
 
   // FIXME: improve typesafety here

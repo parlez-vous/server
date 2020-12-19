@@ -10,7 +10,6 @@ const errorReportingDecoder = rt.Record({
   'user-agent': rt.String,
 })
 
-
 export const handler = route((req) => {
   const rawData = {
     ...req.body,
@@ -23,4 +22,3 @@ export const handler = route((req) => {
       .mapErr(() => other('Unable to make error report'))
   )
 })
-

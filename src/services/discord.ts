@@ -2,24 +2,31 @@ import axios from 'axios'
 import { ResultAsync } from 'neverthrow'
 import { discordWebhookUrl } from 'env'
 
-export const sendErrorReport = (description: string, gitRef: string, userAgent: string): ResultAsync<null, null> =>
+export const sendErrorReport = (
+  description: string,
+  gitRef: string,
+  userAgent: string
+): ResultAsync<null, null> =>
   ResultAsync.fromPromise(
-    axios.post(discordWebhookUrl, {
-      embeds: [{
-        title: 'Embed Error',
-        description,
-        fields: [
+    axios
+      .post(discordWebhookUrl, {
+        embeds: [
           {
-            name: 'Git Ref',
-            value: gitRef,
+            title: 'Embed Error',
+            description,
+            fields: [
+              {
+                name: 'Git Ref',
+                value: gitRef,
+              },
+              {
+                name: 'User Agent',
+                value: userAgent,
+              },
+            ],
           },
-          {
-            name: 'User Agent',
-            value: userAgent,
-          }
-        ]
-      }]
-    }).then(() => null),
+        ],
+      })
+      .then(() => null),
     () => null
   )
-
