@@ -8,6 +8,7 @@ import errorReportingRoutes from './error-reporting'
 const rootRouter = Router()
 
 const corsOptions = {
+  maxAge: 7200,
   allowedHeaders: ['Authorization', 'Content-Type'],
   origin: [
     'http://localhost:3060',
