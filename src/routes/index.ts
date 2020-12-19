@@ -3,6 +3,8 @@ import cors from 'cors'
 
 import adminRoutes from './admins'
 import embedRoutes from './embed'
+import errorReportingRoutes from './error-reporting'
+
 
 const rootRouter = Router()
 
@@ -17,6 +19,9 @@ const corsOptions = {
 }
 
 rootRouter.use(cors(corsOptions))
+
+
+rootRouter.use('/error-reporting', errorReportingRoutes)
 
 // Routes to be used by the Admins / Mods who control a website(s)
 rootRouter.use('/admins', adminRoutes)
