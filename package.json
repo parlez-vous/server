@@ -29,7 +29,7 @@
     "@types/helmet": "0.0.48",
     "@types/lodash": "^4.14.165",
     "@types/luxon": "^1.21.0",
-    "@types/node": "10.14.12",
+    "@types/node": "10.17.49",
     "@types/response-time": "^2.3.4",
     "@types/uuid": "3.4.9",
     "@types/validator": "^13.0.0",
