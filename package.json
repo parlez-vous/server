@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "engines": {
-    "node": "10.x.x"
+    "node": "14.15.x"
   },
   "scripts": {
     "build": "rm -rf ./build && tsc",
@@ -29,7 +29,7 @@
     "@types/helmet": "0.0.48",
     "@types/lodash": "^4.14.165",
     "@types/luxon": "^1.21.0",
-    "@types/node": "10.14.12",
+    "@types/node": "^14.14.14",
     "@types/response-time": "^2.3.4",
     "@types/uuid": "3.4.9",
     "@types/validator": "^13.0.0",
