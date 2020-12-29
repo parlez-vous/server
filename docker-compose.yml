@@ -28,5 +28,5 @@ services:
       - ./node_modules/.prisma/client/package.json:/usr/app/node_modules/.prisma/client/package.json
       - ./node_modules/.prisma/client/schema.prisma:/usr/app/node_modules/.prisma/client/schema.prisma
     ports:
-      - 3000:8080
+      - 8080:8080
 

@@ -12,8 +12,8 @@ const corsOptions = {
   allowedHeaders: ['Authorization', 'Content-Type'],
   origin: [
     'http://localhost:3060',
-    'http://localhost:8080',
-    'http://dev.parlezvous.io:8080',
+    'http://localhost:3000',
+    'http://dev.parlezvous.io:3000',
     'https://demo.parlezvous.io',
   ],
 }
