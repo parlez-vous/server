@@ -6,14 +6,14 @@ import { Record, String } from 'runtypes'
 import { User } from 'db/types'
 
 const adminDecoder = Record({
-  username: String,
+  usernameOrEmail: String,
   password: String,
 })
 
 export const handler = route<User>((req, session) =>
   decode(adminDecoder, req.body, 'Invalid request body').map(
-    ({ username, password }) =>
-      validateAdmin(username, password)
+    ({ usernameOrEmail, password }) =>
+      validateAdmin(usernameOrEmail, password)
         .andThen(session.createSession)
         .map(({ sessionToken, admin }) => AppData.init(admin, sessionToken))
   )

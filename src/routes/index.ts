@@ -2,6 +2,7 @@ import { Router } from 'express'
 import cors from 'cors'
 
 import adminRoutes from './admins'
+import commonRoutes from './common'
 import embedRoutes from './embed'
 import errorReportingRoutes from './error-reporting'
 
@@ -22,6 +23,8 @@ rootRouter.use(cors(corsOptions))
 
 rootRouter.use('/error-reporting', errorReportingRoutes)
 
+rootRouter.use('/common', commonRoutes)
+
 // Routes to be used by the Admins / Mods who control a website(s)
 rootRouter.use('/admins', adminRoutes)
 
@@ -30,3 +33,4 @@ rootRouter.use('/admins', adminRoutes)
 rootRouter.use('/embed', embedRoutes)
 
 export default rootRouter
+
