@@ -1,6 +1,7 @@
 import logger from 'logger'
 import { resolveTxt } from 'dns'
-import { Result, ok, err } from 'neverthrow'
+import { Result, ResultAsync, ok, err } from 'neverthrow'
+import { RouteError } from 'errors'
 import * as goby from 'goby'
 import _ from 'lodash'
 import validator from 'validator'
@@ -17,6 +18,24 @@ export const isValidPath = (domain: string, rawPath: string): boolean => {
     require_tld: process.env.NODE_ENV === 'production',
   })
 }
+
+
+
+/**
+ * Used for testing behaviour of the front end and simulating slow endpoints locally.
+ */
+export const slowDown = <T>(ms: number) => (val: T) => ResultAsync.fromPromise<T, RouteError>(new Promise((resolve) => {
+  if (process.env.NODE_ENV === 'production') {
+    resolve(val)
+    console.warn('Called `slowDown` in a production environment')
+    return
+  }
+
+  setTimeout(() => {
+    resolve(val)
+  }, ms)
+})) 
+
 
 export const omit = <T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => {
   return Object.entries(obj).reduce((subset, [key, val]) => {
