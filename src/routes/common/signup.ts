@@ -15,7 +15,6 @@ const userSignupDecoder = Record({
   username: String,
   email: String.withConstraint((s) => validator.isEmail(s)),
   password: String,
-  passwordConfirm: String,
 })
 
 export const handler = route<User>((req, session) =>
@@ -27,10 +26,6 @@ export const handler = route<User>((req, session) =>
           'Password must be between 8 and 71 characters in length'
         )
       )
-    }
-
-    if (parsed.password !== parsed.passwordConfirm) {
-      return errAsync(Errors.badRequest('Passwords do not match'))
     }
 
     if (parsed.username.length < 3 || parsed.username.length > 30) {
