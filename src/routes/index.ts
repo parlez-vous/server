@@ -33,4 +33,3 @@ rootRouter.use('/admins', adminRoutes)
 rootRouter.use('/embed', embedRoutes)
 
 export default rootRouter
-

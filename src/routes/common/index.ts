@@ -1,5 +1,5 @@
 /*
- * Common routes shared between admin dashboard and embed app 
+ * Common routes shared between admin dashboard and embed app
  *
  */
 

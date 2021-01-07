@@ -7,4 +7,3 @@ const router = Router()
 router.use('/sites', sitesRoutes)
 
 export default router
-
