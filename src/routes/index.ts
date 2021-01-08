@@ -15,7 +15,7 @@ const corsOptions = {
     'http://localhost:3060',
     'http://localhost:3000',
     'http://dev.parlezvous.io:3000',
-    'https://demo.parlezvous.io',
+    'https://parlezvous.nyc3.cdn.digitaloceanspaces.com',
   ],
 }
 
