@@ -7,14 +7,13 @@ export const client = new PrismaClient({
     {
       emit: 'event',
       level: 'query',
-    }
+    },
   ],
 })
 
 // https://www.prisma.io/docs/concepts/components/prisma-client/logging#logging-query-events
-client.$on('query', e => {
+client.$on('query', (e) => {
   if (e.duration > 100) {
     logger.warn(`Slow query (${e.duration}ms) - Query:\n${e.query}`)
   }
 })
-
