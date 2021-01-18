@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client'
-import { User, CanonicalId, Comment, cuid, Cuid, Id, Post, Site } from './types'
+import { User, CanonicalId, Comment, CommentVote, cuid, Cuid, Id, Post, Site } from './types'
 import { siteCache } from './site-cache'
 import { commentTreeLeafState } from 'db/comment-cache'
 import logger from 'logger'
@@ -285,3 +285,46 @@ export const createComment = (
 
   return createCommentTransaction
 }
+
+
+// Gets the votes that a user has provided for a specific post
+export const getPostCommentVotesForUser = (
+  user: User.WithoutPassword,
+  postId: Id,
+  siteId: Id,
+): ResultAsync<CommentVote[], RouteError> => {
+  const postFilter = postId.type_ === 'Cuid'
+    ? { id: postId.val }
+    : { url_slug: postId.val }
+  
+  const siteFilter = siteId.type_ === 'Cuid'
+    ? { id: siteId.val }
+    : { hostname: siteId.val }
+
+
+  // turns out prisma queries can throw synchronous exceptions
+  // if the query that is passed in is not valid.
+  // To try this out, change the `hostname` field of `siteFilter`
+  // to host_name (or something invalid)
+  try {
+    const query = prisma.commentVote.findMany({
+      where: {
+        site: siteFilter,
+        post: postFilter,
+        user_id: user.id,
+      }
+    })
+
+    return wrapPrismaQuery(
+      'getCommentInteractionsForUser',
+      query
+    )
+  } catch (e) {
+    return errAsync(
+      Errors.other('internal error', e)
+    )
+  }
+}
+
+
+

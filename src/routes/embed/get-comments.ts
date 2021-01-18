@@ -1,19 +1,22 @@
 import { route, AppData } from 'router'
 
-import { ResultAsync } from 'neverthrow'
+import { ResultAsync, combine, ok, err } from 'neverthrow'
 import * as rt from 'runtypes'
 import {
   Comment,
+  CommentVote,
   Id,
   canonicalId,
   CanonicalId,
   Cuid,
   cuid,
+  Interactions,
   Site,
 } from 'db/types'
 import { commentTreeLeafState } from 'db/comment-cache'
 import { decode } from 'routes/parser'
-import { findOrCreatePost, getComments, getSingleSite } from 'db/actions'
+import { SessionManager } from 'routes/session'
+import { findOrCreatePost, getComments, getSingleSite, getPostCommentVotesForUser } from 'db/actions'
 import * as Errors from 'errors'
 import { FlattenedComment } from '../output'
 import { isCuid, isValidPath, omit } from 'utils'
@@ -30,6 +33,7 @@ interface CommentResponse {
   topLevelComments: Array<Comment['id']>
   siteVerified: boolean
   postId: Site['id']
+  interactions: Interactions | null
 }
 
 const flattenRecursiveCommentTree = (
@@ -62,11 +66,15 @@ const flattenRecursiveCommentTree = (
     }
   }, {})
 
+
+
+type GetSiteComments = Omit<CommentResponse, 'interactions'>
+
 const getSiteComments = (
   siteId: Id,
   postId: CanonicalId,
   parentCommentId?: Cuid
-): ResultAsync<CommentResponse, RouteError> =>
+): ResultAsync<GetSiteComments, RouteError> =>
   getSingleSite(siteId)
     .andThen((site) =>
       findOrCreatePost(postId, cuid(site.id)).map((post) => ({ post, site }))
@@ -112,7 +120,36 @@ const requestParamsDecoder = (hostname: string) =>
     ),
   })
 
-export const handler = route<CommentResponse>((req, _) =>
+
+
+
+const getInteractionsForLoggedInUser = (
+  sessionManager: SessionManager,
+  postId: Id,
+  siteId: Id,
+): ResultAsync<Interactions | null, RouteError> =>
+  sessionManager.getSessionUser()
+    .andThen<CommentVote[] | null>((user) =>
+      getPostCommentVotesForUser(user, postId, siteId)
+    )
+    .orElse<RouteError>((error) =>
+      error.type === 'MissingHeader'
+        ? ok(null)
+        : err(error)
+    )
+    .map((maybeCommentVotes) => {
+      if (maybeCommentVotes) {
+        return {
+          commentVotes: maybeCommentVotes
+        }
+      }
+
+      return null
+    })
+
+
+
+export const handler = route<CommentResponse>((req, sessionManager) =>
   decode(
     requestParamsDecoder(req.hostname),
     { ...req.params, ...req.query },
@@ -127,6 +164,15 @@ export const handler = route<CommentResponse>((req, _) =>
     const postId_ = canonicalId(postId)
     const parentCommentId_ = parentCommentId ? cuid(parentCommentId) : undefined
 
-    return getSiteComments(siteId_, postId_, parentCommentId_).map(AppData.init)
+    return combine([
+      getInteractionsForLoggedInUser(sessionManager, postId_, siteId_),
+      getSiteComments(siteId_, postId_, parentCommentId_),
+    ] as const)
+      .map(([ interactions, siteComments ]) =>
+        AppData.init({
+          ...siteComments,
+          interactions, 
+        })
+      )
   })
 )

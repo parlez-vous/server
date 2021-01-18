@@ -29,6 +29,11 @@ export type Nullable<T> = T | null
 export type Site = prisma.Site
 export type Post = prisma.Post
 export type CommentTreeState = prisma.CommentTreeState
+export type CommentVote = prisma.CommentVote
+
+export interface Interactions {
+  commentVotes: CommentVote[]
+}
 
 export type Comment = prisma.Comment
 
