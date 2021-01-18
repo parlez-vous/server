@@ -23,7 +23,7 @@ export const isValidPath = (domain: string, rawPath: string): boolean => {
  * Used for testing behaviour of the front end and simulating slow endpoints locally.
  */
 export const slowDown = <T>(ms: number) => (val: T) =>
-  ResultAsync.fromPromise<T, RouteError>(
+  ResultAsync.fromSafePromise<T, RouteError>(
     new Promise((resolve) => {
       if (process.env.NODE_ENV === 'production') {
         resolve(val)

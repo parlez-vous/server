@@ -43,7 +43,7 @@
     "helmet": "4.1.1",
     "lodash": "^4.17.20",
     "luxon": "^1.22.0",
-    "neverthrow": "^2.8.0-beta.1",
+    "neverthrow": "^4.0.1",
     "prisma-client-lib": "^1.34.10",
     "response-time": "^2.3.2",
     "runtypes": "4.0.0",
