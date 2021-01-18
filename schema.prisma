@@ -47,8 +47,6 @@ model Comment {
   author            User?    @relation(fields: [author_id], references: [id])
   anon_author_name  String?
   body              String   @default("")
-  upvotes           Int      @default(0)
-  downvotes         Int      @default(0)
   post              Post     @relation(fields: [post_id], references: [id])
   post_id           String
   created_at        DateTime @default(now())
