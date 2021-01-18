@@ -47,7 +47,8 @@ model Comment {
   author            User?    @relation(fields: [author_id], references: [id])
   anon_author_name  String?
   body              String   @default("")
-  votes             Int      @default(0)
+  upvotes           Int      @default(0)
+  downvotes         Int      @default(0)
   post              Post     @relation(fields: [post_id], references: [id])
   post_id           String
   created_at        DateTime @default(now())
@@ -55,6 +56,27 @@ model Comment {
   replies           Comment[] @relation("CommentToComment")
   parent_comment_id String?
   author_id         String?
+}
+
+
+model CommentVote {
+  @@map("comment_votes")
+
+  id                String   @id @default(cuid())
+
+  user              User     @relation(fields: [user_id], references: [id])
+  user_id           String
+
+  comment           Comment  @relation(fields: [comment_id], references: [id])
+  comment_id        String
+
+  site              Site @relation(fields: [site_id], references: [id])
+  site_id           String
+
+  post              Post @relation(fields: [post_id], references: [id])
+  post_id           String
+
+  value             Int 
 }
 
 
