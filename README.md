@@ -1,9 +1,8 @@
 
 # Comment Server (Work In Progress)
 
-Roadmap viewable here:
+Context: https://discourse.elm-lang.org/t/parlezvous-disqus-alternative-built-in-elm/6716/2
 
-https://trello.com/b/2NtXSuwt/parlez-vous
 
 ## Running Locally:
 
@@ -21,44 +20,3 @@ This will boot up a postgresql db, then run migrations on the db and then start 
 See `docker-compose.yml` for exposed ports for database and server.
 
 
-## TODO:
-
-- remove use of hashids??
-- allow for anonymous commenting
-  - https://chancejs.com/text/sentence.html
-- Create credentials
-
-```
-user_credentials
-  user_id INT NOT NULL references users(id),
-  password TEXT NOT NULL UNIQUE;
-
-user_sessions
-```
-
-- Add 404 route
-- Rate limit by IP (i.e. prevent ddos)
-- Validate domain ownership
-
-```
-const dns = require('dns');
-
-dns.resolve(
-  'gdelgado.ca', 
-  'TXT', 
-  (err, result) => { console.log(result) }
-)
-```
-
-- DB Backups
-
-- Analytics?
-  - probably better as a separate product
-  
-- Pin important comments (server side)
-
-
-
-### Things to test
-
-- [ ] Sessions expire after one week of inactivity (currently, sessions are reset when users log in)
