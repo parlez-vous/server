@@ -75,6 +75,8 @@ model CommentVote {
   post_id           String
 
   value             Int 
+
+  @@unique([comment_id, user_id])
 }
 
 
