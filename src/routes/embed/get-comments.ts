@@ -1,25 +1,23 @@
 import { route, AppData } from 'router'
 
-import { ResultAsync, combine, ok, err } from 'neverthrow'
+import { ResultAsync } from 'neverthrow'
 import * as rt from 'runtypes'
 import {
   Comment,
-  CommentVote,
   Id,
   canonicalId,
   CanonicalId,
   Cuid,
   cuid,
-  Interactions,
   Site,
 } from 'db/types'
 import { commentTreeLeafState } from 'db/comment-cache'
 import { decode } from 'routes/parser'
-import { SessionManager } from 'routes/session'
-import { findOrCreatePost, getComments, getSingleSite, getPostCommentVotesForUser } from 'db/actions'
+import { findOrCreatePost, getComments, getSingleSite } from 'db/actions'
 import * as Errors from 'errors'
 import { FlattenedComment } from '../output'
-import { isCuid, isValidPath, omit } from 'utils'
+import { omit } from 'utils'
+import { postIdDecoder, cuidDecoder } from 'routes/parser-utils'
 
 type RouteError = Errors.RouteError
 
@@ -33,7 +31,6 @@ interface CommentResponse {
   topLevelComments: Array<Comment['id']>
   siteVerified: boolean
   postId: Site['id']
-  interactions: Interactions | null
 }
 
 const flattenRecursiveCommentTree = (
@@ -65,8 +62,6 @@ const flattenRecursiveCommentTree = (
       [flattenedComment.id]: flattenedComment,
     }
   }, {})
-
-
 
 type GetSiteComments = Omit<CommentResponse, 'interactions'>
 
@@ -104,8 +99,6 @@ const getSiteComments = (
       })
     })
 
-const cuidDecoder = rt.String.withConstraint(isCuid)
-
 const requestParamsDecoder = (hostname: string) =>
   rt.Record({
     //////////////////
@@ -115,41 +108,10 @@ const requestParamsDecoder = (hostname: string) =>
     //////////////////
     // query params
     parentCommentId: cuidDecoder.Or(rt.Undefined),
-    postId: rt.String.withConstraint(
-      (val) => val === 'root' || isValidPath(hostname, val) || isCuid(val)
-    ),
+    postId: postIdDecoder(hostname),
   })
 
-
-
-
-const getInteractionsForLoggedInUser = (
-  sessionManager: SessionManager,
-  postId: Id,
-  siteId: Id,
-): ResultAsync<Interactions | null, RouteError> =>
-  sessionManager.getSessionUser()
-    .andThen<CommentVote[] | null>((user) =>
-      getPostCommentVotesForUser(user, postId, siteId)
-    )
-    .orElse<RouteError>((error) =>
-      error.type === 'MissingHeader'
-        ? ok(null)
-        : err(error)
-    )
-    .map((maybeCommentVotes) => {
-      if (maybeCommentVotes) {
-        return {
-          commentVotes: maybeCommentVotes
-        }
-      }
-
-      return null
-    })
-
-
-
-export const handler = route<CommentResponse>((req, sessionManager) =>
+export const handler = route<CommentResponse>((req, _) =>
   decode(
     requestParamsDecoder(req.hostname),
     { ...req.params, ...req.query },
@@ -164,15 +126,6 @@ export const handler = route<CommentResponse>((req, sessionManager) =>
     const postId_ = canonicalId(postId)
     const parentCommentId_ = parentCommentId ? cuid(parentCommentId) : undefined
 
-    return combine([
-      getInteractionsForLoggedInUser(sessionManager, postId_, siteId_),
-      getSiteComments(siteId_, postId_, parentCommentId_),
-    ] as const)
-      .map(([ interactions, siteComments ]) =>
-        AppData.init({
-          ...siteComments,
-          interactions, 
-        })
-      )
+    return getSiteComments(siteId_, postId_, parentCommentId_).map(AppData.init)
   })
 )

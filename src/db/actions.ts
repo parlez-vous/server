@@ -1,5 +1,15 @@
 import { Prisma } from '@prisma/client'
-import { User, CanonicalId, Comment, CommentVote, cuid, Cuid, Id, Post, Site } from './types'
+import {
+  User,
+  CanonicalId,
+  Comment,
+  CommentVote,
+  cuid,
+  Cuid,
+  Id,
+  Post,
+  Site,
+} from './types'
 import { siteCache } from './site-cache'
 import { commentTreeLeafState } from 'db/comment-cache'
 import logger from 'logger'
@@ -286,21 +296,83 @@ export const createComment = (
   return createCommentTransaction
 }
 
+type Vote = 1 | 0 | -1
+
+export const recordCommentVote = (
+  value: Vote,
+  user: User.WithoutPassword,
+  commentId: Cuid
+): ResultAsync<null, RouteError> => {
+  const getCommentWithPost = wrapPrismaQuery(
+    'recordCommentVote.getCommentWithPost',
+    prisma.comment.findUnique({
+      include: {
+        post: true,
+      },
+      where: {
+        id: commentId.val,
+      },
+    })
+  )
+
+  type CommentWithPost = Comment & { post: Post }
+
+  const insertVote = (comment: CommentWithPost | null) =>
+    !comment
+      ? errAsync(
+          Errors.notFound(`Comment with id '${commentId.val}' does not exist`)
+        )
+      : wrapPrismaQuery(
+          'recordCommentVote.insertVote',
+          prisma.commentVote.upsert({
+            where: {
+              // uniqueness is based on a composite index
+              comment_id_user_id: {
+                comment_id: commentId.val,
+                user_id: user.id,
+              },
+            },
+            update: {
+              value: {
+                set: value,
+              },
+            },
+            create: {
+              value,
+              user: {
+                connect: {
+                  id: user.id,
+                },
+              },
+              comment: {
+                connect: {
+                  id: comment.id,
+                },
+              },
+              post: {
+                connect: {
+                  id: comment.post.id,
+                },
+              },
+              site: {
+                connect: {
+                  id: comment.post.site_id,
+                },
+              },
+            },
+          })
+        )
+
+  return getCommentWithPost.andThen(insertVote).map(() => null)
+}
 
 // Gets the votes that a user has provided for a specific post
 export const getPostCommentVotesForUser = (
   user: User.WithoutPassword,
-  postId: Id,
-  siteId: Id,
+  postId: Id
 ): ResultAsync<CommentVote[], RouteError> => {
-  const postFilter = postId.type_ === 'Cuid'
-    ? { id: postId.val }
-    : { url_slug: postId.val }
-  
-  const siteFilter = siteId.type_ === 'Cuid'
-    ? { id: siteId.val }
-    : { hostname: siteId.val }
-
+  const postFilter =
+    postId.type_ === 'Cuid' ? { id: postId.val } : { url_slug: postId.val }
 
   // turns out prisma queries can throw synchronous exceptions
   // if the query that is passed in is not valid.
@@ -309,22 +381,13 @@ export const getPostCommentVotesForUser = (
   try {
     const query = prisma.commentVote.findMany({
       where: {
-        site: siteFilter,
         post: postFilter,
         user_id: user.id,
-      }
+      },
     })
 
-    return wrapPrismaQuery(
-      'getCommentInteractionsForUser',
-      query
-    )
+    return wrapPrismaQuery('getCommentInteractionsForUser', query)
   } catch (e) {
-    return errAsync(
-      Errors.other('internal error', e)
-    )
+    return errAsync(Errors.other('internal error', e))
   }
 }
-
-
-

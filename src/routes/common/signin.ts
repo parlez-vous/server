@@ -1,9 +1,8 @@
 import { validateAdmin } from 'db/actions'
+import { User } from 'db/types'
 import { route, AppData } from 'router'
 import { decode } from 'routes/parser'
-
 import { Record, String } from 'runtypes'
-import { User } from 'db/types'
 
 const adminDecoder = Record({
   usernameOrEmail: String,

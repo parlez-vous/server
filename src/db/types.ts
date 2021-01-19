@@ -32,7 +32,7 @@ export type CommentTreeState = prisma.CommentTreeState
 export type CommentVote = prisma.CommentVote
 
 export interface Interactions {
-  commentVotes: CommentVote[]
+  commentVotes: Record<CommentVote['id'], CommentVote>
 }
 
 export type Comment = prisma.Comment
