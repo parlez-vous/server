@@ -303,6 +303,7 @@ export const recordCommentVote = (
   user: User.WithoutPassword,
   commentId: Cuid
 ): ResultAsync<null, RouteError> => {
+  // https://stackoverflow.com/questions/15710162/conditional-insert-into-statement-in-postgres
   const getCommentWithPost = wrapPrismaQuery(
     'recordCommentVote.getCommentWithPost',
     prisma.comment.findUnique({
