@@ -7,7 +7,6 @@ import { protectedRoute, AppData } from 'router'
 import * as Errors from 'errors'
 import { getSingleSite } from 'db/actions'
 import { User, Site } from 'db/types'
-import { buildSite, SiteWithExpiry } from 'resources/sites'
 
 type RouteError = Errors.RouteError
 
@@ -29,8 +28,8 @@ const getAdminSite = (
     site.owner_id === adminId ? ok(site) : err(Errors.notFound())
   )
 
-export const handler = protectedRoute<SiteWithExpiry>((req, admin) =>
+export const handler = protectedRoute<Site>((req, admin) =>
   decode(siteIdDecoder, req.params.id, errorMsg).map((siteId) =>
-    getAdminSite(siteId, admin.id).map(buildSite).map(AppData.init)
+    getAdminSite(siteId, admin.id).map(AppData.init)
   )
 )
