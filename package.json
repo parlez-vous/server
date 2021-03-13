@@ -65,6 +65,6 @@
     "nodemon": "2.0.4",
     "prettier": "2.0.4",
     "ts-jest": "25.3.1",
-    "ts-unused-exports": "6.1.0"
+    "ts-unused-exports": "7.0.3"
   }
 }
