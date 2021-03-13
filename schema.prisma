@@ -14,8 +14,6 @@ generator client {
 model Site {
   id         String   @id @default(cuid())
   hostname   String   @unique
-  verified   Boolean  @default(false)
-  dns_tag    String   @unique @default(uuid())
   owner      User @relation(fields: [owner_id], references: [id])
   owner_id   String
   posts      Post[]

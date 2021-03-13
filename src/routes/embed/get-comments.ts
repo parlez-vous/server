@@ -29,7 +29,6 @@ type CommentsMap = Record<Comment['id'], FlattenedComment>
 interface CommentResponse {
   comments: CommentsMap
   topLevelComments: Array<Comment['id']>
-  siteVerified: boolean
   postId: Site['id']
 }
 
@@ -92,7 +91,6 @@ const getSiteComments = (
 
         return {
           comments: commentsMap,
-          siteVerified: site.verified,
           postId: post.id,
           topLevelComments,
         }
