@@ -1,6 +1,6 @@
 # This Dockerfile creates the Staging / Production image that runs on a remote server 
 
-FROM node:14.15-stretch
+FROM node:14.16-stretch
 
 # Create app directory
 WORKDIR /usr/app

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "engines": {
-    "node": "14.15.x"
+    "node": "14.16.x"
   },
   "scripts": {
     "build": "rm -rf ./build && tsc",
