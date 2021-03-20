@@ -1,7 +1,7 @@
 import { camelCase, isObject } from 'utils'
 import { JSONObject, JSONValues } from 'router'
 
-const dateSerializer = (date: Date): number => date.getTime()
+const dateSerializer = (date: Date): string => date.toISOString()
 
 // recursively traverse object and:
 //  - serialize dates
