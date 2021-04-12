@@ -1,0 +1,35 @@
+version: 2 # Version of dependabot
+updates:
+  - package-ecosystem: "npm" # Package manager to use
+    directory: "/" # Location of package manifests
+    # Raise pull requests for version against the `master` branch
+    target-branch: "master"
+    # How to update manifest version requirements
+    versioning-strategy: lockfile-only # Only allow updates to the lockfile and ignore any version updates that affect the manifest
+    schedule:
+      interval: "weekly" # How often to check for updates
+      # Check for updates on friday
+      day: "friday"
+      # Check for npm updates at 9 am
+      time: "09:00"
+      # Use amsterdam timezone
+      timezone: "Europe/Rome"
+    allow: # Customize which updates are allowed
+      # Allow both direct and indirect updates for all packages
+      - dependency-type: "all"
+    # Include a list of updated dependencies with a prefix determined by the dependency group
+    commit-message:
+      # Prefix all dependabot commit messages with "npm updates"
+      prefix: "new deps"
+      prefix-masterment: "new dev-deps"
+      include: "scope" # Also include the packages which were updated in the commit msg
+    open-pull-requests-limit: 2 # Limit number of open pull requests for version updates
+    pull-request-branch-name:
+      # Separate sections of the branch name with a hyphen
+      # for example, `dependabot-npm_and_yarn-next_js-acorn-6.4.1`
+      separator: "-"
+    # Auto rebasing for npm update pull requests
+    rebase-strategy: "auto"
+    # Add reviewers
+    reviewers:
+      - "aszenz"
