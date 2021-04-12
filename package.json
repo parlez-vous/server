@@ -11,8 +11,9 @@
     "lint": "eslint ./src --ext .ts",
     "format": "prettier '**/*.ts' --write && eslint ./src --ext .ts --fix",
     "typecheck": "tsc --noEmit",
-    "start:dev": "tsc --watch & NODE_ENV=development nodemon --watch ./build ./build/index.js",
-    "start": "node ./build/index.js",
+    "start:dev": "tsc --watch & NODE_ENV=development NODE_PATH=./build nodemon --watch ./build ./build/index.js",
+    "start": "NODE_PATH=./build node ./build/index.js",
+    "migrate-db:dev": "prisma migrate dev --preview-feature",
     "test": "jest",
     "watch": "tsc --watch --noEmit",
     "export-lint": "ts-unused-exports ./tsconfig.json"

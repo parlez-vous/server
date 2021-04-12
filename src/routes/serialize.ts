@@ -3,6 +3,7 @@ import { JSONObject, JSONValues } from 'router'
 
 const dateSerializer = (date: Date): number => date.getTime()
 
+
 // recursively traverse object and:
 //  - serialize dates
 //  - strip password fields

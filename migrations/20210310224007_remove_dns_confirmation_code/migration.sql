@@ -7,5 +7,4 @@
 
 */
 ALTER TABLE "sites" DROP COLUMN "dns_tag",
-DROP COLUMN "verified",
-DROP INDEX "dns_tag_unique";
+DROP COLUMN "verified";
