@@ -10,19 +10,18 @@ generator client {
   output   = "./node_modules/.prisma/client"
 }
 
-
 model Site {
   id         String   @id @default(cuid())
   hostname   String   @unique
-  owner      User @relation(fields: [owner_id], references: [id])
+  owner      User     @relation(fields: [owner_id], references: [id])
   owner_id   String
   posts      Post[]
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   @@map("sites")
+  CommentVote CommentVote[]
 }
-
 
 model User {
   id         String    @id @default(cuid())
@@ -35,57 +34,57 @@ model User {
   updated_at DateTime  @updatedAt
 
   @@map("users")
+  CommentVote CommentVote[]
 }
 
 model Comment {
-  @@map("comments")
 
-  id                String   @id @default(cuid())
-  parent            Comment? @relation(fields: [parent_comment_id], references: [id])
-  author            User?    @relation(fields: [author_id], references: [id])
+  id                String    @id @default(cuid())
+  parent            Comment?  @relation(fields: [parent_comment_id], references: [id])
+  author            User?     @relation(fields: [author_id], references: [id])
   anon_author_name  String?
-  body              String   @default("")
-  post              Post     @relation(fields: [post_id], references: [id])
+  body              String    @default("")
+  post              Post      @relation(fields: [post_id], references: [id])
   post_id           String
-  created_at        DateTime @default(now())
-  updated_at        DateTime @updatedAt
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
   replies           Comment[] @relation("CommentToComment")
   parent_comment_id String?
   author_id         String?
+  @@map("comments")
+  CommentVote CommentVote[]
 }
-
 
 model CommentVote {
-  @@map("comment_votes")
 
-  id                String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  user              User     @relation(fields: [user_id], references: [id])
-  user_id           String
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String
 
-  comment           Comment  @relation(fields: [comment_id], references: [id])
-  comment_id        String
+  comment    Comment @relation(fields: [comment_id], references: [id])
+  comment_id String
 
-  site              Site @relation(fields: [site_id], references: [id])
-  site_id           String
+  site    Site   @relation(fields: [site_id], references: [id])
+  site_id String
 
-  post              Post @relation(fields: [post_id], references: [id])
-  post_id           String
+  post    Post   @relation(fields: [post_id], references: [id])
+  post_id String
 
-  value             Int 
+  value Int
 
   @@unique([comment_id, user_id])
+  @@map("comment_votes")
 }
-
 
 // Tracks the state of the leaf nodes on a per-post basis
 model CommentTreeState {
-  @@map("comment_tree_state")
-  post               Post @relation(fields: [post_id], references: [id])
+  post               Post   @relation(fields: [post_id], references: [id])
   post_id            String @id
   comment_tree_leafs Json // ["123", "345", "545"]
-}
 
+  @@map("comment_tree_state")
+}
 
 model Post {
   id         String    @id @default(cuid())
@@ -97,5 +96,6 @@ model Post {
   updated_at DateTime  @updatedAt
 
   @@map("posts")
+  CommentVote      CommentVote[]
+  CommentTreeState CommentTreeState[]
 }
-
