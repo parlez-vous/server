@@ -1,5 +1,5 @@
 # This docker-compose file is exclusively for local development
-# hence why we create a volume mapping between the "server" image files and 
+# hence why we create a volume mapping between the "server" image files and
 # the files on your file system
 
 version: "3"
@@ -8,25 +8,26 @@ services:
   db:
     image: postgres:12.2-alpine
     environment:
-      POSTGRES_USER: 'gio'
-      POSTGRES_PASSWORD: 'testing123'
-      POSTGRES_DB: 'my_db'
+      POSTGRES_USER: "gio"
+      POSTGRES_PASSWORD: "testing123"
+      POSTGRES_DB: "my_db"
     ports:
-      - 15432:5432
+      - 5432:5432
+    volumes:
+      - db_data:/var/lib/postgresql/data
   server:
     image: parlezvous/server
-    env_file:
-      - .env
+    environment:
+      - PORT=8080
+      - DISCORD_ERROR_WEBHOOK_URL=
+      - DATABASE_URL=postgresql://gio:testing123@db:5432/my_db
     build:
       context: .
       dockerfile: Dockerfile.dev
     volumes:
-      - ./src:/usr/app/src
-        # mapping everything except the binary since Docker is running in a different OS
-      - ./node_modules/.prisma/client/index.js:/usr/app/node_modules/.prisma/client/index.js
-      - ./node_modules/.prisma/client/index.d.ts:/usr/app/node_modules/.prisma/client/index.d.ts
-      - ./node_modules/.prisma/client/package.json:/usr/app/node_modules/.prisma/client/package.json
-      - ./node_modules/.prisma/client/schema.prisma:/usr/app/node_modules/.prisma/client/schema.prisma
+      - ./src:/usr/app/src # only sync src, this is the most reliable option
     ports:
       - 8080:8080
 
+volumes:
+  db_data: {}

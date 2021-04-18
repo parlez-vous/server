@@ -16,9 +16,7 @@ COPY bootstrap-server-dev.sh ./
 COPY src/ ./src
 COPY schema.prisma ./
 
-RUN npm install && \
-    npm run build && \
-    npx prisma generate
+# post-install cmd automatically generates prisma files
+RUN npm install 
 
 CMD [ "/usr/app/bootstrap-server-dev.sh" ]
-

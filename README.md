@@ -11,12 +11,11 @@ Context: https://discourse.elm-lang.org/t/parlezvous-disqus-alternative-built-in
 - Docker
 - Docker-Compose  ([link](https://docs.docker.com/compose/install/))
 
-You need a `.env` file at the root of the project
-
 Then run `docker-compose up`
 
 This will boot up a postgresql db, then run migrations on the db and then start a nodejs server.
 
-See `docker-compose.yml` for exposed ports for database and server.
+Open `localhost:8080/health-check` to confirm the api is working
 
+After making any changes outside src, run `docker-compose build -d` again, this will rebuild the container with the new changes. 
 

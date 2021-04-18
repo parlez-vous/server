@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
@@ -9,7 +9,8 @@ echo "Sleeping for $timer seconds"
 
 sleep $timer
 
-# NODE_PATH=./build is the runtime version of tsconfig's "baseUrl" setting
-# https://stackoverflow.com/questions/42582807/typescript-baseurl-with-node-js
+echo "Running migrations"
+npm run migrate-db:prod
+
 echo "Starting server"
-NODE_PATH=./build npm run start:dev
+npm run start:dev
