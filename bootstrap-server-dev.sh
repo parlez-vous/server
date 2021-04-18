@@ -12,5 +12,5 @@ sleep $timer
 echo "Running migrations"
 npm run migrate-db:prod
 
-echo "Starting server"
+echo "Starting dev server"
 npm run start:dev

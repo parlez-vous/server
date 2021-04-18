@@ -17,5 +17,5 @@ This will boot up a postgresql db, then run migrations on the db and then start 
 
 Open `localhost:8080/health-check` to confirm the api is working
 
-After making any changes outside src, run `docker-compose build -d` again, this will rebuild the container with the new changes. 
+After making any changes outside src (like adding a new migration or a new package), run `docker-compose up --build` again, this will rebuild the container with the new changes. 
 

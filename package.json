@@ -2,7 +2,6 @@
   "name": "beta-parlez-vous",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
   "engines": {
     "node": "14.15.x"
   },
@@ -11,7 +10,7 @@
     "lint": "eslint ./src --ext .ts",
     "format": "prettier '**/*.ts' --write && eslint ./src --ext .ts --fix",
     "typecheck": "tsc --noEmit",
-    "start:dev": "tsc --watch & NODE_ENV=development NODE_PATH=./build nodemon --watch ./build ./build/index.js",
+    "start:dev": "(tsc --watch &) && NODE_ENV=development NODE_PATH=./build nodemon --watch ./build ./build/index.js",
     "start": "NODE_PATH=./build node ./build/index.js",
     "migrate-db:dev": "prisma migrate dev --preview-feature",
     "migrate-db:prod": "prisma migrate deploy",
