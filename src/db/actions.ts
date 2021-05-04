@@ -266,6 +266,33 @@ export const getComments = (
     (_prismaError) => Errors.other('get comments')
   )
 
+/**
+ * Gets the latest comments on the site
+ */
+export const getLatestSiteComments = (
+  siteId: string,
+): ResultAsync<Comment.WithAuthorAndPost[], RouteError> =>
+  ResultAsync.fromPromise(
+    prisma.comment.findMany({
+      distinct: 'id',
+      include: {
+        author: true,
+        post: true
+      },
+      where: {
+        post: {
+          site: {
+            is: {
+              id: siteId,
+            },
+          },
+        },
+      },
+      orderBy: { created_at: 'desc' }
+    }),
+    (_prismaError) => Errors.other('get latest site comments')
+  )
+
 export const createComment = (
   postId: string,
   { body, parentCommentId, authorId, anonAuthorName }: Comment.Raw

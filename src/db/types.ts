@@ -50,6 +50,11 @@ export namespace Comment {
     author: Nullable<User>
   }
 
+  export type WithAuthorAndPost = Comment & {
+    post: Post,
+    author: Nullable<User>
+  }
+
   // This is the "raw" query response from prisma
   // Recursive comment tree
   export type WithRepliesAndAuthor = WithAuthor & {
