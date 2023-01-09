@@ -43,7 +43,7 @@
     "goby": "^1.1.2",
     "helmet": "4.1.1",
     "lodash": "^4.17.21",
-    "luxon": "^1.26.0",
+    "luxon": "^2.5.2",
     "neverthrow": "^4.2.1",
     "prisma-client-lib": "^1.34.12",
     "response-time": "^2.3.2",
